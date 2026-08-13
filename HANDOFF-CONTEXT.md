@@ -24,7 +24,7 @@ Written in English for precision; all user-facing content is Arabic (Egyptian di
 
 ## 2. Current deliverable
 
-**`دليل-التربية-الشامل-v2.html`** (same folder) — single self-contained HTML, ~560 KB, RTL, tabbed SPA, no build step. Google Fonts (Aref Ruqaa + IBM Plex Sans Arabic) + outbound links only.
+**`index.html`** (renamed from دليل-التربية-الشامل-v2.html by the user, who also initialized a git repo here for deployment) — single self-contained HTML, ~1.3 MB, RTL, tabbed SPA, no build step. Google Fonts (Aref Ruqaa + IBM Plex Sans Arabic) + outbound links only. Site name: **«قُرّة عين»** (user's pick). Tabs now include a standalone **المواقف** tab (42 deep situation cards, 5 groups) and the ref has **25 sections** in 6 TOC groups; an **age selector** (سن طفلك, 3-12) sits in the header and filters values/plan/activities via their age:[min,max] fields, persisted in localStorage.
 
 Also in folder: `decisions.md` (architecture decisions log — keep updating it), this handoff.
 Backups of every risky splice are in the session scratchpad (`backup-*.html`).
