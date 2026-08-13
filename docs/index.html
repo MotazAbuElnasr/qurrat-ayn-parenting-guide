@@ -193,8 +193,10 @@ p.src a{color:var(--soft)}
 .school p{margin:4px 0 0;font-size:14px}
 footer{margin-top:44px;padding-top:18px;border-top:2px solid var(--ink);font-size:13.5px;color:var(--soft)}
 footer b{color:var(--ink)}
-footer .gh{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:5px 11px;border:1px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;font-size:13px;direction:ltr}
-footer .gh:hover{background:var(--line)}
+.brand .gh{align-self:center;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);text-decoration:none;font-size:12.5px;font-weight:600;direction:ltr;white-space:nowrap}
+.brand .gh:hover{background:var(--line)}
+/* ponytail: on phones the brand row can't hold title+subtitle+age+star — drop the subtitle and the star's label */
+@media (max-width:640px){.brand .ghl{display:none}.brand>span{display:none}.brand{gap:8px}}
 @media(max-width:620px){
  .slot,.wk,.sit .row{grid-template-columns:1fr;gap:4px}
  .layer{grid-template-columns:44px 1fr;gap:4px 10px}
@@ -219,7 +221,8 @@ nav.toc.toc2 .tocr{border-top:1px solid #EFF1ED;padding-top:7px;margin-top:2px}
 <body>
 <div class="top"><div class="inner">
  <div class="brand"><b>قُرّة عين</b><span>مرجع التربية · 3-5 سنين</span>
-  <label class="agebar">سن طفلك <select id="ageSel"></select></label></div>
+  <label class="agebar">سن طفلك <select id="ageSel"></select></label>
+  <a class="gh" href="https://github.com/MotazAbuElnasr/qurrat-ayn-parenting-guide" target="_blank" rel="noopener">★<span class="ghl"> Star on GitHub</span> <b class="ghstars"></b></a></div>
  <div class="tabs" id="tabs" role="tablist"></div>
 </div></div>
 <div class="wrap" style="padding-bottom:0"><div id="agenote" class="warn" style="display:none"><b>ملاحظة عن السن المختار:</b> القيم المعروضة لسه صالحة للسن ده، بس الخطوات والأنشطة هنا مكتوبة بعمق 3-5 سنين — استخدمها كأساس وكيّف الصعوبة لسن طفلك.</div></div>
@@ -2193,9 +2196,7 @@ $("food").innerHTML=`<h1>الأكل واللانش بوكس</h1>
   b.onclick=()=>{[...rf.children].forEach(x=>x.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true");
    [...rt.children].forEach(tr=>tr.classList.toggle("hidden",!(g==="الكل"||tr.dataset.k===g)));};rf.appendChild(b);});
 }
-const GH="https://github.com/MotazAbuElnasr/qurrat-ayn-parenting-guide";
-[...app.children].forEach(s=>s.appendChild(el(`<footer><p><b>الاستمرارية أهم من الكمال.</b> 3 أيام في الأسبوع لمدة سنتين أقوى من 7 أيام لمدة شهر.</p>
-<a class="gh" href="${GH}" target="_blank" rel="noopener">★ Star on GitHub <b class="ghstars"></b></a></footer>`)));
+[...app.children].forEach(s=>s.appendChild(el(`<footer><p><b>الاستمرارية أهم من الكمال.</b> 3 أيام في الأسبوع لمدة سنتين أقوى من 7 أيام لمدة شهر.</p></footer>`)));
 /* ponytail: star count is best-effort — offline/rate-limited just leaves the plain link */
 fetch("https://api.github.com/repos/MotazAbuElnasr/qurrat-ayn-parenting-guide").then(r=>r.json())
  .then(d=>{if(typeof d.stargazers_count==="number")document.querySelectorAll(".ghstars").forEach(e=>e.textContent=d.stargazers_count)}).catch(()=>{});
