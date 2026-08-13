@@ -1,0 +1,6 @@
+{
+  "name": "qurrat-ain",
+  "compatibility_date": "2026-08-01",
+  "assets": { "directory": "./docs" },
+  "routes": [{ "pattern": "qurrat-ain.aro.day", "custom_domain": true }]
+}
