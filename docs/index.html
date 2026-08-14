@@ -3371,12 +3371,33 @@ window.openSheet=(title,model)=>{
  if(innerWidth>=760)setTimeout(()=>sheetQ.focus(),60);
 };
 
+/* Anything sticky at the top hides the target unless we stop short of it.
+   Measure it — the header grows when the age filter shows a chip. */
+function stickyTop(){
+ let h=0;
+ document.querySelectorAll("body *").forEach(el=>{
+  const cs=getComputedStyle(el);
+  if(cs.position!=="sticky"&&cs.position!=="fixed")return;
+  const top=parseFloat(cs.top);
+  // where it will sit once stuck, not where it happens to be right now
+  if(!isFinite(top)||top<0||top>300)return;
+  const hgt=el.getBoundingClientRect().height;
+  if(hgt)h=Math.max(h,top+hgt);
+ });
+ return h+12;
+}
+window.scrollToEl=el=>{
+ const y=el.getBoundingClientRect().top+scrollY-stickyTop();
+ window.scrollTo({top:Math.max(0,y),behavior:"smooth"});
+};
+
 /* per-tab index model: groups of {label, sub, run()} */
 function indexFor(id){
  const v=$(id);
  const label=h=>h.textContent.replace(/\(.*?\)/g,"").replace(/^[0-9]+ · /,"").trim();
  const scrollTo=elm=>{window.__navLock=Date.now()+1200;openSub(elm);
-  requestAnimationFrame(()=>elm.scrollIntoView({behavior:"smooth",block:"start"}));};
+  // two frames: one for the sub-page swap, one for the layout it triggers
+  requestAnimationFrame(()=>requestAnimationFrame(()=>scrollToEl(elm)));};
  if(id==="values"){
   const LVNAME={1:"الأساس",2:"البناء",3:"التوسع",4:"العمق"};
   return [1,2,3,4].map(l=>({g:`المستوى ${l} — ${LVNAME[l]}`,
@@ -3459,7 +3480,7 @@ window.openSub=node=>{
  [...wrap.querySelectorAll(".subpage")].forEach(x=>x.classList.toggle("on",x===box));
  [...nav.children].forEach(b=>b.setAttribute("aria-pressed",String(b.textContent===box.dataset.p)));
 };
-window.secGo=(tab,match)=>{go(tab);setTimeout(()=>{const h=[...$(tab).querySelectorAll("h2.sec")].find(x=>x.textContent.includes(match.replace(/^[0-9]+ · /,"")));if(h){openSub(h);window.__navLock=Date.now()+1200;h.scrollIntoView({behavior:"smooth",block:"start"});}},90);};
+window.secGo=(tab,match)=>{go(tab);setTimeout(()=>{const h=[...$(tab).querySelectorAll("h2.sec")].find(x=>x.textContent.includes(match.replace(/^[0-9]+ · /,"")));if(h){openSub(h);window.__navLock=Date.now()+1200;requestAnimationFrame(()=>requestAnimationFrame(()=>scrollToEl(h)));}},90);};
 const setTop=()=>document.documentElement.style.setProperty("--toph",document.querySelector(".top").offsetHeight+"px");
 setTop();addEventListener("resize",setTop);
 /* ===== sub-pages: turn one long tab into a few short ones ===== */
@@ -3483,7 +3504,7 @@ Object.entries(SUBPAGES).forEach(([tab,pages])=>{
  let cur=-1,intro=[];
  kids.forEach(k=>{
   if(k.tagName==="H2"&&k.classList.contains("sec")){const i=startOf(k);if(i>=0)cur=i;}
-  if(k.tagName==="FOOTER"||k.classList.contains("navbar"))return;
+  if(k.tagName==="FOOTER")return;
   if(cur<0)intro.push(k);else boxes[cur].appendChild(k);
  });
  // numbers ran 1..27 across the whole tab, so a page would read 4, 12, 16, 21 —
@@ -3500,8 +3521,7 @@ Object.entries(SUBPAGES).forEach(([tab,pages])=>{
   [...nav.children].forEach(x=>x.setAttribute("aria-pressed","false"));
   b.setAttribute("aria-pressed","true");
   boxes.forEach((x,i)=>x.classList.toggle("on",i===+b.dataset.i));
-  const y=nav.getBoundingClientRect().top+scrollY-(parseInt(getComputedStyle(document.documentElement).getPropertyValue("--toph"))||86)-14;
-  window.scrollTo({top:y,behavior:"smooth"});};
+  scrollToEl(nav);};
  // a handful of pages browse fine on their own; 27 sections still need search
  if(v.querySelectorAll("h2.sec").length<12){const bar=v.querySelector(".navbar");if(bar)bar.remove();}
 });
