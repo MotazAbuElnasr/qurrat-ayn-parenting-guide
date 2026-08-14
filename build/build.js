@@ -56,6 +56,25 @@ function check(file) {
     if (dead.size > 10) problems.push(`… و${dead.size - 10} وصلة ميتة كمان`);
   }
 
+  /* The sub-page maps match on heading text, and headings are translated. A marker
+     that matches nothing does not error — the splitter just leaves that section
+     with whichever group matched last, so the pages quietly fill up wrong. */
+  if (b.nav && b.prose) {
+    const heads = html => [...String(html).matchAll(/<h2 class="sec">([\s\S]*?)<\/h2>/g)]
+      .map(m => m[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim());
+    const refHeads = heads(b.prose.ref);
+    const seen = new Set();
+    for (const [group, marks] of Object.entries(b.nav.toc2 || {}))
+      for (const m of marks) {
+        const hit = refHeads.filter(h => h.includes(m));
+        if (!hit.length) problems.push(`علامة قسم مش بتطابق أي عنوان: «${m}» في «${group}»`);
+        else if (hit.length > 1) problems.push(`علامة قسم بتطابق ${hit.length} عناوين: «${m}»`);
+        hit.forEach(h => seen.add(h));
+      }
+    const missed = refHeads.filter(h => !seen.has(h));
+    if (missed.length) problems.push(`${missed.length} قسم مش في أي مجموعة، أولهم «${missed[0].slice(0, 40)}»`);
+  }
+
   const counts = Object.fromEntries(ARRAYS.filter(n => b.data?.[n]).map(n => [n, b.data[n].length]));
   return { d, problems, counts, size: fs.statSync(file).size };
 }
