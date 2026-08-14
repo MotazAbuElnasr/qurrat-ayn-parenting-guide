@@ -1290,9 +1290,10 @@ function stickyTop(){
    after we aimed, and the jump ends up thousands of pixels off.
    So: put the skipped blocks back, reveal the target, aim — then keep re-aiming
    until the target holds still for three frames. */
-let __cvOff=0;
+let __cvOff=0,__jump=0;
 window.scrollToEl=el=>{
  if(!el)return;
+ const mine=++__jump;                      // a newer jump owns the scroll; this one lets go
  if(window.openSub)openSub(el);            // a target on a closed sub-page has no position
  // picking from the index names one thing. If the age filter is what's hiding it,
  // the reader lands on an empty list instead, so the filter gives way and says so.
@@ -1310,13 +1311,15 @@ window.scrollToEl=el=>{
  const first=aim();
  // a smooth glide reads well next door and is just a long wait across the tab
  window.scrollTo({top:first,behavior:Math.abs(first-scrollY)<innerHeight*1.2?"smooth":"auto"});
- // the moment the reader scrolls themselves, the landing is theirs to finish
+ // the moment the reader scrolls themselves, the landing is theirs to finish.
+ // touchmove, not touchstart — a finger landing on the screen is not a scroll,
+ // and treating every tap as one strands the jump wherever it had got to.
  const ac=new AbortController();let taken=false;
- ["wheel","touchstart","keydown"].forEach(t=>
+ ["wheel","touchmove","keydown"].forEach(t=>
   addEventListener(t,()=>{taken=true;},{passive:true,signal:ac.signal}));
  let n=0,hold=0,last=-1;
  const settle=()=>{
-  if(taken)return stop();
+  if(taken||mine!==__jump)return stop();
   if(scrollY===last){                      // only correct once the scroll is at rest
    const y=aim();
    if(Math.abs(y-scrollY)<=1)hold++;else{hold=0;window.scrollTo(0,y);}
@@ -1328,11 +1331,22 @@ window.scrollToEl=el=>{
  // handing the page back to content-visibility can nudge it, so aim once more
  // afterwards — where we come to rest is measured on the page the reader gets
  const finish=()=>{
-  const y0=scrollY;stop();
+  const y0=scrollY,ours=mine===__jump;stop();
   void document.body.offsetHeight;
-  if(!taken){const y=aim();if(Math.abs(y-y0)>1)window.scrollTo(0,y);}
+  if(!taken&&ours){const y=aim();if(Math.abs(y-y0)>1)window.scrollTo(0,y);}
+  // a web font arriving late re-flows every heading under it, and Safari has no
+  // scroll anchoring to absorb that. Re-aim once when the fonts are really in —
+  // but only if they arrive while the reader is still where we put them.
+  if(document.fonts&&document.fonts.status!=="loaded"){
+   const by=Date.now()+4000;
+   document.fonts.ready.then(()=>{
+    if(taken||mine!==__jump||Date.now()>by)return;
+    const y=aim();if(Math.abs(y-scrollY)>1)window.scrollTo(0,y);
+   });
+  }
  };
- const stop=()=>{ac.abort();document.documentElement.classList.remove("nocv");};
+ // only the jump that still owns the scroll hands content-visibility back
+ const stop=()=>{ac.abort();if(mine===__jump)document.documentElement.classList.remove("nocv");};
  requestAnimationFrame(settle);
 };
 
