@@ -24,10 +24,10 @@ body{margin:0;background:var(--paper);color:var(--ink);
 a{color:var(--a)}
 .top{position:sticky;top:0;z-index:30;background:rgba(233,237,231,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
 .top .inner{max-width:1240px;margin:0 auto;padding:10px 16px}
-.brand{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
-.brand .mark{width:30px;height:30px;flex:0 0 auto;border-radius:8px;margin-inline-end:9px}
-@media(max-width:620px){.brand .mark{width:26px;height:26px;margin-inline-end:7px}}
-.brand b{font-family:"Aref Ruqaa",serif;font-size:19px}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.brand .mark{width:36px;height:36px;flex:0 0 auto;border-radius:8px;margin-inline-end:9px}
+@media(max-width:620px){.brand .mark{width:30px;height:30px;margin-inline-end:7px}}
+.brand b{font-family:"Aref Ruqaa",serif;font-size:25px;line-height:1.15}
 .brand span{font-size:12px;color:var(--soft)}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
 .tabs button{flex:0 0 auto;font:inherit;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink);
@@ -193,9 +193,9 @@ footer{margin-top:44px;padding-top:18px;border-top:2px solid var(--ink);font-siz
 footer b{color:var(--ink)}
 .brand .gh{align-self:center;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);text-decoration:none;font-size:12.5px;font-weight:600;direction:ltr;white-space:nowrap}
 .brand .gh:hover{background:var(--line)}
+.brand .gh .ghstars{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11.5px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;background:#EFF2ED;border-radius:999px;padding:2px 7px;margin-inline-start:2px}
 /* ponytail: on phones the brand row can't hold title+subtitle+age+star — drop the subtitle and the star's label */
 @media (max-width:640px){.brand .ghl{display:none}
-.gh .ghstars{font-size:12.5px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
 .gh>*{display:inline-flex;align-items:center;line-height:1}.brand>span{display:none}.brand{gap:8px}}
 @media(max-width:620px){
  input,select,textarea,.cform input,.cform textarea,.cform select,input[type=search]{font-size:16px}
@@ -217,6 +217,38 @@ article.sit{scroll-margin-top:calc(var(--toph,86px) + 68px)}
 .biasbar .tr{background:#EFF1ED;border-radius:999px;height:9px;overflow:hidden}
 .biasbar .fl{height:100%;background:var(--c1);border-radius:999px}
 .biasbar .pc{font-size:12px;color:var(--soft);font-variant-numeric:tabular-nums}
+/* sub-pages inside a tab */
+.subnav{display:flex;gap:7px;overflow-x:auto;padding:2px 0 10px;margin-bottom:4px}
+.subnav button{flex:0 0 auto;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;background:var(--card);
+ border:1px solid var(--line);border-radius:11px;padding:9px 16px;color:var(--ink)}
+.subnav button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.subpage{display:none}
+.subpage.on{display:block}
+.subpage>h2.sec:first-child{margin-top:6px;border-top:0;padding-top:0}
+/* only lay out what is actually on screen */
+.v,.sit,.cpost{content-visibility:auto;contain-intrinsic-size:auto 420px}
+.card,.meal{content-visibility:auto;contain-intrinsic-size:auto 150px}
+.school,.panel,.layer,.m{content-visibility:auto;contain-intrinsic-size:auto 200px}
+table{content-visibility:auto;contain-intrinsic-size:auto 300px}
+@media print{.v,.sit,.cpost,.card,.meal,.school,.panel,.layer,.m,table{content-visibility:visible}}
+/* value card sections */
+.v>*+*{margin-top:11px}
+.vhow{margin:0;font-size:14.5px;line-height:1.75;background:#F4F7F3;border-inline-start:3px solid var(--vc);padding:9px 12px;border-radius:0 9px 9px 0}
+.vsec{border-top:1px solid var(--line);padding-top:10px}
+.vlab{margin:0 0 6px;font-size:12px;font-weight:800;color:var(--soft);letter-spacing:.2px}
+.v .wk{grid-template-columns:26px 1fr}
+.v .wk>b{width:22px;height:22px;border-radius:50%;background:var(--mc);color:#fff;display:grid;place-content:center;font-size:12px}
+.v .act1 .wk>b{width:auto;height:auto;border-radius:0;background:none;color:var(--mc);display:block;font-size:12px;padding-top:2px}
+.v .act1 .wk{grid-template-columns:54px 1fr}
+.stept{font-size:14px;color:var(--ink)}
+.stepsay{margin-top:5px;color:#2F5D50;font-weight:600;font-size:13.5px}
+.vmastery{margin:0;font-size:14.5px;line-height:1.75;background:#FBF6EA;border:1px dashed #C9A94E;padding:9px 12px;border-radius:10px}
+.vmastery span{color:#54615B}
+.vsay{margin:0;font-size:14.5px;background:#F6F7F5;border-radius:9px;padding:8px 12px}
+.deen .dskill{margin:7px 0 0;padding-top:7px;border-top:1px solid #CBE0D2;font-size:13.5px;color:#33413A}
+.act1{padding:10px 0;border-bottom:1px solid #F0F2EE}
+.act1:last-child{border-bottom:0}
+.act1 h5{margin:0 0 5px;font-size:14.5px;color:var(--ink)}
 /* meals */
 .meal{background:var(--card);border:1px solid var(--line);border-inline-start:5px solid var(--mc2);
  border-radius:var(--r);margin:10px 0;padding:14px 16px}
@@ -318,7 +350,7 @@ details.vx[data-k="evi"] summary{color:#2F6E86}
 h2.sec,article.sit,article.v{scroll-margin-top:calc(var(--toph,86px) + 62px)}
 @media(max-width:620px){
  .top .inner{padding-top:7px;padding-bottom:7px}
- .brand b{font-size:16px}
+ .brand b{font-size:20px}
  .brand span{font-size:11px}
  .tabs button{padding:6px 11px;font-size:12.5px}
  .navbar{padding:5px 0;margin-bottom:6px}
@@ -1539,7 +1571,7 @@ const $=id=>document.getElementById("v-"+id);
 $("home").innerHTML=`
 <div class="hero">
  <h1>كل التربية في مكان واحد</h1>
- <p class="lede">من مسار القيم الكامل، للموقف اللي حاصل قدامك دلوقتي، للقصة اللي تقراها الليلة — لطفل في الطفولة المبكرة، بعمق عربي مسلم، وكل لينك فيه متحقق منه.</p>
+ <p class="lede">قيم تزرعها على مهلك، مواقف يومية وانت في نصها، قصص وأنشطة ووجبات لطفل في الطفولة المبكرة — وجزء إسلامي في كل قيمة.</p>
  <div class="stats"><span class="stat"><b>${VALUES.length}</b> قيمة</span><span class="stat"><b>${SITS.length}</b> موقف</span><span class="stat"><b>${ST.length+STX.length}</b> قصة</span><span class="stat"><b>${VID.length}</b> فيديو وبلاي ليست</span><span class="stat"><b>${ACT.length}</b> نشاط</span><span class="stat"><b>${MEALS.length}</b> وجبة</span><span class="stat"><b>26</b> قسم مرجعي</span></div>
 </div>
 
@@ -2290,22 +2322,38 @@ ${(()=>{const c={strong:0,moderate:0,practice:0};VALUES.forEach(v=>{if(v.evi)c[v
   vl.appendChild(el(
   `<article class="v" style="--vc:${C[v.cat]}" data-cat="${v.cat}" data-name="${v.name}" data-lvl="${v.lvl}" data-amin="${v.age[0]}" data-amax="${v.age[1]}" data-txt="${(v.name+" "+v.steps.map(x=>x.t).join(" ")+" "+v.acts.map(a=>a.t+" "+a.run).join(" ")+" "+v.say+" "+v.how).toLowerCase()}">
    <div class="v-head"><h3>${v.name}</h3><span class="cat">${v.cat}</span><span class="age">${v.age[0]}–${v.age[1]} سنين</span><span class="age">المستوى ${v.lvl} · ${v.ord}</span>${v.evi?`<span class="evi evi-${v.evi.c}" title="قوة الأدلة وراء الطريقة دي">${({strong:"أدلة قوية",moderate:"أدلة متوسطة",practice:"ممارسة شائعة"})[v.evi.c]}</span>`:""}</div>
-   ${v.how?`<p style="margin:8px 0 0;font-size:14.5px;background:#F4F7F3;border-inline-start:3px solid ${C[v.cat]};padding:8px 11px;border-radius:0 8px 8px 0"><b>الطريقة:</b> ${v.how}</p>`:""}
-   <div style="margin-top:9px">${v.steps.map((x,i)=>`<div class="wk" style="--mc:${C[v.cat]}"><b>الخطوة ${i+1}</b><div><b style="font-size:14px;color:var(--ink)">${x.t}.</b> ${x.d}<div style="margin-top:5px;color:#2F5D50;font-weight:600;font-size:13.5px">قولها: «${x.say}»</div></div></div>`).join("")}</div>
-   <p style="margin:9px 0 0;font-size:14.5px;background:#FBF6EA;border:1px dashed #C9A94E;padding:8px 11px;border-radius:10px"><b>علامة الإتقان:</b> ${v.mastery} <span style="color:#54615B">— شفتها بتتكرر من غير تدخل منك؟ القيمة ثبتت.</span></p>
+
+   ${v.how?`<p class="vhow"><b>الطريقة:</b> ${v.how}</p>`:""}
+
+   <div class="vsec"><h4 class="vlab">الخطوات — على مهلك، مفيش مواعيد</h4>
+    ${v.steps.map((x,i)=>`<div class="wk" style="--mc:${C[v.cat]}"><b>${i+1}</b><div><b class="stept">${x.t}.</b> ${x.d}<div class="stepsay">قولها: «${x.say}»</div></div></div>`).join("")}</div>
+
+   <p class="vmastery"><b>علامة الإتقان:</b> ${v.mastery} <span>— شفتها بتتكرر من غير تدخل منك؟ القيمة ثبتت، انتقل للي بعدها.</span></p>
+
+   <div class="deen"><h4>المحور الإسلامي — ${v.deen[0]}</h4><p>${v.deen[1]}</p>
+    <p class="dskill"><b>مهارة عملية جنبها:</b> ${v.skill}</p></div>
+
+   <p class="vsay">الجملة اللي بتتكرر: <b>«${v.say}»</b></p>
+
+   <details class="vx" data-k="act"><summary>نشاطين تعملهم معاه (${v.acts.length})</summary>
+    ${v.acts.map(a=>`<div class="act1"><h5>${a.t}</h5>
+     <div class="wk" style="--mc:${C[v.cat]}"><b>المواد</b><div>${a.mat}</div></div>
+     <div class="wk" style="--mc:${C[v.cat]}"><b>التجهيز</b><div>${a.prep}</div></div>
+     <div class="wk" style="--mc:${C[v.cat]}"><b>التنفيذ</b><div>${a.run}</div></div></div>`).join("")}</details>
+
    ${v.mistakes&&v.mistakes.length?`<details class="vx" data-k="mis"><summary>أخطاء شائعة بتكسر القيمة دي (${v.mistakes.length})</summary>${v.mistakes.map(m=>`<div class="mx"><p class="mm">${m.m}</p><p class="mf"><b>البديل:</b> ${m.fix}</p></div>`).join("")}</details>`:""}
-   ${v.adapt&&v.adapt.length?`<details class="vx" data-k="adp"><summary>لو طفلك مختلف — تكييف الطريقة</summary>${v.adapt.map(a=>`<div class="mx"><p class="mm">الطفل ${a.kid}</p><p class="mf">${a.how}</p></div>`).join("")}</details>`:""}
+
+   ${v.adapt&&v.adapt.length?`<details class="vx" data-k="adp"><summary>لو طفلك مختلف — تكييف الطريقة</summary>${v.adapt.map(x=>`<div class="mx"><p class="mm">الطفل ${x.kid}</p><p class="mf">${x.how}</p></div>`).join("")}</details>`:""}
+
    ${v.evi?`<details class="vx" data-k="evi"><summary>الطريقة دي جاية منين؟ (${({strong:"أدلة قوية",moderate:"أدلة متوسطة",practice:"ممارسة شائعة"})[v.evi.c]})</summary>
     <p style="margin:8px 0 0;font-size:14px;line-height:1.75">${v.evi.why}</p>
     ${v.evi.schools.length?`<p style="margin:7px 0 0;font-size:13px;color:#54615B"><b>المدارس:</b> ${v.evi.schools.join(" · ")}</p>`:""}
     ${v.evi.src.length?`<ul class="evisrc">${v.evi.src.map(x=>`<li>${x.k?`<span class="k">${x.k}</span>`:""}${x.u?`<a href="${x.u}" target="_blank" rel="noopener">${x.t}</a>`:x.t}</li>`).join("")}</ul>`:""}
    </details>`:""}
-   <ul class="acts">${v.acts.map(a=>`<li><b>${a.t}</b><div class="wk" style="--mc:${C[v.cat]}"><b>المواد</b><div>${a.mat}</div></div><div class="wk" style="--mc:${C[v.cat]}"><b>التجهيز</b><div>${a.prep}</div></div><div class="wk" style="--mc:${C[v.cat]}"><b>التنفيذ</b><div>${a.run}</div></div></li>`).join("")}</ul>
-   <div class="deen"><h4>المحور الإسلامي — ${v.deen[0]}</h4><p>${v.deen[1]}</p></div>
-   <p class="say" style="background:#F1F5FA;border-inline-start:3px solid #2F6E86;border-radius:0 8px 8px 0"><b>مهارة عملية جنب القيمة:</b> ${v.skill}</p>
-   <p class="say">الجملة: <b>«${v.say}»</b></p>
-   <div class="chips">${v.src.map(([k,t,u])=>`<a class="chip" href="${u}" target="_blank" rel="noopener">${t} <i>${k}</i></a>`).join("")}
-   ${stF.map(s=>`<a class="chip" href="${S(s[1],s[2])}" target="_blank" rel="noopener">${s[0]} <i>قصة · مجاني</i></a>`).join("")}${stox.map(x=>`<a class="chip" href="${x[2]}" target="_blank" rel="noopener">${x[1]} <i>قصة · ${x[0]}</i></a>`).join("")}${stP.map(s=>`<a class="chip" href="${S(s[1],s[2])}" target="_blank" rel="noopener">${s[0]} <i>عصافير · مميز</i></a>`).join("")}${VID.filter(x=>x[5].includes(v.name)).slice(0,4).map(x=>`<a class="chip" href="${x[4]}" target="_blank" rel="noopener">${x[3]} <i>${x[1]==="playlist"?"بلاي ليست":"فيديو"}</i></a>`).join("")}</div></article>`));});});
+
+   <details class="vx" data-k="src"><summary>اقرا واتفرج على القيمة دي (${v.src.length+stF.length+stox.length+stP.length+VID.filter(x=>x[5].includes(v.name)).slice(0,4).length})</summary>
+    <div class="chips">${v.src.map(([k,t,u])=>`<a class="chip" href="${u}" target="_blank" rel="noopener">${t} <i>${k}</i></a>`).join("")}${stF.map(x=>`<a class="chip" href="${S(x[1],x[2])}" target="_blank" rel="noopener">${x[0]} <i>قصة · مجاني</i></a>`).join("")}${stox.map(x=>`<a class="chip" href="${x[2]}" target="_blank" rel="noopener">${x[1]} <i>قصة · ${x[0]}</i></a>`).join("")}${stP.map(x=>`<a class="chip" href="${S(x[1],x[2])}" target="_blank" rel="noopener">${x[0]} <i>عصافير · مميز</i></a>`).join("")}${VID.filter(x=>x[5].includes(v.name)).slice(0,4).map(x=>`<a class="chip" href="${x[4]}" target="_blank" rel="noopener">${x[3]} <i>${x[1]==="playlist"?"بلاي ليست":"فيديو"}</i></a>`).join("")}</div></details>
+  </article>`));});;});
  const vf=document.getElementById("vf"),vs=document.getElementById("vs"),vc=document.getElementById("vc");
  let cur="الكل";
  const ap=()=>{const q=vs.value.trim().toLowerCase();let n=0;
@@ -2954,6 +3002,45 @@ addEventListener("scroll",()=>{tt.style.display=scrollY>600?"block":"none"});
 window.secGo=(tab,match)=>{go(tab);setTimeout(()=>{const h=[...$(tab).querySelectorAll("h2.sec")].find(x=>x.textContent.includes(match.replace(/^[0-9]+ · /,"")));if(h){window.__navLock=Date.now()+1200;h.scrollIntoView({behavior:"smooth",block:"start"});}},90);};
 const setTop=()=>document.documentElement.style.setProperty("--toph",document.querySelector(".top").offsetHeight+"px");
 setTop();addEventListener("resize",setTop);
+/* ===== sub-pages: turn one long tab into a few short ones ===== */
+const SUBPAGES={food:[
+ ["اقتراح وجبة",["اقترحلي وجبة"]],
+ ["بنك الوجبات",["بنك الوجبات"]],
+ ["اللانش بوكس",["اللانش بوكس","لما يرفض الأكل"]],
+ ["قواعد التغذية",["التغذية 1","التغذية 2","التغذية 3","التغذية 4","التغذية 5"]],
+]};
+Object.entries(SUBPAGES).forEach(([tab,pages])=>{
+ const v=$(tab);if(!v)return;
+ [...v.children].forEach(k=>{
+  if(k.tagName==="DIV"&&!k.className&&k.querySelector("h2.sec")){
+   while(k.firstChild)v.insertBefore(k.firstChild,k);
+   k.remove();}
+ });
+ const kids=[...v.children];
+ // everything before the first grouped heading is the tab's own intro and stays put
+ const startOf=h=>pages.findIndex(([,marks])=>marks.some(m=>h.textContent.includes(m)));
+ const boxes=pages.map(([name])=>el(`<div class="subpage" data-p="${name}"></div>`));
+ let cur=-1,intro=[];
+ kids.forEach(k=>{
+  if(k.tagName==="H2"&&k.classList.contains("sec")){const i=startOf(k);if(i>=0)cur=i;}
+  if(k.tagName==="FOOTER"||k.classList.contains("navbar"))return;
+  if(cur<0)intro.push(k);else boxes[cur].appendChild(k);
+ });
+ const nav=el(`<div class="subnav">${pages.map(([n],i)=>`<button data-i="${i}" aria-pressed="${i===0?"true":"false"}">${n}</button>`).join("")}</div>`);
+ const after=intro[intro.length-1]||v.firstChild;
+ after.after(nav);
+ boxes.forEach((b,i)=>{if(i===0)b.classList.add("on");nav.after(b);});
+ // keep source order: nav, then page 1..n
+ boxes.slice().reverse().forEach(b=>nav.after(b));
+ nav.onclick=e=>{const b=e.target.closest("button");if(!b)return;
+  [...nav.children].forEach(x=>x.setAttribute("aria-pressed","false"));
+  b.setAttribute("aria-pressed","true");
+  boxes.forEach((x,i)=>x.classList.toggle("on",i===+b.dataset.i));
+  const y=nav.getBoundingClientRect().top+scrollY-(parseInt(getComputedStyle(document.documentElement).getPropertyValue("--toph"))||86)-14;
+  window.scrollTo({top:y,behavior:"smooth"});};
+ // the in-tab index would jump to hidden sections, so it goes away here
+ const bar=v.querySelector(".navbar");if(bar)bar.remove();
+});
 go(location.hash.replace("#","")||"home");
 /* age selector */
 {
