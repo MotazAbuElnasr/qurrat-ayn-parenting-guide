@@ -217,6 +217,16 @@ article.sit{scroll-margin-top:calc(var(--toph,86px) + 68px)}
 .biasbar .tr{background:#EFF1ED;border-radius:999px;height:9px;overflow:hidden}
 .biasbar .fl{height:100%;background:var(--c1);border-radius:999px}
 .biasbar .pc{font-size:12px;color:var(--soft);font-variant-numeric:tabular-nums}
+/* partners */
+.partner{background:var(--card);border:1px solid var(--line);border-inline-start:5px solid var(--c4);
+ border-radius:var(--r);padding:16px 18px;margin:12px 0}
+.partner p{font-size:14.5px;line-height:1.8;margin:0 0 10px}
+.pmeta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:11px}
+.ptag{font-size:11.5px;font-weight:700;background:#EFF2ED;color:var(--soft);border-radius:6px;padding:3px 9px}
+.ptag.pfree{background:#E7F1E9;color:#2C6E49}
+.pvid{margin:14px 0}
+.pvid video{width:100%;max-width:820px;display:block;border-radius:12px;border:1px solid var(--line);background:#000}
+.pcap{font-size:12px;color:var(--soft);margin:6px 0 0}
 /* sub-pages inside a tab */
 .subnav{display:flex;gap:7px;overflow-x:auto;padding:2px 0 10px;margin-bottom:4px}
 .subnav button{flex:0 0 auto;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;background:var(--card);
@@ -1517,12 +1527,12 @@ const VID=[
 const TABS=[
 ["home","الرئيسية","var(--c7)"],["ref","المرجع التربوي","var(--c8)"],["sits","المواقف","var(--c8)"],
 ["values","مسار القيم","var(--c2)"],["stories","مكتبة القصص","var(--c2)"],["vids","الفيديوهات","var(--c8)"],["day","اليوم","var(--c4)"],
-["acts","الأنشطة","var(--c5)"],["food","الأكل واللانش بوكس","var(--c6)"],["comm","المجتمع","var(--c5)"],["res","المصادر والقنوات","var(--c7)"]
+["acts","الأنشطة","var(--c5)"],["food","الأكل واللانش بوكس","var(--c6)"],["comm","المجتمع","var(--c5)"],["partners","أدوات بنستعملها","var(--c4)"],["res","المصادر والقنوات","var(--c7)"]
 ];
 const app=document.getElementById("app"),tabs=document.getElementById("tabs");
 /* most-reached-for first: whatever does not fit falls under «المزيد» */
-const TABORDER=["home","sits","values","ref","comm","stories","acts","food","day","vids","res"];
-const GROUPS={"محتوى لطفلك":["stories","vids","acts"],"اليوم بيومه":["day","food"],"مراجع":["res"]};
+const TABORDER=["home","sits","values","ref","comm","stories","acts","food","day","vids","res","partners"];
+const GROUPS={"محتوى لطفلك":["stories","vids","acts"],"اليوم بيومه":["day","food"],"مراجع":["res","partners"]};
 let PRIMARY=[];
 TABS.forEach(([id,,col])=>{
  const sec=document.createElement("section");sec.className="view";sec.id="v-"+id;sec.style.setProperty("--a",col);app.appendChild(sec);
@@ -1591,6 +1601,7 @@ ${[
  ["شارك غيرك","تجارب أهالي حقيقية — مش مرجع علمي",[
   ["comm","المجتمع","احكي موقف عدّى معاك أو قصة نفعت مع طفلك، واقرا تجارب أهالي تانيين","تجارب","var(--c5)"]]],
  ["مراجع"," ",[
+  ["partners","أدوات بنستعملها","حاجات بنستعملها إحنا فعلًا وممكن تفيدك — مش إعلانات","أدوات","var(--c4)"],
   ["res","المصادر والقنوات","كل اللينكات في جدول مفلتر — قنوات ومنصات وموارد مطبوعة",`${YTC.length+RES.length} مصدر`,"var(--c7)"]]]]
  .map(([t,d,cards])=>`<h2 class="sec">${t}</h2>${d.trim()?`<p class="note">${d}</p>`:""}
  <div class="homegrid">${cards.map(([id,ct,cd,n,c])=>`<div class="hcard" style="--hc:${c}" onclick="go('${id}')"><h3>${ct}</h3><p>${cd}</p><span class="n">${n}</span></div>`).join("")}</div>`).join("")}
@@ -2856,6 +2867,35 @@ $("food").innerHTML=`<h1>الأكل واللانش بوكس</h1>
  }
  load();
 }
+/* partners */
+$("partners").innerHTML=`<h1>أدوات بنستعملها</h1>
+<p class="lede">حاجات بنستعملها إحنا فعلًا، مش إعلانات مدفوعة.</p>
+
+<h2 class="sec" style="--a:var(--c4)">aro.day — تنظيم اليوم لما الشغل يبقى متشعّب</h2>
+<div class="partner">
+ <div class="pmeta"><span class="ptag">أداة إنتاجية</span><span class="ptag pfree">مجاني للاستخدام</span><span class="ptag">من نفس صاحب الموقع</span></div>
+ <p><b>إيه هو؟</b> مخطط يوم للناس اللي شغلهم متشعّب وعليه مواعيد: مهام بالسحب والإفلات، تايمرات بتشتغل مع بعض في نفس الوقت، بريكات، وتخطيط اليوم من أوله. بيشتغل من المتصفح على طول، وفيه نسخة بتشتغل محليًا على جهازك والداتا كلها عندك في ملف واحد.</p>
+ <p><b>وعلاقته إيه بالتربية؟</b> علاقة غير مباشرة وبصراحة: الأب أو الأم اللي يومهم مولّع ومش ماسكينه، أول حاجة بتضيع منهم هي الحاجات الصغيرة اللي الموقع ده كله بيقول عليها — الـ20 دقيقة الموجّهة، القصة قبل النوم، الوقت الخاص. اللي بينظّم يومه بيلاقي وقت لطفله.</p>
+ <div class="pvid">
+  <video controls preload="none" playsinline poster="/aroday-poster.jpg" aria-label="فيديو تعريفي عن aro.day">
+   <source src="/aroday-demo.mp4" type="video/mp4">
+   متصفحك مش بيشغّل الفيديو — <a href="https://aro.day/" target="_blank" rel="noopener">افتح الموقع مباشرة</a>.
+  </video>
+  <p class="pcap">فيديو تعريفي · 41 ثانية · من غير صوت</p>
+ </div>
+ <ul class="pts">
+  <li><b>تخطيط اليوم:</b> ترتّب مهام يومك وتشوفها قدامك بدل ما تفضل في دماغك.</li>
+  <li><b>تايمرات متوازية:</b> أكتر من حاجة شغالة في نفس الوقت من غير ما تتوه بينهم.</li>
+  <li><b>بريكات:</b> الراحة جزء من الخطة مش استثناء منها.</li>
+  <li><b>داتا محلية:</b> النسخة المحلية بتحفظ كل حاجة على جهازك في ملف واحد.</li>
+ </ul>
+ <p style="margin:12px 0 0"><a class="chip" href="https://aro.day/" target="_blank" rel="noopener">افتح aro.day <i>مجانًا</i></a></p>
+</div>
+
+<h2 class="sec" style="--a:var(--c5)">عندك حاجة تستاهل تتحط هنا؟</h2>
+<div class="panel"><p style="margin:0 0 8px">القسم ده مش للإعلانات. الشرط بسيط: تكون حاجة <b>بنستعملها فعلًا</b> ونقدر نقول لأي حد «جرّبها» ونحن مرتاحين، وتكون مفيدة لأب أو أم بجد — سواء كانت أداة، أو منصة تعليمية، أو مبادرة.</p>
+<p style="margin:0">لو عندك حاجة كده، افتح Issue على الريبو واحكيلنا عنها. وأي حاجة تتحط هنا هيبقى مكتوب جنبها لو فيها أي مصلحة لينا، زي ما عملنا فوق.</p></div>`;
+
 {
  const K=[...new Set([...YTC.map(y=>"قنوات · "+y[1]),...RES.map(r=>r[0])])];
  $("res").innerHTML=`<h1>المصادر والقنوات</h1>
