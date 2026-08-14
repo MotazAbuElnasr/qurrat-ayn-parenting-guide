@@ -7,7 +7,7 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
-<meta name="theme-color" content="#14201C">
+<meta name="theme-color" content="#1D6A6A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -46,7 +46,8 @@ p.note{font-size:14px;color:var(--soft);max-width:66ch;margin:0 0 16px}
 .panel ul,.panel ol{margin:0;padding-inline-start:20px}
 .panel li{margin-bottom:6px}
 .big{font-size:16.5px;font-weight:600;border-inline-start:3px solid var(--a);background:#F3F6F2;padding:9px 12px;border-radius:0 8px 8px 0;margin:0 0 13px}
-.warn{border-inline-start:3px solid var(--c8);background:#FAF0F1;padding:10px 12px;border-radius:0 8px 8px 0;font-size:14px;margin-top:13px}
+.warn{border-inline-start:3px solid var(--c8);background:#FAF0F1;padding:12px 14px;border-radius:0 10px 10px 0;font-size:14px;line-height:1.75;margin:14px 0 18px}
+.warn br+b,.warn>b:not(:first-child){display:inline-block;margin-top:6px}
 .filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .filter button{font:inherit;font-size:13px;font-weight:600;cursor:pointer;background:var(--card);
  border:1px solid var(--line);border-radius:9px;padding:5px 12px;color:var(--ink)}
@@ -193,7 +194,9 @@ footer b{color:var(--ink)}
 .brand .gh{align-self:center;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);text-decoration:none;font-size:12.5px;font-weight:600;direction:ltr;white-space:nowrap}
 .brand .gh:hover{background:var(--line)}
 /* ponytail: on phones the brand row can't hold title+subtitle+age+star — drop the subtitle and the star's label */
-@media (max-width:640px){.brand .ghl{display:none}.brand>span{display:none}.brand{gap:8px}}
+@media (max-width:640px){.brand .ghl{display:none}
+.gh .ghstars{font-size:12.5px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.gh>*{display:inline-flex;align-items:center;line-height:1}.brand>span{display:none}.brand{gap:8px}}
 @media(max-width:620px){
  input,select,textarea,.cform input,.cform textarea,.cform select,input[type=search]{font-size:16px}
  .agebar select{font-size:16px}
@@ -260,6 +263,11 @@ details.vx[data-k="evi"] summary{color:#2F6E86}
 .cmsg{font-size:13px;color:var(--soft)}
 .cmsg.err{color:var(--c8);font-weight:700}
 .cmsg.ok{color:#2C6E49;font-weight:700}
+.identrow{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
+.identrow input{flex:1 1 200px;min-width:0;font:inherit;font-size:15px;padding:10px 13px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink)}
+.identrow input:focus{outline:2px solid var(--c1);outline-offset:1px;border-color:var(--c1)}
+.identrow button{flex:0 0 auto;font:inherit;font-size:14px;font-weight:700;cursor:pointer;background:var(--ink);color:#fff;border:0;border-radius:10px;padding:10px 22px}
+@media(max-width:620px){.identrow input{font-size:16px}}
 .linkbtn{font:inherit;font-size:13px;font-weight:700;cursor:pointer;background:transparent;border:0;
  color:var(--c1);text-decoration:underline;padding:0}
 .cpost{background:var(--card);border:1px solid var(--line);border-inline-start:5px solid var(--kc);
@@ -323,12 +331,7 @@ h2.sec,article.sit,article.v{scroll-margin-top:calc(var(--toph,86px) + 62px)}
 </head>
 <body>
 <div class="top"><div class="inner">
- <div class="brand"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
-   <rect width="64" height="64" rx="14" fill="#14201C"/>
-   <g fill="none" stroke="#E9EDE7" stroke-width="4" stroke-linecap="round"><path d="M8 32 Q32 3 56 32"/><path d="M8 32 Q32 61 56 32"/></g>
-   <path d="M32 45c-9 0-14-6-13-14 8-1 13 5 13 14z" fill="#3F7A46"/>
-   <path d="M32 45c9 0 14-6 13-14-8-1-13 5-13 14z" fill="#7FBF8A"/>
-  </svg><b>قُرّة عين</b><span>مرجع الطفولة المبكرة</span>
+ <div class="brand"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#F3F1E7"/><path d="M32 40V25" stroke="#2F6B39" stroke-width="5" stroke-linecap="round"/><path d="M31 33c-10 0-15-6-13.5-15 8.5-.5 13.5 5.5 13.5 15z" fill="#4E8F55"/><path d="M33 29c10 0 15-6 13.5-15-8.5-.5-13.5 5.5-13.5 15z" fill="#8FC896"/><path d="M12 38h40c0 11-9 17-20 17s-20-6-20-17z" fill="#1D6A6A"/></svg><b>قُرّة عين</b><span>مرجع الطفولة المبكرة</span>
   <label class="agebar">سن طفلك <select id="ageSel"></select></label>
   <a class="gh" href="https://github.com/MotazAbuElnasr/qurrat-ayn-parenting-guide" target="_blank" rel="noopener">★<span class="ghl"> Star on GitHub</span> <b class="ghstars"></b></a></div>
  <div class="tabs" id="tabs" role="tablist"></div>
@@ -1519,7 +1522,8 @@ function buildTabs(){
  if(cur)go(cur.id.slice(2));
 }
 buildTabs();
-addEventListener("resize",()=>{clearTimeout(window.__tabT);window.__tabT=setTimeout(buildTabs,150);});
+let __lastW=innerWidth;
+addEventListener("resize",()=>{if(innerWidth===__lastW)return;__lastW=innerWidth;clearTimeout(window.__tabT);window.__tabT=setTimeout(buildTabs,150);});
 function go(id){
  if(typeof PRIMARY!=="undefined"&&PRIMARY.length&&!PRIMARY.includes(id)){
   const t=TABS.find(x=>x[0]===id);
@@ -2233,7 +2237,7 @@ ${(()=>{const c={strong:0,moderate:0,practice:0};VALUES.forEach(v=>{if(v.evi)c[v
  GRP.forEach(([g,col])=>{
   const items=SITS.filter(x=>x.group===g);
   if(!items.length)return;
-  ql.appendChild(el(`<h2 class="sec" data-g="${g}" style="--a:${col}">${g} <span style="font-weight:400;font-size:14px">(${items.length} موقف)</span></h2>`));
+  ql.appendChild(el(`<h2 class="sec" data-g="${g}" style="--a:${col}">${g} <span class="seccount" style="font-weight:400;font-size:14px">(${items.length} موقف)</span></h2>`));
   items.forEach(x=>ql.appendChild(el(
   `<article class="sit" data-g="${g}" data-t="${(x.t+" "+x.why).toLowerCase()}">
    <h3>${x.t}</h3>${x.evi?`<span class="evi evi-${x.evi.c}" style="margin-inline-start:8px">${({strong:"أدلة قوية",moderate:"أدلة متوسطة",practice:"ممارسة شائعة"})[x.evi.c]}</span>`:""}<p class="why">${x.why}</p>
@@ -2255,8 +2259,12 @@ ${(()=>{const c={strong:0,moderate:0,practice:0};VALUES.forEach(v=>{if(v.evi)c[v
  const apQ=()=>{const q=qs.value.trim().toLowerCase();let n=0;
   [...ql.querySelectorAll("article.sit")].forEach(e=>{const ok=!q||e.dataset.t.includes(q);
    e.classList.toggle("hidden",!ok);if(ok)n++;});
-  [...ql.querySelectorAll("h2.sec")].forEach(h=>h.classList.toggle("hidden",
-   ![...ql.querySelectorAll(`article.sit[data-g="${h.dataset.g}"]`)].some(e=>!e.classList.contains("hidden"))));
+  [...ql.querySelectorAll("h2.sec")].forEach(h=>{
+   const all=[...ql.querySelectorAll(`article.sit[data-g="${h.dataset.g}"]`)];
+   const vis=all.filter(e=>!e.classList.contains("hidden")).length;
+   const c=h.querySelector(".seccount");
+   if(c)c.textContent=vis===all.length?`(${all.length} موقف)`:`(${vis} من ${all.length})`;
+   h.classList.toggle("hidden",!vis);});
   qc.textContent=q?`ظاهر ${n} من ${SITS.length} موقف`:"";};
  qs.oninput=apQ;apQ();
  window.paintSitLikes=()=>{[...ql.querySelectorAll('.likebtn[data-t="sit"]')].forEach(b=>{
@@ -2275,7 +2283,7 @@ ${(()=>{const c={strong:0,moderate:0,practice:0};VALUES.forEach(v=>{if(v.evi)c[v
  const LVDESC={"1":"القيم اللي كل حاجة تانية بتتبني عليها: الأمان، الروتين، المشاعر، الحدود. ابدأ هنا.","2":"محتاجة قيم الأساس تكون شغالة: التنظيم الانفعالي، الصدق، المسؤولية، التعامل اليومي.","3":"الدايرة الأوسع: الناس، العطاء، العدل، الكلام، الفضول.","4":"الأصعب نفسيًا والأكثر تجريدًا: القناعة، الخسارة، الملل، الإصرار. بتاخد وقتها."};
  [1,2,3,4].forEach(lv=>{
   const [lnm,lcol]=LVN[lv];
-  vl.appendChild(el(`<h2 class="sec lvlhead" data-lvl="${lv}" style="--a:${lcol}">المستوى ${lv} — ${lnm} <span style="font-weight:400;font-size:14px">(${VALUES.filter(v=>v.lvl===lv).length} قيمة)</span></h2>`));
+  vl.appendChild(el(`<h2 class="sec lvlhead" data-lvl="${lv}" style="--a:${lcol}">المستوى ${lv} — ${lnm} <span class="seccount" style="font-weight:400;font-size:14px">(${VALUES.filter(v=>v.lvl===lv).length} قيمة)</span></h2>`));
   vl.appendChild(el(`<p class="note lvldesc" data-lvl="${lv}">${LVDESC[lv]}</p>`));
   VALUES.filter(v=>v.lvl===lv).sort((a,b)=>a.ord-b.ord).forEach(v=>{
   const stF=ST.filter(s=>s[3]===v.tag&&s[4]).slice(0,3),stox=STX.filter(x=>x[3]===v.tag).slice(0,3),stP=ST.filter(s=>s[3]===v.tag&&!s[4]).slice(0,2);
@@ -2306,8 +2314,12 @@ ${(()=>{const c={strong:0,moderate:0,practice:0};VALUES.forEach(v=>{if(v.evi)c[v
    const ageOk=!window.AGE||((+e.dataset.amin)<=window.AGE&&window.AGE<=(+e.dataset.amax));
    const ok=catOk&&ageOk&&(!q||e.dataset.txt.includes(q));
    e.classList.toggle("hidden",!ok);if(ok)n++;});
-  [...vl.querySelectorAll("h2.lvlhead")].forEach(h=>h.classList.toggle("hidden",
-   ![...vl.querySelectorAll(`article.v[data-lvl="${h.dataset.lvl}"]`)].some(e=>!e.classList.contains("hidden"))));
+  [...vl.querySelectorAll("h2.lvlhead")].forEach(h=>{
+   const all=[...vl.querySelectorAll(`article.v[data-lvl="${h.dataset.lvl}"]`)];
+   const vis=all.filter(e=>!e.classList.contains("hidden")).length;
+   const c=h.querySelector(".seccount");
+   if(c)c.textContent=vis===all.length?`(${all.length} قيمة)`:`(${vis} من ${all.length})`;
+   h.classList.toggle("hidden",!vis);});
   vc.textContent=`ظاهر ${n} من ${VALUES.length} قيمة`;};
  ["الكل",...Object.keys(C),"المستوى 1","المستوى 2","المستوى 3","المستوى 4"].forEach((g,i)=>{const b=document.createElement("button");b.textContent=g;
   b.setAttribute("aria-pressed",i===0?"true":"false");
@@ -2335,7 +2347,7 @@ ${(()=>{const c={strong:0,moderate:0,practice:0};VALUES.forEach(v=>{if(v.evi)c[v
  const tags=[...new Set(ALL.map(s=>s.tag))];
  $("stories").innerHTML=`<h1>مكتبة القصص — ${ALL.length} قصة</h1>
   <p class="lede">مرجع قايم بذاته: مقسّم بنوع القصة، ومن جواه تفلتر بالمنصة أو القيمة أو تدوّر بالاسم. دوس <b>«المجاني بس»</b> عشان تشوف اللي مفتوح مجانًا بالكامل — وده أغلب المكتبة. القصص نفسها ظاهرة كمان جوه كروت القيم المرتبطة بيها.</p>
-  <div class="warn"><b>التصنيف تقديري:</b> مبني على العنوان وتصنيف المنصة، مش قراءة كل قصة — اعتبره نقطة بداية. اللينكات اتحقق منها يوم 14-8-2026.<br>${Object.entries(PNOTE).map(([p,n])=>`<b>${p}:</b> ${n}`).join(" · ")}</div>
+  <div class="warn"><b>التصنيف تقديري:</b> مبني على العنوان وتصنيف المنصة، مش قراءة كل قصة — اعتبره نقطة بداية. اللينكات اتحقق منها يوم 14-8-2026.<br><span style="display:block;margin-top:9px;padding-top:9px;border-top:1px solid rgba(140,47,57,.18)">${Object.entries(PNOTE).map(([p,n])=>`<span style="display:block;margin-top:3px"><b>${p}:</b> ${n}</span>`).join("")}</span></div>
   <div class="filter" id="spf"></div>
   <div class="filter" id="sf"></div><input type="search" id="ss" placeholder="دوّر باسم القصة…">
   <div class="count" id="sc"></div><div id="sl"></div>`;
@@ -2350,7 +2362,7 @@ ${(()=>{const c={strong:0,moderate:0,practice:0};VALUES.forEach(v=>{if(v.evi)c[v
  SEC.forEach(([nm])=>{
   const items=ALL.filter(s=>secOf(s.tag)===nm);
   if(!items.length)return;
-  sl.appendChild(el(`<h2 class="sec stsec" data-sec="${nm}" style="--a:${SECCOL[nm]}">${nm} <span style="font-weight:400;font-size:14px">(${items.length} قصة)</span></h2>`));
+  sl.appendChild(el(`<h2 class="sec stsec" data-sec="${nm}" data-total="${items.length}" style="--a:${SECCOL[nm]}">${nm} <span class="seccount" style="font-weight:400;font-size:14px">(${items.length} قصة)</span></h2>`));
   const grid=el(`<div class="cards" data-sec="${nm}"></div>`);
   items.forEach(s=>grid.appendChild(el(
    `<div class="card" style="--cc:${COLT[s.tag]||"#54615B"}" data-tag="${s.tag}" data-p="${s.p}" data-fr="${s.fr}" data-t="${(s.t+" "+s.p).toLowerCase()}">
@@ -2365,8 +2377,11 @@ ${(()=>{const c={strong:0,moderate:0,practice:0};VALUES.forEach(v=>{if(v.evi)c[v
    c.classList.toggle("hidden",!ok);if(ok)n++;});
   [...sl.querySelectorAll("h2.stsec")].forEach(h=>{
    const grid=sl.querySelector(`.cards[data-sec="${h.dataset.sec}"]`);
-   const any=grid&&[...grid.children].some(c=>!c.classList.contains("hidden"));
-   h.classList.toggle("hidden",!any);if(grid)grid.classList.toggle("hidden",!any);});
+   const vis=grid?[...grid.children].filter(c=>!c.classList.contains("hidden")).length:0;
+   const tot=+h.dataset.total;
+   const c=h.querySelector(".seccount");
+   if(c)c.textContent=vis===tot?`(${tot} قصة)`:`(${vis} من ${tot})`;
+   h.classList.toggle("hidden",!vis);if(grid)grid.classList.toggle("hidden",!vis);});
   sc.textContent=`ظاهر ${n} من ${ALL.length} قصة`;};
  ["الكل",...Object.keys(PNOTE)].forEach((g,i)=>{const b=document.createElement("button");b.textContent=g;
   b.setAttribute("aria-pressed",i===0?"true":"false");
@@ -2723,8 +2738,8 @@ $("food").innerHTML=`<h1>الأكل واللانش بوكس</h1>
  const drawIdent=()=>{
   ident.innerHTML=MYNAME
    ?`<p style="margin:0">بتشارك باسم <b>${esc(MYNAME)}</b> — <button class="linkbtn" id="cRename">غيّر الاسم</button></p>`
-   :`<p style="margin:0 0 8px"><b>اكتب اسمك الأول</b> — هيتحفظ في المتصفح ده وهيظهر جنب مشاركاتك.</p>
-     <span class="ages"><input id="cName" maxlength="40" placeholder="اسمك" style="max-width:220px"> <button class="linkbtn" id="cSaveName">احفظ</button></span>`;
+   :`<p style="margin:0 0 10px"><b>اكتب اسمك الأول</b> — هيتحفظ في المتصفح ده وهيظهر جنب مشاركاتك.</p>
+     <div class="identrow"><input id="cName" maxlength="40" placeholder="اسمك" autocomplete="given-name"><button id="cSaveName">احفظ</button></div>`;
   if($$("cRename"))$$("cRename").onclick=()=>{MYNAME="";localStorage.removeItem("qaName");drawIdent();};
   if($$("cSaveName"))$$("cSaveName").onclick=async()=>{
    const n=$$("cName").value.trim();
@@ -2833,7 +2848,7 @@ const sheet=el(`<div class="sheet" id="ixSheet" role="dialog" aria-modal="true">
 document.body.appendChild(sheet);
 const sheetBody=sheet.querySelector(".bdy"),sheetTitle=sheet.querySelector(".hd h3"),sheetQ=sheet.querySelector("#ixq");
 const closeSheet=()=>{sheet.classList.remove("on");document.body.style.overflow="";};
-sheet.querySelector(".bd").onclick=closeSheet;
+sheet.querySelector(".bd").onclick=()=>{if(Date.now()-(window.__sheetAt||0)<400)return;closeSheet();};
 sheet.querySelector(".hd button").onclick=closeSheet;
 addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet();});
 window.openSheet=(title,model)=>{
@@ -2852,7 +2867,7 @@ window.openSheet=(title,model)=>{
  };
  draw("");
  sheetQ.oninput=()=>draw(sheetQ.value.trim().toLowerCase());
- sheet.classList.add("on");document.body.style.overflow="hidden";
+ sheet.classList.add("on");document.body.style.overflow="hidden";window.__sheetAt=Date.now();
  if(innerWidth>=760)setTimeout(()=>sheetQ.focus(),60);
 };
 
@@ -2915,7 +2930,7 @@ TABS.forEach(([id,tabLabel])=>{
   };
   draw("");
   sheetQ.oninput=()=>draw(sheetQ.value.trim().toLowerCase());
-  sheet.classList.add("on");document.body.style.overflow="hidden";
+  sheet.classList.add("on");document.body.style.overflow="hidden";window.__sheetAt=Date.now();
   if(innerWidth>=760)setTimeout(()=>sheetQ.focus(),60);
  };
  chipX.onclick=()=>{if(v.clearFilter)v.clearFilter();};
