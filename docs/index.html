@@ -228,6 +228,7 @@ footer b{color:var(--ink)}
 @media (max-width:640px){.brand .ghl{display:none}
 .gh>*{display:inline-flex;align-items:center;line-height:1}.brand>span{display:none}.brand{gap:8px}}
 @media(max-width:620px){
+ .tabs button{padding:6px 9px;font-size:12px}
  input,select,textarea,.cform input,.cform textarea,.cform select,input[type=search]{font-size:16px}
  .agebar select{font-size:16px}
 
@@ -1599,7 +1600,7 @@ const extraTab=document.createElement("button");extraTab.setAttribute("role","ta
 extraTab.style.display="none";extraTab.onclick=()=>go(extraTab.dataset.id);
 const moreBtn=document.createElement("button");moreBtn.className="moretab";moreBtn.innerHTML='<i></i>المزيد';
 const fitCount=()=>{const w=innerWidth;
- return w<560?4:w<720?5:w<920?7:w<1120?9:w<1320?11:TABORDER.length;};
+ return w<420?5:w<720?6:w<920?7:w<1120?9:w<1320?11:TABORDER.length;};
 function buildTabs(){
  const n=fitCount();
  const next=TABORDER.slice(0,n);
