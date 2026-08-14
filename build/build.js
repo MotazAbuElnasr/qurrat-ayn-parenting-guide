@@ -96,9 +96,19 @@ if (base) {
 if (bad) { console.error(`\n${bad} مشكلة — مفيش ختم`); process.exit(1); }
 
 const list = ORDER.filter(d => ok.includes(d));
-const line = /const DIALECTS_AVAILABLE=\[[^\]]*\]; \/\* build:dialects \*\//;
-let page = fs.readFileSync(SHELL, 'utf8');
-if (!line.test(page)) { console.error('مفيش ختم لهجات في القشرة'); process.exit(1); }
-page = page.replace(line, 'const DIALECTS_AVAILABLE=' + JSON.stringify(list) + '; /* build:dialects */');
-fs.writeFileSync(SHELL, page);
-console.log(`\nاتختم في القشرة: ${list.map(d => NAMES[d]).join(' · ')}`);
+
+/* Two places have to agree on which bundles exist: the shell, so the selector
+   only offers real ones, and the worker, so it never sends a reader to a file
+   that is not there. Neither is kept by hand — a stale list is invisible. */
+const STAMPS = [
+  [SHELL, /const DIALECTS_AVAILABLE=\[[^\]]*\]; \/\* build:dialects \*\//,
+    l => `const DIALECTS_AVAILABLE=${l}; /* build:dialects */`],
+  [path.join(ROOT, 'src', 'index.js'), /const AVAILABLE = \[[^\]]*\]; \/\* build:dialects \*\//,
+    l => `const AVAILABLE = ${l}; /* build:dialects */`],
+];
+for (const [file, rx, make] of STAMPS) {
+  let txt = fs.readFileSync(file, 'utf8');
+  if (!rx.test(txt)) { console.error('مفيش ختم لهجات في ' + path.relative(ROOT, file)); process.exit(1); }
+  fs.writeFileSync(file, txt.replace(rx, make(JSON.stringify(list))));
+}
+console.log(`\nاتختم في القشرة والـworker: ${list.map(d => NAMES[d]).join(' · ')}`);
