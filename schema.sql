@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS posts (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   visitor_id  TEXT NOT NULL,
   author_name TEXT NOT NULL,
-  kind        TEXT NOT NULL CHECK (kind IN ('موقف','قصة','قيمة')),
+  kind        TEXT NOT NULL CHECK (kind IN ('موقف','قصة','قيمة','وجبة')),
   title       TEXT NOT NULL,
   body        TEXT NOT NULL,
   -- what it teaches, as pipe-wrapped tags: '|الصبر|ضبط الغضب|'
