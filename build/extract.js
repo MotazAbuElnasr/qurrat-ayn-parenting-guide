@@ -1,14 +1,14 @@
 // Pull the content out of the single-file site into one JSON per dialect.
 // The page becomes a shell; this is the only thing that knows how to read it.
 //
-//   node build/extract.js            -> content/eg.json
+//   node build/extract.js            -> docs/content/eg.json
 //   node build/extract.js --check    -> verify only, write nothing
 const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'docs', 'index.html');
-const OUT_DIR = path.join(ROOT, 'content');
+const OUT_DIR = path.join(ROOT, 'docs', 'content');
 
 const html = fs.readFileSync(SRC, 'utf8');
 
