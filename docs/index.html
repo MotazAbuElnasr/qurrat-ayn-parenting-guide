@@ -3225,11 +3225,11 @@ Object.entries(SUBPAGES).forEach(([tab,pages])=>{
   const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;
   const thrifty=navigator.connection&&(navigator.connection.saveData||/2g/.test(navigator.connection.effectiveType||""));
   if(!calm&&!thrifty){
-   let played=false;
    new IntersectionObserver((es,o)=>{es.forEach(e=>{
-    if(e.isIntersecting){v.play().then(()=>{if(!played){played=true;btn.hidden=false;}}).catch(()=>{});}
+    if(e.isIntersecting){v.play().catch(()=>{});}
     else if(!v.paused)v.pause();});},{threshold:.45}).observe(v);
   }
+  v.addEventListener("play",()=>{btn.hidden=false;});
   btn.onclick=()=>{v.muted=!v.muted;
    btn.textContent=v.muted?"🔇 اضغط للصوت":"🔊 الصوت شغال";
    if(v.paused)v.play().catch(()=>{});};
