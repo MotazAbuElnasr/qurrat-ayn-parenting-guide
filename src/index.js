@@ -38,12 +38,26 @@ const POSTS_PER_IP_DAY = 25;   // per source IP (the cap that actually holds)
 const MAX_BODY = 64 * 1024;
 const DAY = 86400000;
 
-const json = (data, status = 200) =>
+const json = (data, status = 200, extra) =>
   new Response(JSON.stringify(data), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...extra },
   });
-const bad = (msg, status = 400) => json({ error: msg }, status);
+const bad = (msg, status = 400, extra) => json({ error: msg }, status, extra);
+
+/**
+ * Per-IP burst limit. Fails open when the binding is missing so a local run or a
+ * config slip degrades to today's behaviour instead of locking everyone out.
+ */
+async function overLimit(binding, key) {
+  if (!binding || typeof binding.limit !== 'function') return false;
+  try {
+    const { success } = await binding.limit({ key });
+    return !success;
+  } catch {
+    return false;
+  }
+}
 
 const str = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 const vid = req => str(req.headers.get('x-visitor-id') || '', 64).replace(/[^a-zA-Z0-9_-]/g, '');
@@ -61,11 +75,47 @@ async function readBody(req) {
 }
 
 /** GET /api/feed?offset=&kind=&tag= — a page of posts plus what you can filter by. */
-async function feed(env, me, url) {
+async function feed(env, me, url, ctx) {
   const offset = Math.max(0, Math.min(5000, Number(url.searchParams.get('offset')) || 0));
   const kind = str(url.searchParams.get('kind'), 20);
   const tag = str(url.searchParams.get('tag'), LIMITS.tag);
 
+  // Four of the five queries are the same for everyone, so they are cached at the
+  // edge and a flood of reads costs one round of queries per window, not one per
+  // request. Only «which of these did I like» is per-visitor and always fresh.
+  const shared = await cachedShared(env, ctx, { offset, kind, tag },
+    url.searchParams.get('fresh') === '1');
+
+  let mine = [];
+  if (me) {
+    const { results } = await env.DB.prepare(
+      `SELECT target_type, target_id FROM likes WHERE visitor_id = ?`
+    ).bind(me).all();
+    mine = results.map(r => `${r.target_type}:${r.target_id}`);
+  }
+  return json({ ...shared, myLikes: mine });
+}
+
+const FEED_TTL = 15;
+
+async function cachedShared(env, ctx, q, fresh) {
+  const key = new Request(
+    `https://feed.cache/v1?o=${q.offset}&k=${encodeURIComponent(q.kind)}&t=${encodeURIComponent(q.tag)}`
+  );
+  const cache = caches.default;
+  if (!fresh) {
+    const hit = await cache.match(key);
+    if (hit) return await hit.json();
+  }
+  const data = await sharedFeed(env, q);
+  const body = new Response(JSON.stringify(data), {
+    headers: { 'content-type': 'application/json', 'cache-control': `public, max-age=${FEED_TTL}` },
+  });
+  if (ctx) ctx.waitUntil(cache.put(key, body.clone()));
+  return data;
+}
+
+async function sharedFeed(env, { offset, kind, tag }) {
   const where = ["p.status='live'"];
   const args = [];
   if (KINDS.includes(kind)) { where.push('p.kind = ?'); args.push(kind); }
@@ -88,24 +138,16 @@ async function feed(env, me, url) {
   const counts = {};
   tagRows.forEach(r => unpackTags(r.tags).forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
 
-  let mine = [];
-  if (me) {
-    const { results } = await env.DB.prepare(
-      `SELECT target_type, target_id FROM likes WHERE visitor_id = ?`
-    ).bind(me).all();
-    mine = results.map(r => `${r.target_type}:${r.target_id}`);
-  }
   const { results: sitLikes } = await env.DB.prepare(
     `SELECT target_id, COUNT(*) AS n FROM likes WHERE target_type='sit' GROUP BY target_id`
   ).all();
 
-  return json({
+  return {
     posts: posts.map(p => ({ ...p, tags: unpackTags(p.tags) })),
     total, offset, page: PAGE,
     tags: Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([t, n]) => ({ t, n })),
     sitLikes: Object.fromEntries(sitLikes.map(r => [r.target_id, r.n])),
-    myLikes: mine,
-  });
+  };
 }
 
 /** POST /api/name — register or rename the visitor. */
@@ -229,7 +271,7 @@ async function queue(env, req) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     // Cloudflare's asset layer answers Range requests with the whole file, so a
@@ -265,8 +307,16 @@ export default {
     const me = vid(request);
     const route = url.pathname.slice(5);
 
+    // The daily caps live in D1, so checking them already costs a query — a burst
+    // would drain the database before its own limit applied. This runs first and
+    // costs nothing, leaving the D1 caps to do what they are good at: the long game.
+    const ip = clientIp(request);
+    if (ip && await overLimit(request.method === 'POST' ? env.RL_WRITE : env.RL_READ, ip)) {
+      return bad('طلبات كتير في وقت قصير — استنى شوية وجرّب تاني', 429, { 'retry-after': '60' });
+    }
+
     try {
-      if (request.method === 'GET' && route === 'feed') return await feed(env, me, url);
+      if (request.method === 'GET' && route === 'feed') return await feed(env, me, url, ctx);
       if (request.method === 'GET' && route === 'queue') return await queue(env, request);
       if (request.method === 'POST') {
         // writes must come from this site, not from a page someone else hosts

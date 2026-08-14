@@ -6,6 +6,13 @@
   "assets": { "directory": "./docs", "binding": "ASSETS", "run_worker_first": ["/api/*", "/*.mp4"] },
   "routes": [{ "pattern": "qurrat-ain.aro.day", "custom_domain": true }],
   "observability": { "enabled": true },
+  // per-IP burst limits, checked before any D1 query runs
+  "unsafe": {
+    "bindings": [
+      { "name": "RL_READ", "type": "ratelimit", "namespace_id": "1001", "simple": { "limit": 90, "period": 60 } },
+      { "name": "RL_WRITE", "type": "ratelimit", "namespace_id": "1002", "simple": { "limit": 20, "period": 60 } }
+    ]
+  },
   "d1_databases": [
     {
       "binding": "DB",
