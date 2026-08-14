@@ -217,6 +217,30 @@ article.sit{scroll-margin-top:calc(var(--toph,86px) + 68px)}
 .biasbar .tr{background:#EFF1ED;border-radius:999px;height:9px;overflow:hidden}
 .biasbar .fl{height:100%;background:var(--c1);border-radius:999px}
 .biasbar .pc{font-size:12px;color:var(--soft);font-variant-numeric:tabular-nums}
+/* community v2 */
+.commtop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0 12px}
+.addbtn{font:inherit;font-size:15px;font-weight:700;cursor:pointer;background:var(--ink);color:#fff;
+ border:0;border-radius:12px;padding:12px 22px}
+.cwho{font-size:13px;color:var(--soft)}
+.cwho2{margin:0 0 13px;font-size:13.5px;color:var(--soft);font-weight:400}
+.tagpick{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;max-height:168px;overflow-y:auto;
+ padding:9px;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+.tagpick .tg{font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;background:#fff;
+ border:1px solid var(--line);border-radius:999px;padding:5px 11px;color:var(--ink)}
+.tagpick .tg.on{background:var(--c1);color:#fff;border-color:var(--c1)}
+.tagadd{display:flex;gap:7px;margin-top:7px}
+.tagadd input{flex:1;font:inherit;font-size:14px;padding:8px 12px;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink)}
+.tagadd button{flex:0 0 auto;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;background:var(--card);
+ border:1px solid var(--line);border-radius:9px;padding:8px 16px;color:var(--ink)}
+.ctag{cursor:pointer}
+.pager{display:flex;align-items:center;justify-content:center;gap:14px;margin:18px 0 4px}
+.pager button{font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;background:var(--card);
+ border:1px solid var(--line);border-radius:10px;padding:9px 18px;color:var(--ink)}
+.pager button:disabled{opacity:.45;cursor:default}
+.pager span{font-size:13px;color:var(--soft)}
+.okline{background:#E7F1E9;border-inline-start:3px solid #2C6E49;border-radius:0 10px 10px 0;
+ padding:11px 14px;font-size:14px;margin:12px 0}
+#ixSheet .cform{border:0;padding:0;margin:0;background:transparent}
 /* partners */
 .partner{background:var(--card);border:1px solid var(--line);border-inline-start:5px solid var(--c4);
  border-radius:var(--r);padding:16px 18px;margin:12px 0}
@@ -2732,8 +2756,8 @@ $("food").innerHTML=`<h1>الأكل واللانش بوكس</h1>
 /* community */
 {
  const API="/api";
- const KINDS=["موقف","قصة","قيمة"];
- const KCOL={"موقف":"var(--c8)","قصة":"var(--c2)","قيمة":"var(--c1)"};
+ const KINDS=["موقف","قصة","قيمة","وجبة"];
+ const KCOL={"موقف":"var(--c8)","قصة":"var(--c2)","قيمة":"var(--c1)","وجبة":"var(--c6)"};
  /* user content is untrusted: escape before it ever touches innerHTML */
  const esc=t=>String(t==null?"":t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const nl=t=>esc(t).replace(/\n+/g,"<br>");
@@ -2742,7 +2766,7 @@ $("food").innerHTML=`<h1>الأكل واللانش بوكس</h1>
   if(d<86400)return Math.floor(d/3600)+" ساعة";if(d<2592000)return Math.floor(d/86400)+" يوم";
   return Math.floor(d/2592000)+" شهر";};
 
- /* identity: a random id kept in this browser — not authentication, just "same browser = same person" */
+ /* identity: a random id kept in this browser — not authentication */
  let VISITOR=localStorage.getItem("qaVisitor");
  if(!VISITOR){VISITOR=(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2)+Date.now()).replace(/[^a-zA-Z0-9-]/g,"");
   localStorage.setItem("qaVisitor",VISITOR);}
@@ -2757,116 +2781,186 @@ $("food").innerHTML=`<h1>الأكل واللانش بوكس</h1>
   if(!r.ok)throw new Error(d.error||"حصل خطأ");
   return d;};
 
+ /* tag suggestions come from the guide's own vocabulary so people converge on the same words */
+ const SUGGEST=[...new Set([...VALUES.slice(0,40).map(v=>v.name),
+  "نوم","أكل","حضانة","إخوات","شاشات","خروجات","سفر","مرض","روتين الصبح","لانش بوكس"])];
+ let TAGORDER=[...SUGGEST];
+
  $("comm").innerHTML=`<h1>المجتمع</h1>
-  <p class="lede">المكان اللي الأهالي بيحكوا فيه تجاربهم: موقف عدّى معاك وعرفت تتصرف فيه، قصة نفعت مع طفلك، أو قيمة زرعتها وشغلت. اللي تكتبه هنا ممكن يوفّر على حد تاني شهور.</p>
-  <div class="warn"><b>الفلتر شغال:</b> أي مشاركة فيها ألفاظ مش مناسبة بترفض على طول، واللي فيها لينكات أو كلام حاد بتتحجز لمراجعة قبل ما تظهر. باقي المشاركات بتتنشر فورًا.<br>المشاركات دي <b>تجارب أهالي مش مرجع علمي</b> — على عكس باقي الموقع اللي مصادره مكتوبة. خدها كإلهام وجرّب بعقلك، وأي قلق صحي أو نفسي مرجعه الطبيب.</div>
-  <div class="panel" id="cIdent"></div>
-  <h2 class="sec">شارك تجربتك</h2>
-  <form class="cform" id="cForm">
+  <p class="lede">أهالي بيحكوا تجاربهم: موقف عدّى وعرفت تتصرف فيه، قصة نفعت مع طفلك، قيمة زرعتها، أو وجبة كسبت معاك. اللي تكتبه هنا ممكن يوفّر على حد تاني شهور.</p>
+  <div class="warn"><b>الفلتر شغال:</b> أي مشاركة فيها ألفاظ مش مناسبة بترفض على طول، واللي فيها لينكات أو كلام حاد بتتحجز لمراجعة قبل ما تظهر.<br>
+   والمشاركات دي <b>تجارب أهالي مش مرجع علمي</b> — على عكس باقي الموقع اللي مصادره مكتوبة. خدها كإلهام، وأي قلق صحي أو نفسي مرجعه الطبيب.</div>
+  <div class="commtop">
+   <button class="addbtn" id="cOpen">＋ شارك تجربتك</button>
+   <span class="cwho" id="cWho"></span>
+  </div>
+  <div class="filter" id="cKindFilter"></div>
+  <div class="filter" id="cTagFilter"></div>
+  <div class="count" id="cCountLbl"></div>
+  <div id="cFeed"><p class="note">بنحمّل المشاركات…</p></div>
+  <div class="pager" id="cPager"></div>`;
+
+ const $$=id=>document.getElementById(id);
+ const feedEl=$$("cFeed"),pager=$$("cPager");
+
+ /* ---- the form lives in the shared sheet, not on the page ---- */
+ let kind=KINDS[0],chosen=[];
+ const formHTML=()=>`<form class="cform" id="cForm">
+   ${MYNAME?`<p class="cwho2">بتشارك باسم <b>${esc(MYNAME)}</b> — <button type="button" class="linkbtn" id="cRename">غيّر</button></p>`
+    :`<label>اسمك الأول <span class="req">*</span>
+      <input id="cName" maxlength="40" placeholder="اسمك" autocomplete="given-name"></label>`}
    <label>نوع المشاركة <span class="req">*</span>
-    <div class="kpick" id="cKind">${KINDS.map((k,i)=>`<button type="button" data-k="${k}" aria-pressed="${i===0?"true":"false"}">${k}</button>`).join("")}</div></label>
+    <div class="kpick" id="cKind">${KINDS.map((k,i)=>`<button type="button" data-k="${k}" aria-pressed="${k===kind?"true":"false"}">${k}</button>`).join("")}</div></label>
    <label>العنوان <span class="req">*</span>
     <input id="cTitle" maxlength="120" placeholder="مثلاً: رفض ياخد الدوا وكل يوم معركة" required></label>
    <label>احكي اللي حصل <span class="req">*</span>
-    <textarea id="cBody" rows="6" maxlength="4000" placeholder="إيه اللي حصل بالظبط؟ عملت إيه؟ وإيه اللي نفع في الآخر؟ التفاصيل الحقيقية هي اللي بتفيد." required></textarea>
+    <textarea id="cBody" rows="6" maxlength="4000" placeholder="إيه اللي حصل بالظبط؟ عملت إيه؟ وإيه اللي نفع في الآخر؟" required></textarea>
     <small class="hint"><span id="cCount">0</span>/4000 — على الأقل 30 حرف</small></label>
    <label>بتعلّم إيه؟ <span class="req">*</span>
-    <input id="cTeach" maxlength="300" placeholder="مثلاً: إن الاختيار بين حاجتين بيوقف معركة الدوا" required></label>
+    <div class="tagpick" id="cTags"></div>
+    <div class="tagadd"><input id="cTagNew" maxlength="30" placeholder="أو اكتب تاج جديد"><button type="button" id="cTagAdd">ضيف</button></div>
+    <small class="hint">اختار لحد 5 — دوس على التاج عشان تشيله</small></label>
    <label>مناسبة لسن <span class="req">*</span>
     <span class="ages"><select id="cAgeMin"></select> <span>لـ</span> <select id="cAgeMax"></select> <span>سنين</span></span></label>
    <div class="cactions"><button type="submit" id="cSubmit">انشر المشاركة</button>
     <span class="cmsg" id="cMsg"></span></div>
-  </form>
-  <h2 class="sec">مشاركات الأهالي</h2>
-  <div class="filter" id="cFilter"></div>
-  <div class="count" id="cCountLbl"></div>
-  <div id="cFeed"><p class="note">بنحمّل المشاركات…</p></div>`;
+  </form>`;
 
- const $$=id=>document.getElementById(id);
- const ident=$$("cIdent"),feedEl=$$("cFeed"),msg=$$("cMsg"),form=$$("cForm");
- const amin=$$("cAgeMin"),amax=$$("cAgeMax");
- for(let a=1;a<=12;a++){amin.appendChild(el(`<option value="${a}">${a}</option>`));amax.appendChild(el(`<option value="${a}">${a}</option>`));}
- amin.value="3";amax.value="5";
- $$("cBody").oninput=e=>{$$("cCount").textContent=e.target.value.length;};
-
- let kind=KINDS[0];
- $$("cKind").onclick=e=>{const b=e.target.closest("button");if(!b)return;
-  [...e.currentTarget.children].forEach(x=>x.setAttribute("aria-pressed","false"));
-  b.setAttribute("aria-pressed","true");kind=b.dataset.k;};
-
- const drawIdent=()=>{
-  ident.innerHTML=MYNAME
-   ?`<p style="margin:0">بتشارك باسم <b>${esc(MYNAME)}</b> — <button class="linkbtn" id="cRename">غيّر الاسم</button></p>`
-   :`<p style="margin:0 0 10px"><b>اكتب اسمك الأول</b> — هيتحفظ في المتصفح ده وهيظهر جنب مشاركاتك.</p>
-     <div class="identrow"><input id="cName" maxlength="40" placeholder="اسمك" autocomplete="given-name"><button id="cSaveName">احفظ</button></div>`;
-  if($$("cRename"))$$("cRename").onclick=()=>{MYNAME="";localStorage.removeItem("qaName");drawIdent();};
-  if($$("cSaveName"))$$("cSaveName").onclick=async()=>{
-   const n=$$("cName").value.trim();
-   if(n.length<2){msg.textContent="الاسم قصير أوي";msg.className="cmsg err";return;}
-   try{await api("/name",{name:n});MYNAME=n;localStorage.setItem("qaName",n);drawIdent();}
-   catch(e){msg.textContent=e.message;msg.className="cmsg err";}};
+ const drawTags=()=>{
+  const box=$$("cTags");if(!box)return;
+  const opts=TAGORDER.slice(0,60);
+  box.innerHTML=opts.map(t=>`<button type="button" class="tg${chosen.includes(t)?" on":""}" data-t="${esc(t)}">${esc(t)}</button>`).join("");
  };
- drawIdent();
 
- let FEED=[],curKind="الكل";
+ const openForm=()=>{
+  openSheetHTML("شارك تجربتك",formHTML());
+  const amin=$$("cAgeMin"),amax=$$("cAgeMax");
+  for(let a=1;a<=12;a++){amin.appendChild(el(`<option value="${a}">${a}</option>`));amax.appendChild(el(`<option value="${a}">${a}</option>`));}
+  amin.value="3";amax.value="5";
+  $$("cBody").oninput=e=>{$$("cCount").textContent=e.target.value.length;};
+  $$("cKind").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+   [...e.currentTarget.children].forEach(x=>x.setAttribute("aria-pressed","false"));
+   b.setAttribute("aria-pressed","true");kind=b.dataset.k;};
+  drawTags();
+  $$("cTags").onclick=e=>{const b=e.target.closest(".tg");if(!b)return;
+   const t=b.dataset.t;
+   if(chosen.includes(t))chosen=chosen.filter(x=>x!==t);
+   else if(chosen.length<5)chosen.push(t);
+   drawTags();};
+  const addTag=()=>{const v=$$("cTagNew").value.trim();
+   if(v.length<2||chosen.length>=5)return;
+   if(!TAGORDER.includes(v))TAGORDER.unshift(v);
+   if(!chosen.includes(v))chosen.push(v);
+   $$("cTagNew").value="";drawTags();};
+  $$("cTagAdd").onclick=addTag;
+  $$("cTagNew").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();addTag();}};
+  if($$("cRename"))$$("cRename").onclick=()=>{MYNAME="";localStorage.removeItem("qaName");openForm();};
+  $$("cForm").onsubmit=submit;
+ };
+ $$("cOpen").onclick=openForm;
+
+ const drawWho=()=>{$$("cWho").innerHTML=MYNAME?`بتشارك باسم <b>${esc(MYNAME)}</b>`:"";};
+ drawWho();
+
+ async function submit(ev){
+  ev.preventDefault();
+  const msg=$$("cMsg");
+  let name=MYNAME;
+  if(!name){name=($$("cName")?.value||"").trim();
+   if(name.length<2){msg.textContent="اكتب اسمك الأول";msg.className="cmsg err";return;}}
+  if(!chosen.length){msg.textContent="اختار تاج واحد على الأقل";msg.className="cmsg err";return;}
+  const payload={kind,name,title:$$("cTitle").value.trim(),body:$$("cBody").value.trim(),
+   tags:chosen,age_min:+$$("cAgeMin").value,age_max:+$$("cAgeMax").value};
+  if(payload.age_min>payload.age_max){msg.textContent="السن الأصغر لازم يكون أقل من الأكبر";msg.className="cmsg err";return;}
+  $$("cSubmit").disabled=true;msg.textContent="بنبعت…";msg.className="cmsg";
+  try{const r=await api("/post",payload);
+   if(!MYNAME){MYNAME=name;localStorage.setItem("qaName",name);drawWho();}
+   chosen=[];offset=0;
+   closeSheet();
+   await load();
+   alertLine(r.message||"اتنشرت — شكرًا 🌱",r.status==="pending");
+  }catch(e){msg.textContent=e.message;msg.className="cmsg err";$$("cSubmit").disabled=false;}
+ }
+
+ const alertLine=(text,pending)=>{
+  const n=el(`<div class="${pending?"warn":"okline"}">${esc(text)}</div>`);
+  feedEl.parentNode.insertBefore(n,feedEl);
+  setTimeout(()=>n.remove(),9000);
+ };
+
+ /* ---- feed with filters and paging ---- */
+ let FEED=[],TOTAL=0,offset=0,curKind="الكل",curTag="";
  const drawFeed=()=>{
-  const list=FEED.filter(p=>curKind==="الكل"||p.kind===curKind);
-  $$("cCountLbl").textContent=FEED.length?`${list.length} مشاركة`:"";
-  if(!FEED.length){feedEl.innerHTML=`<div class="panel"><p style="margin:0">لسه مفيش مشاركات — <b>ابقى انت الأول</b>. أي موقف عدّى معاك وعرفت تتصرف فيه هيفيد أب أو أم تانية.</p></div>`;return;}
-  if(!list.length){feedEl.innerHTML=`<p class="note">مفيش مشاركات من النوع ده لسه.</p>`;return;}
-  feedEl.innerHTML=list.map(p=>{
+  $$("cCountLbl").textContent=TOTAL?`${TOTAL} مشاركة`:"";
+  if(!TOTAL){feedEl.innerHTML=`<div class="panel"><p style="margin:0">لسه مفيش مشاركات — <b>ابقى انت الأول</b>. أي موقف عدّى معاك وعرفت تتصرف فيه هيفيد أب أو أم تانية.</p></div>`;pager.innerHTML="";return;}
+  if(!FEED.length){feedEl.innerHTML=`<p class="note">مفيش مشاركات بالفلتر ده.</p>`;pager.innerHTML="";return;}
+  feedEl.innerHTML=FEED.map(p=>{
    const liked=QA.likes.has("post:"+p.id);
    return `<article class="cpost" style="--kc:${KCOL[p.kind]||"var(--c7)"}">
     <div class="v-head"><h3>${esc(p.title)}</h3><span class="cat" style="background:${KCOL[p.kind]||"var(--c7)"}">${esc(p.kind)}</span>
      <span class="age">${p.age_min}–${p.age_max} سنين</span></div>
     <p class="cmeta">${esc(p.author_name)} · من ${ago(p.created_at)}</p>
     <p class="cbody">${nl(p.body)}</p>
-    <p class="say"><b>بتعلّم:</b> ${esc(p.teaches)}</p>
+    ${p.tags&&p.tags.length?`<div class="chips">${p.tags.map(t=>`<span class="chip ctag" data-t="${esc(t)}">${esc(t)}</span>`).join("")}</div>`:""}
     <button class="likebtn${liked?" on":""}" data-t="post" data-i="${p.id}">♥ <b>${p.likes||0}</b></button>
    </article>`;}).join("");
+  const pages=Math.ceil(TOTAL/20),cur=Math.floor(offset/20)+1;
+  pager.innerHTML=pages>1?`
+   <button ${offset===0?"disabled":""} data-o="${Math.max(0,offset-20)}">السابق</button>
+   <span>صفحة ${cur} من ${pages}</span>
+   <button ${cur>=pages?"disabled":""} data-o="${offset+20}">التالي</button>`:"";
  };
 
- const kf=$$("cFilter");
+ pager.onclick=e=>{const b=e.target.closest("button[data-o]");if(!b||b.disabled)return;
+  offset=+b.dataset.o;load();window.scrollTo({top:$$("cFeed").offsetTop-140,behavior:"smooth"});};
+
+ const kf=$$("cKindFilter");
  ["الكل",...KINDS].forEach((g,i)=>{const b=document.createElement("button");b.textContent=g;
   b.setAttribute("aria-pressed",i===0?"true":"false");
   b.onclick=()=>{[...kf.children].forEach(x=>x.setAttribute("aria-pressed","false"));
-   b.setAttribute("aria-pressed","true");curKind=g;drawFeed();};kf.appendChild(b);});
+   b.setAttribute("aria-pressed","true");curKind=g;offset=0;load();};kf.appendChild(b);});
 
- /* like buttons work for community posts and for built-in situations */
+ const drawTagFilter=tags=>{
+  const tf=$$("cTagFilter");
+  if(!tags.length){tf.innerHTML="";return;}
+  tf.innerHTML="";
+  [{t:"كل التاجات",n:0},...tags.slice(0,24)].forEach((x,i)=>{
+   const b=document.createElement("button");b.textContent=i===0?x.t:`${x.t} (${x.n})`;
+   b.setAttribute("aria-pressed",(i===0&&!curTag)||x.t===curTag?"true":"false");
+   b.onclick=()=>{[...tf.children].forEach(y=>y.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true");curTag=i===0?"":x.t;offset=0;load();};
+   tf.appendChild(b);});
+ };
+
+ /* likes work for community posts and for built-in situations */
  document.addEventListener("click",async e=>{
+  const tagEl=e.target.closest(".ctag");
+  if(tagEl){curTag=tagEl.dataset.t;offset=0;load();return;}
   const b=e.target.closest(".likebtn");if(!b)return;
   const t=b.dataset.t,i=b.dataset.i,key=t+":"+i;
   b.disabled=true;
   try{const r=await api("/like",{target_type:t,target_id:String(i)});
    if(r.liked)QA.likes.add(key);else QA.likes.delete(key);
    b.classList.toggle("on",r.liked);b.querySelector("b").textContent=r.count;
-   if(t==="post"){const p=FEED.find(x=>String(x.id)===String(i));if(p)p.likes=r.count;}
+   const p=FEED.find(x=>String(x.id)===String(i));if(p)p.likes=r.count;
   }catch(err){/* offline or API down: leave the count as it was */}
   b.disabled=false;});
 
- form.onsubmit=async ev=>{
-  ev.preventDefault();
-  if(!MYNAME){msg.textContent="اكتب اسمك الأول فوق";msg.className="cmsg err";return;}
-  const payload={kind,name:MYNAME,title:$$("cTitle").value.trim(),body:$$("cBody").value.trim(),
-   teaches:$$("cTeach").value.trim(),age_min:+amin.value,age_max:+amax.value};
-  if(payload.age_min>payload.age_max){msg.textContent="السن الأصغر لازم يكون أقل من الأكبر";msg.className="cmsg err";return;}
-  $$("cSubmit").disabled=true;msg.textContent="بنبعت…";msg.className="cmsg";
-  try{const r=await api("/post",payload);
-   msg.textContent=r.message||"اتنشرت — شكرًا 🌱";msg.className=r.status==="pending"?"cmsg":"cmsg ok";
-   form.reset();$$("cCount").textContent="0";amin.value="3";amax.value="5";
-   await load();
-  }catch(e){msg.textContent=e.message;msg.className="cmsg err";}
-  $$("cSubmit").disabled=false;};
-
  async function load(){
-  try{const d=await api("/feed");
-   FEED=d.posts||[];QA.likes=new Set(d.myLikes||[]);QA.sitLikes=d.sitLikes||{};
-   drawFeed();if(window.paintSitLikes)paintSitLikes();
+  try{const q=new URLSearchParams({offset:String(offset)});
+   if(curKind!=="الكل")q.set("kind",curKind);
+   if(curTag)q.set("tag",curTag);
+   const d=await api("/feed?"+q.toString());
+   FEED=d.posts||[];TOTAL=d.total||0;
+   QA.likes=new Set(d.myLikes||[]);QA.sitLikes=d.sitLikes||{};
+   drawTagFilter(d.tags||[]);drawFeed();
+   if(window.paintSitLikes)paintSitLikes();
   }catch(e){
    feedEl.innerHTML=`<div class="panel"><p style="margin:0">مش قادر أوصل للمشاركات دلوقتي (${esc(e.message)}). لو بتفتح الملف محليًا من غير سيرفر، ده طبيعي — الجزء ده بيشتغل على الموقع المنشور.</p></div>`;}
  }
  load();
 }
+
 /* partners */
 $("partners").innerHTML=`<h1>أدوات بنستعملها</h1>
 <p class="lede">حاجات بنستعملها إحنا فعلًا، مش إعلانات مدفوعة.</p>
@@ -2939,7 +3033,14 @@ const closeSheet=()=>{sheet.classList.remove("on");document.body.style.overflow=
 sheet.querySelector(".bd").onclick=()=>{if(Date.now()-(window.__sheetAt||0)<400)return;closeSheet();};
 sheet.querySelector(".hd button").onclick=closeSheet;
 addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet();});
+window.openSheetHTML=(title,html)=>{
+ sheetTitle.textContent=title;
+ sheet.querySelector(".sr").style.display="none";
+ sheetBody.innerHTML=html;
+ sheet.classList.add("on");document.body.style.overflow="hidden";window.__sheetAt=Date.now();
+};
 window.openSheet=(title,model)=>{
+ sheet.querySelector(".sr").style.display="";
  sheetTitle.textContent=title;sheetQ.value="";
  const draw=q=>{
   sheetBody.innerHTML="";let shown=0;
