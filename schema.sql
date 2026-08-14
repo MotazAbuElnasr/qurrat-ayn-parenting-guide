@@ -13,11 +13,15 @@ CREATE TABLE IF NOT EXISTS posts (
   kind        TEXT NOT NULL CHECK (kind IN ('موقف','قصة','قيمة')),
   title       TEXT NOT NULL,
   body        TEXT NOT NULL,
-  teaches     TEXT NOT NULL,
+  -- what it teaches, as pipe-wrapped tags: '|الصبر|ضبط الغضب|'
+  -- the wrapping pipes let LIKE '%|tag|%' match a whole tag and never a fragment
+  tags        TEXT NOT NULL DEFAULT '',
   age_min     INTEGER NOT NULL,
   age_max     INTEGER NOT NULL,
-  -- 'live' shows publicly; 'hidden' is set by the maintainer via ADMIN_KEY
+  -- 'live' shows publicly, 'pending' waits for a human, 'hidden' is taken down
   status      TEXT NOT NULL DEFAULT 'live',
+  -- why the moderator was asked to look (see src/moderation.js)
+  flags       TEXT NOT NULL DEFAULT '',
   created_at  INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS posts_feed ON posts (status, created_at DESC);
@@ -32,6 +36,3 @@ CREATE TABLE IF NOT EXISTS likes (
   PRIMARY KEY (target_type, target_id, visitor_id)
 );
 CREATE INDEX IF NOT EXISTS likes_target ON likes (target_type, target_id);
-
--- moderation: why a post was held (comma-separated reasons from src/moderation.js)
-ALTER TABLE posts ADD COLUMN flags TEXT NOT NULL DEFAULT '';
