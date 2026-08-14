@@ -443,7 +443,7 @@ h2.sec,article.sit,article.v{scroll-margin-top:calc(var(--toph,86px) + 62px)}
 <body>
 <div class="top"><div class="inner">
  <div class="brand"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#F3F1E7"/><path d="M32 40V25" stroke="#2F6B39" stroke-width="5" stroke-linecap="round"/><path d="M31 33c-10 0-15-6-13.5-15 8.5-.5 13.5 5.5 13.5 15z" fill="#4E8F55"/><path d="M33 29c10 0 15-6 13.5-15-8.5-.5-13.5 5.5-13.5 15z" fill="#8FC896"/><path d="M12 38h40c0 11-9 17-20 17s-20-6-20-17z" fill="#1D6A6A"/></svg><b>قُرّة عين</b><span>مرجع الطفولة المبكرة</span>
-  <label class="agebar">سن طفلك <select id="ageSel"></select></label>
+  <label class="agebar" id="dialectBar" hidden>اللهجة <select id="dialectSel"></select></label><label class="agebar">سن طفلك <select id="ageSel"></select></label>
   <a class="gh" href="https://github.com/MotazAbuElnasr/qurrat-ayn-parenting-guide" target="_blank" rel="noopener">★<span class="ghl"> Star on GitHub</span> <b class="ghstars"></b></a></div>
  <div id="shellState" style="padding:26px 16px;text-align:center;color:#54615B;font-size:15px"><p>بنحمّل المحتوى…</p></div>
 <div class="tabs" id="tabs" role="tablist"></div>
@@ -1468,9 +1468,23 @@ addEventListener("hashchange",()=>{const id=location.hash.replace("#","");if(TAB
 
 const DIALECT_NAMES={msa:"العربية الفصحى",eg:"مصري",sham:"شامي",gulf:"خليجي",maghreb:"مغربي"};
 const CONTENT_V=1;
+const DIALECTS_AVAILABLE=["eg"]; /* build:dialects */
 function shellMsg(html){
  const el=document.getElementById("shellState");
  if(el)el.innerHTML=html;
+}
+function paintDialects(current){
+ if(DIALECTS_AVAILABLE.length<2)return;
+ const bar=document.getElementById("dialectBar"),sel=document.getElementById("dialectSel");
+ if(!bar||!sel)return;
+ sel.innerHTML=DIALECTS_AVAILABLE.map(d=>
+  '<option value="'+d+'"'+(d===current?" selected":"")+'>'+DIALECT_NAMES[d]+'</option>').join("");
+ bar.hidden=false;
+ sel.onchange=()=>{
+  localStorage.setItem("dialect",sel.value);
+  // the whole page is built from the bundle, so swapping it means building again
+  location.reload();
+ };
 }
 async function pickDialect(){
  const saved=localStorage.getItem("dialect");
@@ -1498,6 +1512,7 @@ async function load(dialect){
   window.DIALECT=B.dialect||d;
   document.getElementById("shellState").remove();
   boot(B);
+  paintDialects(window.DIALECT);
  }catch(e){
   shellMsg('<p>مش قادر أحمّل المحتوى دلوقتي.</p><p><button type="button" onclick="location.reload()">جرّب تاني</button></p>');
   console.error("content load failed",e&&e.message);

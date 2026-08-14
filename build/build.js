@@ -1,0 +1,89 @@
+// Check every content bundle and stamp the shell with the ones that exist.
+//
+//   node build/build.js
+//
+// The bundles in docs/content are the content now — docs/index.html is the shell
+// that loads one of them. Editing content means editing a bundle, not the page.
+const fs = require('fs');
+const path = require('path');
+
+const ROOT = path.join(__dirname, '..');
+const DIR = path.join(ROOT, 'docs', 'content');
+const SHELL = path.join(ROOT, 'docs', 'index.html');
+const ORDER = ['msa', 'eg', 'sham', 'gulf', 'maghreb'];
+const NAMES = { msa: 'العربية الفصحى', eg: 'مصري', sham: 'شامي', gulf: 'خليجي', maghreb: 'مغربي' };
+
+const ARRAYS = ['VALUES', 'SITS', 'MEALS', 'ACT', 'DAY', 'BOX', 'SCHOOLS', 'RES', 'YTC', 'VID', 'ST', 'STX'];
+
+/* what the site's rules say, as a check rather than a hope */
+const LOCATOR = /(?<!\p{L})(?:ال)?(?:إمارات|امارات|أبوظبي|دبي|شارقة|مصر|إسكندرية|درهم|جنيه|ريال)(?!\p{L})/gu;
+// citing a source is not telling the reader where they live
+const SOURCEISH = /href=|مكتبة|مكتبات|منصة|قناة|مؤسسة|هيئة|جامعة|مهرجان|دار |Twinkl|منهج|بالعربي/;
+
+function check(file) {
+  const d = path.basename(file, '.json');
+  const problems = [];
+  let b;
+  try { b = JSON.parse(fs.readFileSync(file, 'utf8')); }
+  catch (e) { return { d, problems: ['JSON مكسور: ' + e.message] }; }
+
+  if (b.dialect !== d) problems.push(`dialect في الملف "${b.dialect}" مش "${d}"`);
+  if (!b.data) problems.push('مفيش data');
+  else for (const n of ARRAYS) {
+    if (!Array.isArray(b.data[n])) problems.push(`${n} ناقصة`);
+    else if (!b.data[n].length) problems.push(`${n} فاضية`);
+  }
+  if (!b.prose || !b.prose.ref || !b.prose.food) problems.push('prose ناقصة');
+
+  const text = JSON.stringify(b);
+  if (/`|\$\{/.test(text)) problems.push('فيه backtick أو ${ — بيكسر أي حقن في قالب');
+  for (let m; (m = LOCATOR.exec(text));) {
+    const ctx = text.slice(Math.max(0, m.index - 420), m.index + 80);
+    if (!SOURCEISH.test(ctx)) problems.push(`بيحدد مكان القارئ: ${m[0]} — …${ctx.slice(380, 470)}…`);
+  }
+  const counts = Object.fromEntries(ARRAYS.filter(n => b.data?.[n]).map(n => [n, b.data[n].length]));
+  return { d, problems, counts, size: fs.statSync(file).size };
+}
+
+const files = fs.existsSync(DIR) ? fs.readdirSync(DIR).filter(f => f.endsWith('.json')) : [];
+if (!files.length) { console.error('مفيش حزم في docs/content'); process.exit(1); }
+
+let bad = 0;
+const ok = [];
+for (const f of files.sort()) {
+  const r = check(path.join(DIR, f));
+  const head = `${(NAMES[r.d] || r.d).padEnd(14)} ${((r.size || 0) / 1024).toFixed(0)}KB`;
+  if (r.problems.length) {
+    bad++;
+    console.log(`✗ ${head}`);
+    r.problems.slice(0, 8).forEach(p => console.log('    ' + p));
+  } else {
+    ok.push(r.d);
+    console.log(`✓ ${head}  ${JSON.stringify(r.counts)}`);
+  }
+}
+
+/* Egyptian is the source every other dialect is written from, so the shapes
+   must line up — a missing value in a translation is a hole, not a choice */
+const base = ok.includes('eg') && JSON.parse(fs.readFileSync(path.join(DIR, 'eg.json'), 'utf8'));
+if (base) {
+  for (const d of ok.filter(x => x !== 'eg')) {
+    const b = JSON.parse(fs.readFileSync(path.join(DIR, d + '.json'), 'utf8'));
+    for (const n of ARRAYS) {
+      if (b.data[n].length !== base.data[n].length) {
+        console.log(`✗ ${d}: ${n} فيها ${b.data[n].length} والمصري فيه ${base.data[n].length}`);
+        bad++;
+      }
+    }
+  }
+}
+
+if (bad) { console.error(`\n${bad} مشكلة — مفيش ختم`); process.exit(1); }
+
+const list = ORDER.filter(d => ok.includes(d));
+const line = /const DIALECTS_AVAILABLE=\[[^\]]*\]; \/\* build:dialects \*\//;
+let page = fs.readFileSync(SHELL, 'utf8');
+if (!line.test(page)) { console.error('مفيش ختم لهجات في القشرة'); process.exit(1); }
+page = page.replace(line, 'const DIALECTS_AVAILABLE=' + JSON.stringify(list) + '; /* build:dialects */');
+fs.writeFileSync(SHELL, page);
+console.log(`\nاتختم في القشرة: ${list.map(d => NAMES[d]).join(' · ')}`);
