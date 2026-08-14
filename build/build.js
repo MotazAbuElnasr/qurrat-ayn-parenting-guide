@@ -41,6 +41,21 @@ function check(file) {
     const ctx = text.slice(Math.max(0, m.index - 420), m.index + 80);
     if (!SOURCEISH.test(ctx)) problems.push(`بيحدد مكان القارئ: ${m[0]} — …${ctx.slice(380, 470)}…`);
   }
+  /* A value's name is a key, not just a heading: situations point at it through
+     vals, videos through VID[5], and the reference through goVal('…'). Translate
+     the name without moving the references and every one of those links dies
+     silently — the chip renders, the click does nothing. */
+  if (b.data?.VALUES) {
+    const names = new Set(b.data.VALUES.map(v => v.name));
+    const dead = new Set();
+    for (const s of b.data.SITS || []) for (const v of s.vals || []) if (!names.has(v)) dead.add(`SITS «${s.t}» → ${v}`);
+    for (const v of b.data.VID || []) for (const n of (Array.isArray(v[5]) ? v[5] : [])) if (!names.has(n)) dead.add(`VID → ${n}`);
+    for (const m of (b.prose?.ref || '').matchAll(/goVal\('([^']+)'\)/g)) if (!names.has(m[1])) dead.add(`prose.ref → ${m[1]}`);
+    for (const m of (b.prose?.food || '').matchAll(/goVal\('([^']+)'\)/g)) if (!names.has(m[1])) dead.add(`prose.food → ${m[1]}`);
+    for (const x of [...dead].slice(0, 10)) problems.push('وصلة ميتة لقيمة: ' + x);
+    if (dead.size > 10) problems.push(`… و${dead.size - 10} وصلة ميتة كمان`);
+  }
+
   const counts = Object.fromEntries(ARRAYS.filter(n => b.data?.[n]).map(n => [n, b.data[n].length]));
   return { d, problems, counts, size: fs.statSync(file).size };
 }
