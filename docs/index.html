@@ -231,9 +231,31 @@ footer b{color:var(--ink)}
 .brand .gh{align-self:center;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);text-decoration:none;font-size:12.5px;font-weight:600;direction:ltr;white-space:nowrap}
 .brand .gh:hover{background:var(--line)}
 .brand .gh .ghstars{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11.5px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;background:#EFF2ED;border-radius:999px;padding:2px 7px;margin-inline-start:2px}
-/* ponytail: on phones the brand row can't hold title+subtitle+age+star — drop the subtitle and the star's label */
-@media (max-width:640px){.brand .ghl{display:none}
-.gh>*{display:inline-flex;align-items:center;line-height:1}.brand>span{display:none}.brand{gap:8px}}
+/* the pickers ride along in the brand row wherever it is wide enough to hold them */
+.picks{display:contents}
+.agebar[hidden]{display:none}
+/* and below that it isn't. Left to wrap on its own the row strands the pickers and
+   the star on ragged half-lines, so instead the row keeps identity — mark, name,
+   star — and the two pickers take a line of their own and share it. Holds its
+   shape from 320px up. */
+@media (max-width:860px){
+ .brand{gap:7px 8px;align-items:center}
+ .brand>b{flex:0 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .brand .gh{margin-inline-start:auto}
+ .picks{display:flex;order:9;flex:1 1 100%;min-width:0;gap:8px;margin:0}
+ .picks .agebar{flex:1 1 auto;min-width:0;margin-inline-start:0;gap:5px;white-space:nowrap}
+ .picks .agebar>span{flex:0 0 auto}
+ .picks .agebar select{flex:1 1 auto;width:100%;min-width:0;padding:4px 6px;text-overflow:ellipsis}
+}
+/* on a phone the subtitle, the star's label and the dialect's label go — a list of
+   dialect names needs no one to announce that it is one */
+@media (max-width:640px){
+ .brand .ghl{display:none}
+ .gh>*{display:inline-flex;align-items:center;line-height:1}
+ .brand>span{display:none}
+ .picks #dialectBar>span{display:none}
+ .picks .agebar{flex:1 1 0}
+}
 @media(max-width:620px){
  .tabs button{padding:6px 9px;font-size:12px}
  input,select,textarea,.cform input,.cform textarea,.cform select,input[type=search]{font-size:16px}
@@ -309,6 +331,9 @@ article.sit{scroll-margin-top:calc(var(--toph,86px) + 68px)}
 .card,.meal{content-visibility:auto;contain-intrinsic-size:auto 150px}
 .school,.panel,.layer,.m{content-visibility:auto;contain-intrinsic-size:auto 200px}
 table{content-visibility:auto;contain-intrinsic-size:auto 300px}
+/* a skipped block reports its placeholder height, not its real one — so the whole
+   page is a guess until it is drawn. `nocv` puts it back for the length of a jump. */
+html.nocv :is(.v,.sit,.cpost,.card,.meal,.school,.panel,.layer,.m,table){content-visibility:visible}
 @media print{.v,.sit,.cpost,.card,.meal,.school,.panel,.layer,.m,table{content-visibility:visible}}
 /* value card sections */
 .v>*+*{margin-top:11px}
@@ -443,7 +468,7 @@ h2.sec,article.sit,article.v{scroll-margin-top:calc(var(--toph,86px) + 62px)}
 <body>
 <div class="top"><div class="inner">
  <div class="brand"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#F3F1E7"/><path d="M32 40V25" stroke="#2F6B39" stroke-width="5" stroke-linecap="round"/><path d="M31 33c-10 0-15-6-13.5-15 8.5-.5 13.5 5.5 13.5 15z" fill="#4E8F55"/><path d="M33 29c10 0 15-6 13.5-15-8.5-.5-13.5 5.5-13.5 15z" fill="#8FC896"/><path d="M12 38h40c0 11-9 17-20 17s-20-6-20-17z" fill="#1D6A6A"/></svg><b>قُرّة عين</b><span>مرجع الطفولة المبكرة</span>
-  <label class="agebar" id="dialectBar" hidden>اللهجة <select id="dialectSel"></select></label><label class="agebar">سن طفلك <select id="ageSel"></select></label>
+  <div class="picks"><label class="agebar" id="dialectBar" hidden><span>اللهجة</span> <select id="dialectSel"></select></label><label class="agebar"><span>سن طفلك</span> <select id="ageSel"></select></label></div>
   <a class="gh" href="https://github.com/MotazAbuElnasr/qurrat-ayn-parenting-guide" target="_blank" rel="noopener">★<span class="ghl"> Star on GitHub</span> <b class="ghstars"></b></a></div>
  <div id="shellState" style="padding:26px 16px;text-align:center;color:#54615B;font-size:15px"><p>بنحمّل المحتوى…</p></div>
 <div class="tabs" id="tabs" role="tablist"></div>
@@ -736,8 +761,7 @@ $("ref").innerHTML=B.prose.ref;
  window.goVal=name=>{go("values");[...vf.children].forEach((x,i)=>x.setAttribute("aria-pressed",i===0?"true":"false"));
   cur="الكل";vs.value=name;ap();if(window.navFilter)navFilter("values",name);
   const t=[...vl.querySelectorAll("article.v")].find(e=>e.dataset.name===name);
-  if(t){window.__navLock=Date.now()+1200;
-   requestAnimationFrame(()=>requestAnimationFrame(()=>scrollToEl(t)));}};
+  if(t){window.__navLock=Date.now()+2000;scrollToEl(t);}};
 }
 /* stories */
 {
@@ -1252,33 +1276,85 @@ window.openSheet=(title,model)=>{
  if(innerWidth>=760)setTimeout(()=>sheetQ.focus(),60);
 };
 
-/* Anything sticky at the top hides the target unless we stop short of it.
-   Measure it — the header grows when the age filter shows a chip. */
+/* Two things sit at the top and hide the target unless we stop short of them:
+   the page header, and the tab's own index bar that parks right under it. */
 function stickyTop(){
- let h=0;
- document.querySelectorAll("body *").forEach(el=>{
-  const cs=getComputedStyle(el);
-  if(cs.position!=="sticky"&&cs.position!=="fixed")return;
-  const top=parseFloat(cs.top);
-  // where it will sit once stuck, not where it happens to be right now
-  if(!isFinite(top)||top<0||top>300)return;
-  const hgt=el.getBoundingClientRect().height;
-  if(hgt)h=Math.max(h,top+hgt);
- });
- return h+12;
+ const top=document.querySelector(".top");
+ const bar=document.querySelector("section.view.on .navbar");
+ return (top?top.offsetHeight:0)+(bar?bar.offsetHeight:0)+12;
 }
+/* Landing on a heading is not one jump, which is why aiming once never worked.
+   The distance we measure describes a page that does not exist yet: skipped
+   blocks are still at their placeholder height, the sub-page swap has not
+   happened, the web font has not landed. Every one of those moves the target
+   after we aimed, and the jump ends up thousands of pixels off.
+   So: put the skipped blocks back, reveal the target, aim — then keep re-aiming
+   until the target holds still for three frames. */
+let __cvOff=0,__jump=0;
 window.scrollToEl=el=>{
- const y=el.getBoundingClientRect().top+scrollY-stickyTop();
- window.scrollTo({top:Math.max(0,y),behavior:"smooth"});
+ if(!el)return;
+ const mine=++__jump;                      // a newer jump owns the scroll; this one lets go
+ if(window.openSub)openSub(el);            // a target on a closed sub-page has no position
+ // picking from the index names one thing. If the age filter is what's hiding it,
+ // the reader lands on an empty list instead, so the filter gives way and says so.
+ const amin=+(el.dataset||{}).amin,amax=+(el.dataset||{}).amax,sel=document.getElementById("ageSel");
+ if(sel&&window.AGE&&amin&&!(amin<=window.AGE&&window.AGE<=amax)){
+  sel.value="0";sel.dispatchEvent(new Event("change"));
+ }
+ clearTimeout(__cvOff);
+ document.documentElement.classList.add("nocv");
+ void document.body.offsetHeight;          // resolve the placeholders before measuring
+ const aim=()=>{
+  const max=Math.max(0,document.documentElement.scrollHeight-innerHeight);
+  return Math.max(0,Math.min(max,el.getBoundingClientRect().top+scrollY-stickyTop()));
+ };
+ const first=aim();
+ // a smooth glide reads well next door and is just a long wait across the tab
+ window.scrollTo({top:first,behavior:Math.abs(first-scrollY)<innerHeight*1.2?"smooth":"auto"});
+ // the moment the reader scrolls themselves, the landing is theirs to finish.
+ // touchmove, not touchstart — a finger landing on the screen is not a scroll,
+ // and treating every tap as one strands the jump wherever it had got to.
+ const ac=new AbortController();let taken=false;
+ ["wheel","touchmove","keydown"].forEach(t=>
+  addEventListener(t,()=>{taken=true;},{passive:true,signal:ac.signal}));
+ let n=0,hold=0,last=-1;
+ const settle=()=>{
+  if(taken||mine!==__jump)return stop();
+  if(scrollY===last){                      // only correct once the scroll is at rest
+   const y=aim();
+   if(Math.abs(y-scrollY)<=1)hold++;else{hold=0;window.scrollTo(0,y);}
+  }else hold=0;
+  last=scrollY;
+  if(hold<3&&++n<90)requestAnimationFrame(settle);
+  else __cvOff=setTimeout(finish,200);
+ };
+ // handing the page back to content-visibility can nudge it, so aim once more
+ // afterwards — where we come to rest is measured on the page the reader gets
+ const finish=()=>{
+  const y0=scrollY,ours=mine===__jump;stop();
+  void document.body.offsetHeight;
+  if(!taken&&ours){const y=aim();if(Math.abs(y-y0)>1)window.scrollTo(0,y);}
+  // a web font arriving late re-flows every heading under it, and Safari has no
+  // scroll anchoring to absorb that. Re-aim once when the fonts are really in —
+  // but only if they arrive while the reader is still where we put them.
+  if(document.fonts&&document.fonts.status!=="loaded"){
+   const by=Date.now()+4000;
+   document.fonts.ready.then(()=>{
+    if(taken||mine!==__jump||Date.now()>by)return;
+    const y=aim();if(Math.abs(y-scrollY)>1)window.scrollTo(0,y);
+   });
+  }
+ };
+ // only the jump that still owns the scroll hands content-visibility back
+ const stop=()=>{ac.abort();if(mine===__jump)document.documentElement.classList.remove("nocv");};
+ requestAnimationFrame(settle);
 };
 
 /* per-tab index model: groups of {label, sub, run()} */
 function indexFor(id){
  const v=$(id);
  const label=h=>h.textContent.replace(/\(.*?\)/g,"").replace(/^[0-9]+ · /,"").trim();
- const scrollTo=elm=>{window.__navLock=Date.now()+1200;openSub(elm);
-  // two frames: one for the sub-page swap, one for the layout it triggers
-  requestAnimationFrame(()=>requestAnimationFrame(()=>scrollToEl(elm)));};
+ const scrollTo=elm=>{window.__navLock=Date.now()+2000;scrollToEl(elm);};
  if(id==="values"){
   const LVNAME={1:"الأساس",2:"البناء",3:"التوسع",4:"العمق"};
   return [1,2,3,4].map(l=>({g:`المستوى ${l} — ${LVNAME[l]}`,
@@ -1361,9 +1437,12 @@ window.openSub=node=>{
  [...wrap.querySelectorAll(".subpage")].forEach(x=>x.classList.toggle("on",x===box));
  [...nav.children].forEach(b=>b.setAttribute("aria-pressed",String(b.textContent===box.dataset.p)));
 };
-window.secGo=(tab,match)=>{go(tab);setTimeout(()=>{const h=[...$(tab).querySelectorAll("h2.sec")].find(x=>x.textContent.includes(match.replace(/^[0-9]+ · /,"")));if(h){openSub(h);window.__navLock=Date.now()+1200;requestAnimationFrame(()=>requestAnimationFrame(()=>scrollToEl(h)));}},90);};
+window.secGo=(tab,match)=>{go(tab);setTimeout(()=>{const h=[...$(tab).querySelectorAll("h2.sec")].find(x=>x.textContent.includes(match.replace(/^[0-9]+ · /,"")));if(h){window.__navLock=Date.now()+2000;scrollToEl(h);}},90);};
 const setTop=()=>document.documentElement.style.setProperty("--toph",document.querySelector(".top").offsetHeight+"px");
 setTop();addEventListener("resize",setTop);
+/* the header changes height after boot too — the dialect picker appears, the web
+   font lands — and a stale --toph parks the index bar over the text it points at */
+if(window.ResizeObserver)new ResizeObserver(setTop).observe(document.querySelector(".top"));
 /* ===== sub-pages: turn one long tab into a few short ones ===== */
 const SUBPAGES=B.nav.subpages;
 Object.entries(SUBPAGES).forEach(([tab,pages])=>{
