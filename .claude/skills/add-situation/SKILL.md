@@ -84,9 +84,9 @@ console.log(JSON.stringify(A[0],null,1))"
 وبيدوّر على دليل متنقل من سن تاني.
 
 زوّد عليها حاجتين خاصين بالمواقف:
-- **هل الـ`do` قابلة للتنفيذ وانت ماسك طفل بيزعق؟** خطوة محتاجة تحضير
+- **هل خطوات `now` قابلة للتنفيذ وانت ماسك طفل بيزعق؟** خطوة محتاجة تحضير
   مش خطوة، دي `prevent`.
-- **هل الـ`caveat` بيقول الخلاف الحقيقي** ولا مجرد إخلاء مسؤولية عام؟
+- **هل `evi.why` بيقول الضعيف في الكلام** ولا بيبيع ثقة أكتر من الأدلة؟
 
 ## 4 · الدمج والتحقق
 
@@ -95,7 +95,8 @@ console.log(JSON.stringify(A[0],null,1))"
 
 ```js
 SITS.length
-SITS.filter(s=>!s.caveat||!s.evi).length          // لازم صفر
+SITS.filter(s=>!s.evi||!s.now||!s.now.length).length   // لازم صفر
+SITS.flatMap(s=>s.vals).filter(v=>!VALUES.some(x=>x.name===v))  // شيبس ميتة
 document.querySelectorAll('#v-sits article.sit').length
 ```
 
@@ -111,6 +112,6 @@ document.querySelectorAll('#v-sits article.sit').length
 ## 6 · القفل
 
 نفس تشيك ليست `add-value` قسم 7، وزوّد:
-- [ ] كل موقف عليه `caveat` و`evi`
+- [ ] كل موقف عليه العشر مفاتيح، و`vals` كلها بتوصّل لقيم موجودة
 - [ ] عدادات المواقف اتحدّثت وبتتبع الفلتر
 - [ ] الموقف اتفتح في المتصفح واللايك اشتغل عليه
