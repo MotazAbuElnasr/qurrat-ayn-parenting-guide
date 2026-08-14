@@ -2946,7 +2946,7 @@ $("food").innerHTML=`<h1>الأكل واللانش بوكس</h1>
    if(!MYNAME){MYNAME=name;localStorage.setItem("qaName",name);drawWho();}
    chosen=[];offset=0;
    closeSheet();
-   await load();
+   await load(true);
    alertLine(r.message||"اتنشرت — شكرًا 🌱",r.status==="pending");
   }catch(e){msg.textContent=e.message;msg.className="cmsg err";$$("cSubmit").disabled=false;}
  }
@@ -3015,10 +3015,12 @@ $("food").innerHTML=`<h1>الأكل واللانش بوكس</h1>
   }catch(err){/* offline or API down: leave the count as it was */}
   b.disabled=false;});
 
- async function load(){
+ async function load(fresh){
   try{const q=new URLSearchParams({offset:String(offset)});
    if(curKind!=="الكل")q.set("kind",curKind);
    if(curTag)q.set("tag",curTag);
+   // the feed is cached for a few seconds; the person who just posted skips it
+   if(fresh)q.set("fresh","1");
    const d=await api("/feed?"+q.toString());
    FEED=d.posts||[];TOTAL=d.total||0;
    QA.likes=new Set(d.myLikes||[]);QA.sitLikes=d.sitLikes||{};
