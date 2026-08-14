@@ -299,6 +299,9 @@ article.sit{scroll-margin-top:calc(var(--toph,86px) + 68px)}
  border:1px solid var(--line);border-radius:11px;padding:9px 16px;color:var(--ink)}
 .subnav button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
 .subpage{display:none}
+#v-sits.searching .subpage{display:block}
+.subnav button i{font-style:normal;opacity:.62;font-size:11.5px;margin-inline-start:3px}
+.subnav button.nohit{opacity:.45}
 .subpage.on{display:block}
 .subpage>h2.sec:first-child{margin-top:6px;border-top:0;padding-top:0}
 /* only lay out what is actually on screen */
@@ -2477,18 +2480,30 @@ ${(()=>{const c={strong:0,moderate:0,practice:0};VALUES.forEach(v=>{if(v.evi)c[v
    <button class="likebtn" data-t="sit" data-i="${x.t}">♥ <b>0</b></button>
   </article>`)));});
  const qs=document.getElementById("qs"),qc=document.getElementById("qc");
+ // #ql is flattened away by the sub-page splitter later — always query the tab
+ const box=()=>$("sits");
  const apQ=()=>{const q=qs.value.trim().toLowerCase();let n=0;
-  [...ql.querySelectorAll("article.sit")].forEach(e=>{const ok=!q||e.dataset.t.includes(q);
+  [...box().querySelectorAll("article.sit")].forEach(e=>{const ok=!q||e.dataset.t.includes(q);
    e.classList.toggle("hidden",!ok);if(ok)n++;});
-  [...ql.querySelectorAll("h2.sec")].forEach(h=>{
-   const all=[...ql.querySelectorAll(`article.sit[data-g="${h.dataset.g}"]`)];
+  [...box().querySelectorAll("h2.sec")].forEach(h=>{
+   const all=[...box().querySelectorAll(`article.sit[data-g="${h.dataset.g}"]`)];
    const vis=all.filter(e=>!e.classList.contains("hidden")).length;
    const c=h.querySelector(".seccount");
    if(c)c.textContent=vis===all.length?`(${all.length} موقف)`:`(${vis} من ${all.length})`;
    h.classList.toggle("hidden",!vis);});
-  qc.textContent=q?`ظاهر ${n} من ${SITS.length} موقف`:"";};
+  qc.textContent=q?`ظاهر ${n} من ${SITS.length} موقف`:"";
+  const wrap=$("sits");
+  wrap.classList.toggle("searching",!!q);
+  const nav=wrap.querySelector(".subnav");
+  if(nav)[...wrap.querySelectorAll(".subpage")].forEach((box,i)=>{
+   const b=nav.children[i];if(!b)return;
+   const vis=[...box.querySelectorAll("article.sit")].filter(e=>!e.classList.contains("hidden")).length;
+   let tag=b.querySelector("i");
+   if(!tag){tag=document.createElement("i");b.appendChild(tag);}
+   tag.textContent=q?` ${vis}`:"";
+   b.classList.toggle("nohit",!!q&&!vis);});};
  qs.oninput=apQ;apQ();
- window.paintSitLikes=()=>{[...ql.querySelectorAll('.likebtn[data-t="sit"]')].forEach(b=>{
+ window.paintSitLikes=()=>{[...box().querySelectorAll('.likebtn[data-t="sit"]')].forEach(b=>{
   const n=(window.QA&&QA.sitLikes[b.dataset.i])||0;b.querySelector("b").textContent=n;
   b.classList.toggle("on",!!(window.QA&&QA.likes.has("sit:"+b.dataset.i)));});};
  if(window.QA)paintSitLikes();
@@ -3409,7 +3424,15 @@ window.secGo=(tab,match)=>{go(tab);setTimeout(()=>{const h=[...$(tab).querySelec
 const setTop=()=>document.documentElement.style.setProperty("--toph",document.querySelector(".top").offsetHeight+"px");
 setTop();addEventListener("resize",setTop);
 /* ===== sub-pages: turn one long tab into a few short ones ===== */
-const SUBPAGES={ref:Object.entries(TOC2.ref),food:[
+const SUBPAGES={ref:Object.entries(TOC2.ref),
+ sits:[
+  ["انفعالات ومشاعر",["انفعالات ومشاعر"]],
+  ["سلوك مؤذي",["سلوك مؤذي"]],
+  ["الروتين اليومي",["الروتين اليومي"]],
+  ["أماكن عامة وخروجات",["أماكن عامة وخروجات"]],
+  ["اجتماعي وإخوات",["اجتماعي وإخوات"]],
+ ],
+ food:[
  ["اقتراح وجبة",["اقترحلي وجبة"]],
  ["بنك الوجبات",["بنك الوجبات"]],
  ["اللانش بوكس",["اللانش بوكس","لما يرفض الأكل"]],
