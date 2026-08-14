@@ -265,8 +265,7 @@ article.sit{scroll-margin-top:calc(var(--toph,86px) + 68px)}
 .sheet .it:hover{border-color:var(--ink)}
 .sheet .it[aria-current="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
 .sheet .it small{display:block;font-size:11.5px;opacity:.65;margin-top:2px}
-@media(min-width:760px){.sheet .pnl{inset-inline:auto 50%;transform:translateX(50%);bottom:auto;top:11vh;width:min(560px,92vw);
- max-height:74vh;border-radius:16px}}
+@media(min-width:760px){.sheet .pnl{inset-inline:0;margin-inline:auto;bottom:auto;top:11vh;width:min(560px,92vw);max-height:74vh;border-radius:16px}}
 h2.sec,article.sit,article.v{scroll-margin-top:calc(var(--toph,86px) + 62px)}
 @media(max-width:620px){
  .top .inner{padding-top:7px;padding-bottom:7px}
@@ -1429,7 +1428,7 @@ ${[
 /* ===== المرجع ===== */
 $("ref").innerHTML=`
 <h1>المرجع التربوي</h1>
-<p class="lede">ده الجزء اللي ليك أنت: المدارس التربوية، وأقسام النمو اليومي والمشاعر والحماية والمدرسة. المواقف اليومية بقت في تبويبها الخاص «المواقف».</p>
+<p class="lede">ده الجزء اللي ليك أنت مش لطفلك: المدارس التربوية وإمتى تستخدم أنهي واحدة، والنوم والأكل والشاشات واللغة والحماية والمدرسة والمواسم — كل قسم بمصادره.</p>
 
 <h2 class="sec">1 · المدارس التربوية</h2>
 <p class="note">مفيش مدرسة صح مية بالمية. الأصح إنك تعرف إمتى تستخدم إيه: سيجل وفابر وقت الانفعال، والتربية الإيجابية للحدود، والسلوكية للروتين المتكرر، ومونتيسوري للاستقلال.</p>
@@ -2090,7 +2089,7 @@ ${SCHOOLS.map(s=>`<div class="school"><h4>${s[0]}</h4><p class="src">${s[1]}</p>
 /* values */
 {
  const C={"ذات":"var(--c6)","تعامل":"var(--c1)","دين وأخلاق":"#2C6E49","جسد وأمان":"var(--c3)","عقل ومهارة":"var(--c2)"};
- $("values").innerHTML=`<h1>مسار القيم — ${VALUES.length} قيمة</h1><p class="lede">المسار كله والقيم في مكان واحد: 4 مستويات مرتبة بالاعتمادية، ودوس <b>الفهرس</b> فوق عشان تنقل لأي قيمة. كل قيمة: الطريقة، خطوات على قد القيمة (3-6) من غير مواعيد، علامة الإتقان، الأخطاء الشائعة، تكييف على طبع طفلك، نشاطين، المحور الإسلامي، و«مهارة عملية» — حاجة بإيده (يلبس، يحضّر، يرتّب…) بتتدرّب جنب القيمة عشان الاستقلال يكبر مع الخلق، ومصادر وقصص وفيديوهات محددة. شفت علامة الإتقان بتحصل لوحدها؟ انتقل للقيمة اللي بعدها في المسار.</p>
+ $("values").innerHTML=`<h1>مسار القيم — ${VALUES.length} قيمة</h1><p class="lede">القيم مرتبة في 4 مستويات، كل مستوى بيتبني على اللي قبله — ابدأ من المستوى الأول ونزّل على مهلك. كل قيمة: الطريقة، خطوات على قد القيمة (3-6) من غير مواعيد، علامة الإتقان، الأخطاء الشائعة، تكييف على طبع طفلك، نشاطين، المحور الإسلامي، و«مهارة عملية» — حاجة بإيده (يلبس، يحضّر، يرتّب…) بتتدرّب جنب القيمة عشان الاستقلال يكبر مع الخلق، ومصادر وقصص وفيديوهات محددة. شفت علامة الإتقان بتحصل لوحدها؟ انتقل للقيمة اللي بعدها في المسار.</p>
   <div class="filter" id="vf"></div><input type="search" id="vs" placeholder="دوّر… (صدق، غضب، مشاركة، صلاة)">
   <div class="count" id="vc"></div><div id="vl"></div>`;
  const vl=document.getElementById("vl");
@@ -2615,6 +2614,7 @@ function indexFor(id){
 /* build the sticky bar for each tab that has an index */
 const NAVS={};
 TABS.forEach(([id,tabLabel])=>{
+ if(id==="home")return;
  const model=indexFor(id);
  if(!model||!model.length)return;
  const v=$(id);
