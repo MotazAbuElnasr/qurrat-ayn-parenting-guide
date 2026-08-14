@@ -49,6 +49,34 @@ const bad = (msg, status = 400, extra) => json({ error: msg }, status, extra);
  * Per-IP burst limit. Fails open when the binding is missing so a local run or a
  * config slip degrades to today's behaviour instead of locking everyone out.
  */
+/* Which Arabic a reader is most likely to want, from where they are.
+   Countries with many nationalities in one place default to formal Arabic —
+   a Levantine phrase would land wrong on half the room. Countries with one
+   dominant dialect get that dialect. The reader can always override. */
+// what a reader could want, and what has actually been written and reviewed.
+// Sending someone to a bundle that does not exist costs them a failed request.
+const DIALECTS = ['msa', 'eg', 'sham', 'gulf', 'maghreb'];
+const AVAILABLE = ['eg'];
+const BY_COUNTRY = {
+  EG: 'eg',
+  SY: 'sham', LB: 'sham', JO: 'sham', PS: 'sham',
+  MA: 'maghreb', DZ: 'maghreb', TN: 'maghreb', LY: 'maghreb',
+};
+
+function dialectFor(request, url) {
+  const country = (request.cf && request.cf.country) || null;
+  const asked = url.searchParams.get('d');
+  const want = (asked && DIALECTS.includes(asked)) ? asked
+    : (country && BY_COUNTRY[country]) || 'msa';
+  const dialect = AVAILABLE.includes(want) ? want : AVAILABLE[0];
+  return {
+    dialect,
+    wanted: want,
+    from: asked ? 'query' : (BY_COUNTRY[country] ? 'country' : 'default'),
+    country,
+  };
+}
+
 async function overLimit(binding, key) {
   if (!binding || typeof binding.limit !== 'function') return false;
   try {
@@ -308,6 +336,20 @@ export default {
     }
 
     if (!url.pathname.startsWith('/api/')) return env.ASSETS.fetch(request);
+
+    // Which dialect to load. The bundle itself is a static asset so it never
+    // passes through here — this only answers the question, in a few hundred bytes.
+    if (url.pathname === '/api/dialect') {
+      const pick = dialectFor(request, url);
+      return new Response(JSON.stringify({ ...pick, available: AVAILABLE }), {
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+          // varies by country, so it is the reader's to keep, not a shared cache's
+          'cache-control': 'private, max-age=86400',
+        },
+      });
+    }
+
     if (!env.DB) return bad('قاعدة البيانات مش متوصلة', 503);
 
     const me = vid(request);
