@@ -123,6 +123,16 @@ td.k{white-space:nowrap;font-size:12.5px;color:var(--soft)}
 .hcard h3{margin:0 0 3px;font-size:16px}
 .hcard p{margin:0;font-size:13px;color:var(--soft)}
 .hcard .n{display:inline-block;margin-top:8px;font-size:12px;font-weight:700;color:var(--hc);background:#F3F5F1;border-radius:6px;padding:2px 8px}
+.why{background:linear-gradient(180deg,#F5F8F3,var(--card) 70%);border:1px solid var(--line);border-radius:18px;padding:22px 24px 18px;margin:12px 0 4px}
+.why p{max-width:66ch;margin:0 0 13px;font-size:15px;line-height:1.95}
+.why p.op{font-size:16.5px;font-weight:500;line-height:1.9}
+.why p.ask{margin-bottom:4px;font-weight:600}
+.why3{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px;margin:12px 0 18px}
+.why3 div{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--wc);border-radius:12px;padding:11px 13px}
+.why3 b{display:block;font-family:"Aref Ruqaa",serif;font-size:18px;color:var(--wc);margin-bottom:3px}
+.why3 span{display:block;font-size:13.5px;color:var(--soft);line-height:1.72}
+.whysig{margin:16px 0 0;padding-top:12px;border-top:1px dashed var(--line);font-size:13.5px;color:var(--soft)}
+@media(max-width:620px){.why{padding:18px 16px 15px;border-radius:14px}.why p{font-size:14.8px}.why p.op{font-size:15.8px}}
 .stats{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
 .stat{cursor:pointer;font:inherit;text-align:inherit;transition:border-color .12s,background .12s}
 .stat:hover,.stat:focus-visible{border-color:var(--a);background:#F1F7F3}
@@ -584,6 +594,17 @@ $("home").innerHTML=`
  <h1>${UI.home.h1}</h1>
  <p class="lede">${UI.home.lede}</p>
  <div class="stats"><button class="stat" type="button" onclick="go('values')"><b>${VALUES.length}</b> قيمة</button><button class="stat" type="button" onclick="go('sits')"><b>${SITS.length}</b> موقف</button><button class="stat" type="button" onclick="go('stories')"><b>${ST.length+STX.length}</b> قصة</button><button class="stat" type="button" onclick="go('vids')"><b>${VID.length}</b> فيديو وبلاي ليست</button><button class="stat" type="button" onclick="go('acts')"><b>${ACT.length}</b> نشاط</button><button class="stat" type="button" onclick="go('food')"><b>${MEALS.length}</b> وجبة</button><button class="stat" type="button" onclick="go('ref')"><b data-refn>34</b> قسم مرجعي</button></div>
+</div>
+
+<h2 class="sec">${UI.home.why.h2}</h2>
+<div class="why">
+ <p class="op">${UI.home.why.p1}</p>
+ <p>${UI.home.why.p2}</p>
+ <p class="ask">${UI.home.why.p3}</p>
+ <div class="why3">${UI.home.why.points.map(([t,d],i)=>`<div style="--wc:var(--c${[1,4,6][i]||7})"><b>${t}</b><span>${d}</span></div>`).join("")}</div>
+ <p>${UI.home.why.p4}</p>
+ <p>${UI.home.why.p5}</p>
+ <p class="whysig">${UI.home.why.sig}</p>
 </div>
 
 ${[
