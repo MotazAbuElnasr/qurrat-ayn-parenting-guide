@@ -50,17 +50,17 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);
  font-family:"IBM Plex Sans Arabic",system-ui,"Segoe UI",Tahoma,sans-serif;font-size:16px;line-height:1.72}
-.wrap{max-width:1240px;margin:0 auto;padding:0 16px 90px}
+.wrap{max-width:1420px;margin:0 auto;padding:0 16px 90px}
 a{color:var(--a)}
 .top{position:sticky;top:0;z-index:30;background:rgba(233,237,231,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
-.top .inner{max-width:1240px;margin:0 auto;padding:10px 16px}
+.top .inner{max-width:1420px;margin:0 auto;padding:10px 16px}
 .brand{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
 .brand .mark{width:36px;height:36px;flex:0 0 auto;border-radius:8px;margin-inline-end:9px}
 @media(max-width:620px){.brand .mark{width:30px;height:30px;margin-inline-end:7px}}
 .brand b{font-family:"Aref Ruqaa",serif;font-size:25px;line-height:1.15}
 .brand span{font-size:12px;color:var(--soft)}
-.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
-.tabs button{flex:0 0 auto;font:inherit;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink);
+.tabs{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px}
+.tabs button{flex:0 0 auto;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--ink);
  background:var(--card);border:1px solid var(--line);border-radius:9px;padding:5px 12px;white-space:nowrap}
 .tabs button[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
 .tabs button i{font-style:normal;display:inline-block;width:7px;height:7px;border-radius:2px;background:var(--tc);margin-inline-end:6px}
@@ -1595,7 +1595,7 @@ const extraTab=document.createElement("button");extraTab.setAttribute("role","ta
 extraTab.style.display="none";extraTab.onclick=()=>go(extraTab.dataset.id);
 const moreBtn=document.createElement("button");moreBtn.className="moretab";moreBtn.innerHTML='<i></i>المزيد';
 const fitCount=()=>{const w=innerWidth;
- return w<560?4:w<760?5:w<1000?7:w<1180?9:TABORDER.length;};
+ return w<560?4:w<720?5:w<920?7:w<1120?9:w<1320?11:TABORDER.length;};
 function buildTabs(){
  const n=fitCount();
  const next=TABORDER.slice(0,n);

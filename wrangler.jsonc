@@ -3,7 +3,7 @@
   "account_id": "b227d29f089d4cf32919627884724ac8",
   "main": "./src/index.js",
   "compatibility_date": "2026-08-01",
-  "assets": { "directory": "./docs", "binding": "ASSETS", "run_worker_first": ["/api/*"] },
+  "assets": { "directory": "./docs", "binding": "ASSETS", "run_worker_first": ["/api/*", "/*.mp4"] },
   "routes": [{ "pattern": "qurrat-ain.aro.day", "custom_domain": true }],
   "observability": { "enabled": true },
   "d1_databases": [

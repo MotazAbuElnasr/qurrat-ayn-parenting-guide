@@ -231,6 +231,34 @@ async function queue(env, req) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    // Cloudflare's asset layer answers Range requests with the whole file, so a
+    // browser cannot seek past what it has buffered. Slice it here instead.
+    if (url.pathname.endsWith('.mp4')) {
+      const asset = await env.ASSETS.fetch(new Request(url.toString()));
+      const range = request.headers.get('range');
+      if (!asset.ok || !range) return asset;
+      const buf = await asset.arrayBuffer();
+      const total = buf.byteLength;
+      const m = /bytes=(\d*)-(\d*)/.exec(range);
+      if (!m) return asset;
+      const start = m[1] ? Number(m[1]) : 0;
+      const end = m[2] ? Math.min(Number(m[2]), total - 1) : total - 1;
+      if (!(start >= 0 && start <= end && end < total)) {
+        return new Response(null, { status: 416, headers: { 'content-range': `bytes */${total}` } });
+      }
+      return new Response(buf.slice(start, end + 1), {
+        status: 206,
+        headers: {
+          'content-type': asset.headers.get('content-type') || 'video/mp4',
+          'content-range': `bytes ${start}-${end}/${total}`,
+          'content-length': String(end - start + 1),
+          'accept-ranges': 'bytes',
+          'cache-control': 'public, max-age=86400',
+        },
+      });
+    }
+
     if (!url.pathname.startsWith('/api/')) return env.ASSETS.fetch(request);
     if (!env.DB) return bad('قاعدة البيانات مش متوصلة', 503);
 
