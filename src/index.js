@@ -277,8 +277,14 @@ export default {
     // Cloudflare's asset layer answers Range requests with the whole file, so a
     // browser cannot seek past what it has buffered. Slice it here instead.
     if (url.pathname.endsWith('.mp4')) {
-      const asset = await env.ASSETS.fetch(new Request(url.toString()));
       const range = request.headers.get('range');
+      // slicing means holding the whole file in memory, so this path gets the
+      // same burst limit the API has — otherwise it is the cheapest way to tire
+      // the worker out
+      if (range && await overLimit(env.RL_READ, clientIp(request) + ':mp4')) {
+        return new Response(null, { status: 429, headers: { 'retry-after': '60' } });
+      }
+      const asset = await env.ASSETS.fetch(new Request(url.toString()));
       if (!asset.ok || !range) return asset;
       const buf = await asset.arrayBuffer();
       const total = buf.byteLength;
