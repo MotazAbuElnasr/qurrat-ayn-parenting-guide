@@ -21,6 +21,40 @@ JSON.parse(s.slice(s.indexOf('=',i)+1,j)).forEach(v=>console.log(v.lvl,v.ord,v.n
 قيمة قريبة موجودة؟ **عمّقها بدل ما تضيف واحدة جديدة.** التكرار بيبهدل المسار
 أكتر من النقص.
 
+## 0.5 · اقرا الشكل من الملف — متفتكرهوش
+
+**الدرس ده اتكسر مرتين في يوم واحد.** كتبت مواصفة `SITS` من الذاكرة فطلعت غلط،
+وكتبت مواصفة `MEALS` من الذاكرة فطلعت غلط برضه (`p` مش `time`، وفيه حقل `kj`
+منسيته خالص). في المرتين الوكلاء اللي **قروا الملف** طلعوا أصح من البرومبت
+اللي وداهم.
+
+قبل ما تكتب برومبت فيه شكل بيانات، طلّعه من الملف:
+
+```bash
+node -e "const s=require('fs').readFileSync('docs/index.html','utf8');
+const N='VALUES';                                  // أو SITS أو MEALS أو ACT
+const i=s.indexOf('const '+N+'=');const eq=s.indexOf('=',i);
+let j=eq+1,d=0,st=false,q=null;
+for(;j<s.length;j++){const c=s[j];
+ if(q){if(c==='\\\\')j++;else if(c===q)q=null;continue}
+ if(c==='\"'||c===\"'\"||c==='\`'){q=c;continue}
+ if(c==='['||c==='{'){d++;st=true}else if(c===']'||c==='}'){d--;if(st&&d===0){j++;break}}}
+const A=JSON.parse(s.slice(eq+1,j));
+const cov={};A.forEach(x=>Object.keys(x).forEach(k=>cov[k]=(cov[k]||0)+1));
+console.log(A.length,'عنصر · تغطية المفاتيح:',JSON.stringify(cov));
+console.log(JSON.stringify(A[0],null,1))"
+```
+
+المفتاح اللي تغطيته 100% إلزامي. واللي مش فاهم شغلانته، **دوّر عليه في الرندر**
+قبل ما تملاه — `nu` في الوجبات طلعت «ينفع للحضانة»، ومحدش كان هيخمّنها:
+
+```bash
+grep -o 'm\.nu[^;]\{0,80\}' docs/index.html
+```
+
+وحط الشكل ده **بالحرف** في برومبت أي وكيل بيكتب، وقول له كمان يقرا عنصرين
+موجودين — الاتنين مع بعض، مش واحد منهم.
+
 ## 1 · الريسيرش
 
 القيمة الجديدة لازم تيجي من إطار، مش من رأيك. الأطر اللي البنك اتراجع عليها

@@ -3,6 +3,10 @@ name: add-ref-section
 description: Add a section to the قُرّة عين parenting reference (المرجع التربوي) in docs/index.html — research it, author it against the content rules, have an independent agent verify every link and number, merge it onto the right sub-page with its index group, and verify in the live browser. Use when the user asks for a new reference topic, when a gap audit surfaces a missing subject, or when a section needs its sources or evidence badge rebuilt.
 ---
 
+> **قبل أي برومبت فيه شكل بيانات: طلّعه من الملف، متفتكرهوش.**
+> الطريقة في [add-value](../add-value/SKILL.md#05--اقرا-الشكل-من-الملف--متفتكرهوش).
+> اتكسرت مرتين — في المرتين الوكيل اللي قرا الملف طلع أصح من البرومبت اللي وداه.
+
 # إضافة قسم للمرجع التربوي
 
 المرجع دلوقتي 34 قسم على 7 صفحات فرعية. القسم الجديد مش بس نص — هو كمان
