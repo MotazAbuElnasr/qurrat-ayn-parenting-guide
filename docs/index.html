@@ -2587,7 +2587,8 @@ ${(()=>{const c={strong:0,moderate:0,practice:0};VALUES.forEach(v=>{if(v.evi)c[v
  window.goVal=name=>{go("values");[...vf.children].forEach((x,i)=>x.setAttribute("aria-pressed",i===0?"true":"false"));
   cur="الكل";vs.value=name;ap();if(window.navFilter)navFilter("values",name);
   const t=[...vl.querySelectorAll("article.v")].find(e=>e.dataset.name===name);
-  if(t)setTimeout(()=>t.scrollIntoView({behavior:"smooth",block:"center"}),60);};
+  if(t){window.__navLock=Date.now()+1200;
+   requestAnimationFrame(()=>requestAnimationFrame(()=>scrollToEl(t)));}};
 }
 /* stories */
 {
@@ -2997,7 +2998,7 @@ $("food").innerHTML=`<h1>الأكل واللانش بوكس</h1>
  // clicking a tag on a card filters by it
  list.addEventListener("click",e=>{const t=e.target.closest(".mtag");if(!t)return;
   const btn=[...tf.children].find(x=>x.textContent===t.dataset.t);if(btn)btn.click();
-  document.getElementById("mealTagFilter").scrollIntoView({behavior:"smooth",block:"center"});});
+  scrollToEl(document.getElementById("mealTagFilter"));});
 }
 /* community */
 {
@@ -3158,7 +3159,7 @@ $("food").innerHTML=`<h1>الأكل واللانش بوكس</h1>
  };
 
  pager.onclick=e=>{const b=e.target.closest("button[data-o]");if(!b||b.disabled)return;
-  offset=+b.dataset.o;load();window.scrollTo({top:$$("cFeed").offsetTop-140,behavior:"smooth"});};
+  offset=+b.dataset.o;load();scrollToEl($("cFeed"));};
 
  const kf=$$("cKindFilter");
  ["الكل",...KINDS].forEach((g,i)=>{const b=document.createElement("button");b.textContent=g;
