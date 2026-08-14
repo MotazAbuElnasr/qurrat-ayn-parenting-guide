@@ -3,6 +3,11 @@ name: add-value
 description: Add one or more values to the قُرّة عين values bank (VALUES in docs/index.html) — from research, through authoring against the content rules, independent review, patch-merge, live browser verification, and deploy. Use when the user asks to add a value, a values gap was found, a value needs a missing field (deen, skill, evi, sunnah, mistakes, adapt), or an existing value needs deepening. Also use when adding a batch of values found by a completeness audit.
 ---
 
+> **المحتوى مابقاش في `docs/index.html`.** الصفحة بقت قشرة، والمحتوى في
+> `docs/content/<لهجة>.json`. عدّل الحزمة وشغّل `node build/build.js`.
+> والمصري هو الأصل — أي إضافة تتكتب فيه الأول وبعدين تترجم لباقي اللهجات،
+> والبناء بيرفض لو لهجة عندها عناصر أقل.
+
 # إضافة قيمة للبنك
 
 القيمة هي الوحدة الأساسية في الموقع. إضافتها مش «اكتب نص وحطه» — دي سلسلة
