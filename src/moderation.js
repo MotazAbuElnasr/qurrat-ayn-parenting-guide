@@ -57,9 +57,11 @@ function collapseRuns(t) {
  * joined, so ordinary prose is left alone.
  */
 function joinSpelledOut(t) {
-  // the run must START at a word boundary, otherwise it eats the last letter of
-  // the previous word («كلام س ك س» would join as «مسك» and miss the real word)
-  return t.replace(/(?<!\p{L})(?:\p{L}[^\p{L}\n]{1,2}){2,}\p{L}/gu, m => m.replace(/[^\p{L}]/gu, ''));
+  // The run must start AND end on a word boundary. Without the start guard it
+  // eats the previous word's last letter («كلام س ك س» → «مسك»); without the end
+  // guard it eats the next word's first letter («س ك س نص» → «سكسن»).
+  return t.replace(/(?<!\p{L})(?:\p{L}[^\p{L}\n]{1,2}){2,}\p{L}(?!\p{L})/gu,
+    m => m.replace(/[^\p{L}]/gu, ''));
 }
 
 export function normalize(text) {
@@ -80,8 +82,10 @@ export function normalize(text) {
 
 /** Explicit sexual content and slurs — rejected outright. */
 const REJECT = [
-  // Arabic — explicit sexual
-  'سكس', 'نيك', 'زب', 'كس', 'شرموط', 'عاهره', 'قحبه', 'متناك', 'خول', 'لبوه',
+  // Arabic — explicit sexual. Entries under four letters match whole words only,
+  // so the suffixed forms that matter are listed in full alongside them.
+  'سكس', 'سكسي', 'سكسيه', 'نيك', 'نيكها', 'بينيك', 'ينيك', 'زب', 'كس',
+  'شرموط', 'عاهره', 'قحبه', 'متناك', 'خول', 'لبوه',
   'طيز', 'بزاز', 'زبر', 'منيك', 'شرموطه', 'داعر', 'مومس',
   // Arabic — slurs and degradation
   'ابنمتناكه', 'يلعندينك', 'يلعنابوك', 'كسمك', 'كسختك', 'كسامك', 'يخرب',
@@ -126,7 +130,12 @@ const RX_CACHE = new Map();
 function wordRegex(word) {
   if (RX_CACHE.has(word)) return RX_CACHE.get(word);
   const key = collapseRuns(foldSubstitutions(unifyArabic(word.toLowerCase())).replace(/[^\p{L}]/gu, ''));
-  const rx = key ? new RegExp(`(?<!\\p{L})[وفبكل]{0,2}(?:ال)?${key}`, 'u') : null;
+  if (!key) { RX_CACHE.set(word, null); return null; }
+  // Short entries are prefixes of ordinary words — «زب» sits inside «زبادي» and
+  // «كس» inside «كسر». Anything under four letters must match a whole word;
+  // longer entries keep suffix tolerance so «سكس» still catches «سكسية».
+  const tail = key.length <= 3 ? '(?!\\p{L})' : '';
+  const rx = new RegExp(`(?<!\\p{L})[وفبكل]{0,2}(?:ال)?${key}${tail}`, 'u');
   RX_CACHE.set(word, rx);
   return rx;
 }
