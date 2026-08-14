@@ -1,6 +1,15 @@
 {
   "name": "qurrat-ain",
+  "main": "./src/index.js",
   "compatibility_date": "2026-08-01",
-  "assets": { "directory": "./docs" },
-  "routes": [{ "pattern": "qurrat-ain.aro.day", "custom_domain": true }]
+  "assets": { "directory": "./docs", "binding": "ASSETS" },
+  "routes": [{ "pattern": "qurrat-ain.aro.day", "custom_domain": true }],
+  "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "qurrat-ain-community",
+      "database_id": "2ee937d6-4f83-4775-8d6e-7a0f4c2e8abe"
+    }
+  ]
 }
