@@ -475,15 +475,17 @@ const el=h=>{const t=document.createElement("template");t.innerHTML=h.trim();ret
 const VL=n=>`<span class="chip" onclick="goVal('${n}')">${n} <i>في البنك</i></span>`;
 
 function boot(B){
+const UI=B.ui;
+const fmt=(s,...a)=>String(s==null?"":s).replace(/\{(\d+)\}/g,(m,i)=>a[i]==null?m:a[i]);
 const YTC=B.data.YTC;
 const RES=B.data.RES;
 const VALUES=B.data.VALUES;
 
-/* مكتبة قصص عصافير مصنّفة بالقيمة */
+/* 3asafeer story library, tagged by value */
 const ST=B.data.ST;
 const STX=B.data.STX;
 
-const BAR=[["لعب حر",3.5,"#3F7A46"],["برّه وحركة",2,"#2F6E86"],["أكل وروتين",2.5,"#B5731E"],["قيلولة وهدوء",2,"#6B4A86"],["قراءة وشاشة",1.3,"#7C837B"],["النشاط الموجّه",0.35,"#A9552F"]];
+const BAR=[[UI.day.bar.freePlay,3.5,"#3F7A46"],[UI.day.bar.outdoor,2,"#2F6E86"],[UI.day.bar.meals,2.5,"#B5731E"],[UI.day.bar.nap,2,"#6B4A86"],[UI.day.bar.readScreen,1.3,"#7C837B"],[UI.day.bar.guided,0.35,"#A9552F"]];
 const DAY=B.data.DAY;
 const ACAT={"فن":"#A34A6B","مطبخ":"#B5731E","علوم":"#2E6E8C","حركة":"#3F7A46","بناء وحسّي":"#8A6A2C","تمثيل ولغة":"#B3452F","خروجة":"#1F6E68"};
 const ACT=B.data.ACT;
@@ -499,9 +501,9 @@ const SITS=B.data.SITS;
 const MEALS=B.data.MEALS;
 const VID=B.data.VID;
 const TABS=[
-["home","الرئيسية","var(--c7)"],["values","مسار القيم","var(--c2)"],["ref","المرجع التربوي","var(--c8)"],["sits","المواقف","var(--c8)"],
-["stories","مكتبة القصص","var(--c2)"],["vids","الفيديوهات","var(--c8)"],["day","اليوم","var(--c4)"],
-["acts","الأنشطة","var(--c5)"],["food","الأكل واللانش بوكس","var(--c6)"],["comm","المجتمع","var(--c5)"],["partners","أدوات بنستعملها","var(--c4)"],["res","المصادر والقنوات","var(--c7)"]
+["home",UI.tabs.home,"var(--c7)"],["values",UI.tabs.values,"var(--c2)"],["ref",UI.tabs.ref,"var(--c8)"],["sits",UI.tabs.sits,"var(--c8)"],
+["stories",UI.tabs.stories,"var(--c2)"],["vids",UI.tabs.vids,"var(--c8)"],["day",UI.tabs.day,"var(--c4)"],
+["acts",UI.tabs.acts,"var(--c5)"],["food",UI.tabs.food,"var(--c6)"],["comm",UI.tabs.comm,"var(--c5)"],["partners",UI.tabs.partners,"var(--c4)"],["res",UI.tabs.res,"var(--c7)"]
 ];
 const app=document.getElementById("app"),tabs=document.getElementById("tabs");
 /* most-reached-for first: whatever does not fit falls under «المزيد» */
@@ -513,7 +515,7 @@ TABS.forEach(([id,,col])=>{
 });
 const extraTab=document.createElement("button");extraTab.setAttribute("role","tab");extraTab.className="extratab";
 extraTab.style.display="none";extraTab.onclick=()=>go(extraTab.dataset.id);
-const moreBtn=document.createElement("button");moreBtn.className="moretab";moreBtn.innerHTML='<i></i>المزيد';
+const moreBtn=document.createElement("button");moreBtn.className="moretab";moreBtn.innerHTML='<i></i>'+UI.nav.more;
 const fitCount=()=>{const w=innerWidth;
  return w<420?5:w<720?6:w<920?7:w<1120?9:w<1320?11:TABORDER.length;};
 function buildTabs(){
@@ -528,7 +530,7 @@ function buildTabs(){
  tabs.appendChild(extraTab);
  const hidden=TABORDER.filter(id=>!PRIMARY.includes(id));
  if(hidden.length){
-  moreBtn.onclick=()=>openSheet("كل الأقسام",Object.entries(GROUPS)
+  moreBtn.onclick=()=>openSheet(UI.nav.allSections,Object.entries(GROUPS)
    .map(([g,ids])=>({g,items:ids.filter(id=>hidden.includes(id))
      .map(id=>{const t=TABS.find(x=>x[0]===id);return{label:t[1],run:()=>go(id)};})}))
    .filter(x=>x.items.length));
@@ -554,45 +556,45 @@ const $=id=>document.getElementById("v-"+id);
 /* home */
 $("home").innerHTML=`
 <div class="hero">
- <h1>كل التربية في مكان واحد</h1>
- <p class="lede">قيم تزرعها على مهلك، ومواقف بتقابلك كل يوم، وقصص وأنشطة ووجبات لطفل في الطفولة المبكرة — وجزء إسلامي في كل قيمة.</p>
+ <h1>${UI.home.h1}</h1>
+ <p class="lede">${UI.home.lede}</p>
  <div class="stats"><button class="stat" type="button" onclick="go('values')"><b>${VALUES.length}</b> قيمة</button><button class="stat" type="button" onclick="go('sits')"><b>${SITS.length}</b> موقف</button><button class="stat" type="button" onclick="go('stories')"><b>${ST.length+STX.length}</b> قصة</button><button class="stat" type="button" onclick="go('vids')"><b>${VID.length}</b> فيديو وبلاي ليست</button><button class="stat" type="button" onclick="go('acts')"><b>${ACT.length}</b> نشاط</button><button class="stat" type="button" onclick="go('food')"><b>${MEALS.length}</b> وجبة</button><button class="stat" type="button" onclick="go('ref')"><b data-refn>34</b> قسم مرجعي</button></div>
 </div>
 
 ${[
- ["ابدأ من هنا","القلب اللي كل حاجة تانية بتخدمه",[
-  ["values","مسار القيم","4 مستويات مرتبة بالاعتمادية. كل قيمة: الطريقة، خطوات على قدها، علامة الإتقان، الأخطاء الشائعة، وتكييف على طبع طفلك",`${VALUES.length} قيمة`,"var(--c2)"]]],
- ["وقت المشكلة","اللي بتفتحه والموقف حاصل",[
-  ["sits","دليل المواقف","خطوات اللحظة بجُملها الحرفية + الإصلاح بعد الهدوء + الوقاية من التكرار",`${SITS.length} موقف`,"var(--c8)"],
-  ["ref","المرجع التربوي","المدارس، النوم، الأكل، الشاشات، اللغة، الحماية، المدرسة، والمواسم","<span data-refn>34</span> قسم","var(--c8)"]]],
- ["محتوى لطفلك","حاجات تديها له مباشرة",[
-  ["stories","مكتبة القصص","مقسّمة بنوع القصة ومربوطة بالقيم — المجاني متعلّم",`${ST.length+STX.length} قصة`,"var(--c2)"],
-  ["vids","الفيديوهات","بلاي ليستات وفيديوهات، من غير أغاني",`${VID.length} عنصر`,"var(--c4)"],
-  ["acts","الأنشطة","بخامات البيت + جدول 28 يوم + حركة جوّه",`${ACT.length} نشاط`,"var(--c5)"]]],
- ["اليوم بيومه","الإيقاع اللي القيم بتتزرع جواه",[
-  ["day","اليوم","نوم ولعب حر وشاشة ووجبات — الـ20 دقيقة الموجّهة مش هي اليوم","24 ساعة","var(--c4)"],
-  ["food","الأكل واللانش بوكس","التغذية بالمقادير + 20 لانش بوكس + بنك وجبات ومقترِح",`${MEALS.length} وجبة`,"var(--c6)"]]],
- ["شارك غيرك","تجارب أهالي حقيقية — مش مرجع علمي",[
-  ["comm","المجتمع","احكي موقف عدّى معاك أو قصة نفعت مع طفلك، واقرا تجارب أهالي تانيين","تجارب","var(--c5)"]]],
- ["مراجع"," ",[
-  ["partners","أدوات بنستعملها","حاجات بنستعملها إحنا فعلًا وممكن تفيدك — مش إعلانات","أدوات","var(--c4)"],
-  ["res","المصادر والقنوات","كل اللينكات في جدول مفلتر — قنوات ومنصات وموارد مطبوعة",`${YTC.length+RES.length} مصدر`,"var(--c7)"]]]]
+ [UI.home.groups.start.t,UI.home.groups.start.d,[
+  ["values",UI.home.cards.values.t,UI.home.cards.values.d,`${VALUES.length} قيمة`,"var(--c2)"]]],
+ [UI.home.groups.trouble.t,UI.home.groups.trouble.d,[
+  ["sits",UI.home.cards.sits.t,UI.home.cards.sits.d,`${SITS.length} موقف`,"var(--c8)"],
+  ["ref",UI.home.cards.ref.t,UI.home.cards.ref.d,"<span data-refn>34</span> قسم","var(--c8)"]]],
+ [UI.home.groups.forKid.t,UI.home.groups.forKid.d,[
+  ["stories",UI.home.cards.stories.t,UI.home.cards.stories.d,`${ST.length+STX.length} قصة`,"var(--c2)"],
+  ["vids",UI.home.cards.vids.t,UI.home.cards.vids.d,`${VID.length} ${UI.home.cards.vids.n}`,"var(--c4)"],
+  ["acts",UI.home.cards.acts.t,UI.home.cards.acts.d,`${ACT.length} نشاط`,"var(--c5)"]]],
+ [UI.home.groups.daily.t,UI.home.groups.daily.d,[
+  ["day",UI.home.cards.day.t,UI.home.cards.day.d,UI.home.cards.day.n,"var(--c4)"],
+  ["food",UI.home.cards.food.t,UI.home.cards.food.d,`${MEALS.length} وجبة`,"var(--c6)"]]],
+ [UI.home.groups.share.t,UI.home.groups.share.d,[
+  ["comm",UI.home.cards.comm.t,UI.home.cards.comm.d,UI.home.cards.comm.n,"var(--c5)"]]],
+ [UI.home.groups.refs.t," ",[
+  ["partners",UI.home.cards.partners.t,UI.home.cards.partners.d,UI.home.cards.partners.n,"var(--c4)"],
+  ["res",UI.home.cards.res.t,UI.home.cards.res.d,`${YTC.length+RES.length} ${UI.home.cards.res.n}`,"var(--c7)"]]]]
  .map(([t,d,cards])=>`<h2 class="sec">${t}</h2>${d.trim()?`<p class="note">${d}</p>`:""}
  <div class="homegrid">${cards.map(([id,ct,cd,n,c])=>`<div class="hcard" style="--hc:${c}" onclick="go('${id}')"><h3>${ct}</h3><p>${cd}</p><span class="n">${n}</span></div>`).join("")}</div>`).join("")}
 
-<h2 class="sec">قواعد ثابتة تحت كل ده</h2>
+<h2 class="sec">${UI.home.rulesH2}</h2>
 <div class="panel"><ul class="pts">
-<li><b>قيمة واحدة في وقتها:</b> تاخد أسبوع أو شهر، مفيش ساعة صفر — علامة الإتقان هي اللي تنقلك.</li>
-<li><b>التكرار مش ملل:</b> نفس القصة 20 مرة هي اللي بتثبّت اللغة.</li>
-<li><b>وصف بدل مدح:</b> «لوّنت جوه الخط» بتبني تقييم داخلي، «شاطر» بتخلق اعتماد على تقييمك.</li>
-<li><b>اللعب الحر أهم</b> من كل الأنشطة الموجّهة مجتمعة.</li>
-<li><b>الدين بالحب والتكرار والقدوة</b> — والتقليد قبل التكليف.</li>
+<li><b>${UI.home.rules.oneValueB}</b> ${UI.home.rules.oneValueT}</li>
+<li><b>${UI.home.rules.repeatB}</b> ${UI.home.rules.repeatT}</li>
+<li><b>${UI.home.rules.describeB}</b> ${UI.home.rules.describeT}</li>
+<li><b>${UI.home.rules.freePlayB}</b> ${UI.home.rules.freePlayT}</li>
+<li><b>${UI.home.rules.deenB}</b> ${UI.home.rules.deenT}</li>
 </ul></div>
 
-<h2 class="sec">الموقع ده مفتوح المصدر</h2>
-<div class="panel"><p style="margin:0 0 8px">كل حرف في الموقع ده — القيم والمواقف والمصادر — موجود على GitHub وأي حد يقدر يقرأه أو يصحّحه أو يزوّد عليه. لقيت معلومة غلط؟ لينك مكسور؟ عندك موقف عشته وممكن يفيد غيرك؟ افتح Issue أو ابعت Pull Request.</p>
-<p style="margin:0"><a class="chip" href="https://github.com/MotazAbuElnasr/qurrat-ayn-parenting-guide" target="_blank" rel="noopener">الريبو على GitHub <i>مفتوح المصدر</i></a>
-<a class="chip" href="https://github.com/MotazAbuElnasr/qurrat-ayn-parenting-guide/issues/new" target="_blank" rel="noopener">بلّغ عن غلطة <i>Issue</i></a></p></div>`;
+<h2 class="sec">${UI.home.ossH2}</h2>
+<div class="panel"><p style="margin:0 0 8px">${UI.home.ossP}</p>
+<p style="margin:0"><a class="chip" href="https://github.com/MotazAbuElnasr/qurrat-ayn-parenting-guide" target="_blank" rel="noopener">${UI.home.ossRepoChip} <i>${UI.home.ossRepoChipTag}</i></a>
+<a class="chip" href="https://github.com/MotazAbuElnasr/qurrat-ayn-parenting-guide/issues/new" target="_blank" rel="noopener">${UI.home.ossIssueChip} <i>Issue</i></a></p></div>`;
 
 /* ===== المرجع ===== */
 $("ref").innerHTML=B.prose.ref;
@@ -600,9 +602,9 @@ $("ref").innerHTML=B.prose.ref;
 /* sits */
 {
  const GRP=[["انفعالات ومشاعر","var(--c2)"],["سلوك مؤذي","var(--c8)"],["الروتين اليومي","var(--c4)"],["أماكن عامة وخروجات","var(--c3)"],["اجتماعي وإخوات","var(--c1)"]];
- $("sits").innerHTML=`<h1>دليل المواقف — ${SITS.length} موقف</h1>
-  <p class="lede">ده اللي بتفتحه والموقف حاصل قدامك. كل موقف: ليه بيحصل، خطوات اللحظة بجُملها الحرفية، الإصلاح بعد الهدوء، الخطأ الشائع، رأي المدارس، وإزاي تمنع تكراره. الشرايط في الآخر بتوديك للقيمة المرتبطة في مسار القيم.</p>
-  <input type="search" id="qs" placeholder="دوّر… (ضرب، دوا، مطعم، حضانة)">
+ $("sits").innerHTML=`<h1>${fmt(UI.sits.h1,SITS.length)}</h1>
+  <p class="lede">${UI.sits.lede}</p>
+  <input type="search" id="qs" placeholder="${UI.sits.searchPlaceholder}">
   <div class="count" id="qc"></div><div id="ql"></div>`;
  const ql=document.getElementById("ql");
  GRP.forEach(([g,col])=>{
@@ -611,16 +613,16 @@ $("ref").innerHTML=B.prose.ref;
   ql.appendChild(el(`<h2 class="sec" data-g="${g}" style="--a:${col}">${g} <span class="seccount" style="font-weight:400;font-size:14px">(${items.length} موقف)</span></h2>`));
   items.forEach(x=>ql.appendChild(el(
   `<article class="sit" data-g="${g}" data-t="${(x.t+" "+x.why).toLowerCase()}">
-   <h3>${x.t}</h3>${x.evi?`<span class="evi evi-${x.evi.c}" style="margin-inline-start:8px">${({strong:"أدلة قوية",moderate:"أدلة متوسطة",practice:"ممارسة شائعة"})[x.evi.c]}</span>`:""}<p class="why">${x.why}</p>
-   <div class="row"><b>في اللحظة</b><div>${x.now.map((n,i)=>`<div style="margin-bottom:8px"><b style="color:var(--c8)">${i+1}.</b> ${n.d}<div style="color:#2F5D50;font-weight:600;font-size:13.5px;margin-top:3px">قولها: «${n.say}»</div></div>`).join("")}</div></div>
-   <div class="row"><b>بعد الهدوء</b><div>${x.after}</div></div>
-   <div class="row"><b>الخطأ الشائع</b><div>${x.mistake}</div></div>
-   <div class="row"><b>الوقاية</b><div>${x.prevent}</div></div>
+   <h3>${x.t}</h3>${x.evi?`<span class="evi evi-${x.evi.c}" style="margin-inline-start:8px">${UI.evi[x.evi.c]}</span>`:""}<p class="why">${x.why}</p>
+   <div class="row"><b>${UI.sits.rowNow}</b><div>${x.now.map((n,i)=>`<div style="margin-bottom:8px"><b style="color:var(--c8)">${i+1}.</b> ${n.d}<div style="color:#2F5D50;font-weight:600;font-size:13.5px;margin-top:3px">${UI.common.sayLabel} «${n.say}»</div></div>`).join("")}</div></div>
+   <div class="row"><b>${UI.sits.rowAfter}</b><div>${x.after}</div></div>
+   <div class="row"><b>${UI.sits.rowMistake}</b><div>${x.mistake}</div></div>
+   <div class="row"><b>${UI.sits.rowPrevent}</b><div>${x.prevent}</div></div>
    <p class="sch">${x.schools}</p>
-   ${x.evi?`<details class="vx" data-k="evi"><summary>الكلام ده مبني على إيه؟ (${({strong:"أدلة قوية",moderate:"أدلة متوسطة",practice:"ممارسة شائعة"})[x.evi.c]})</summary>
+   ${x.evi?`<details class="vx" data-k="evi"><summary>${UI.sits.eviSummary} (${UI.evi[x.evi.c]})</summary>
     <p style="margin:8px 0 0;font-size:14px;line-height:1.75">${x.evi.why}</p>
-    ${x.evi.cav?`<p class="msafe" style="margin-top:8px"><b>حدود الكلام ده:</b> ${x.evi.cav}</p>`:""}
-    ${x.evi.schools.length?`<p style="margin:7px 0 0;font-size:13px;color:#54615B"><b>المدارس:</b> ${x.evi.schools.join(" · ")}</p>`:""}
+    ${x.evi.cav?`<p class="msafe" style="margin-top:8px"><b>${UI.sits.eviLimits}</b> ${x.evi.cav}</p>`:""}
+    ${x.evi.schools.length?`<p style="margin:7px 0 0;font-size:13px;color:#54615B"><b>${UI.common.schoolsLabel}</b> ${x.evi.schools.join(" · ")}</p>`:""}
     ${x.evi.src.length?`<ul class="evisrc">${x.evi.src.map(y=>`<li>${y.k?`<span class="k">${y.k}</span>`:""}${y.u?`<a href="${y.u}" target="_blank" rel="noopener">${y.t}</a>`:y.t}</li>`).join("")}</ul>`:""}
    </details>`:""}
    <div class="chips">${x.vals.map(v=>VL(v)).join("")}</div>
@@ -638,7 +640,7 @@ $("ref").innerHTML=B.prose.ref;
    const c=h.querySelector(".seccount");
    if(c)c.textContent=vis===all.length?`(${all.length} موقف)`:`(${vis} من ${all.length})`;
    h.classList.toggle("hidden",!vis);});
-  qc.textContent=q?`ظاهر ${n} من ${SITS.length} موقف`:"";
+  qc.textContent=q?fmt(UI.sits.count,n,SITS.length):"";
   const wrap=$("sits");
   wrap.classList.toggle("searching",!!q);
   const nav=wrap.querySelector(".subnav");
@@ -658,12 +660,12 @@ $("ref").innerHTML=B.prose.ref;
 /* values */
 {
  const C={"ذات":"var(--c6)","تعامل":"var(--c1)","دين وأخلاق":"#2C6E49","جسد وأمان":"var(--c3)","عقل ومهارة":"var(--c2)"};
- $("values").innerHTML=`<h1>مسار القيم — ${VALUES.length} قيمة</h1><p class="lede">القيم مرتبة في 4 مستويات، كل مستوى بيتبني على اللي قبله — ابدأ من المستوى الأول ونزّل على مهلك. كل قيمة: الطريقة، خطوات على قد القيمة (3-6) من غير مواعيد، علامة الإتقان، الأخطاء الشائعة، تكييف على طبع طفلك، نشاطين، المحور الإسلامي، و«مهارة عملية» — حاجة بإيده (يلبس، يحضّر، يرتّب…) بتتدرّب جنب القيمة عشان الاستقلال يكبر مع الخلق، ومصادر وقصص وفيديوهات محددة. شفت علامة الإتقان بتحصل لوحدها؟ انتقل للقيمة اللي بعدها في المسار.</p>
-  <div class="filter" id="vf"></div><input type="search" id="vs" placeholder="دوّر… (صدق، غضب، مشاركة، صلاة)">
+ $("values").innerHTML=`<h1>${fmt(UI.values.h1,VALUES.length)}</h1><p class="lede">${UI.values.lede}</p>
+  <div class="filter" id="vf"></div><input type="search" id="vs" placeholder="${UI.values.searchPlaceholder}">
   <div class="count" id="vc"></div><div id="vl"></div>`;
  const vl=document.getElementById("vl");
  const LVN={1:["الأساس","var(--c1)"],2:["البناء","var(--c5)"],3:["التوسع","var(--c3)"],4:["العمق","var(--c2)"]};
- const LVDESC={"1":"القيم اللي كل حاجة تانية بتتبني عليها: الأمان، الروتين، المشاعر، الحدود. ابدأ هنا.","2":"محتاجة قيم الأساس تكون شغالة: التنظيم الانفعالي، الصدق، المسؤولية، التعامل اليومي.","3":"الدايرة الأوسع: الناس، العطاء، العدل، الكلام، الفضول.","4":"الأصعب نفسيًا والأكثر تجريدًا: القناعة، الخسارة، الملل، الإصرار. بتاخد وقتها."};
+ const LVDESC=UI.values.levelDesc;
  [1,2,3,4].forEach(lv=>{
   const [lnm,lcol]=LVN[lv];
   vl.appendChild(el(`<h2 class="sec lvlhead" data-lvl="${lv}" style="--a:${lcol}">المستوى ${lv} — ${lnm} <span class="seccount" style="font-weight:400;font-size:14px">(${VALUES.filter(v=>v.lvl===lv).length} قيمة)</span></h2>`));
@@ -672,44 +674,44 @@ $("ref").innerHTML=B.prose.ref;
   const stF=ST.filter(s=>s[3]===v.tag&&s[4]).slice(0,3),stox=STX.filter(x=>x[3]===v.tag).slice(0,3),stP=ST.filter(s=>s[3]===v.tag&&!s[4]).slice(0,2);
   vl.appendChild(el(
   `<article class="v" style="--vc:${C[v.cat]}" data-cat="${v.cat}" data-name="${v.name}" data-lvl="${v.lvl}" data-amin="${v.age[0]}" data-amax="${v.age[1]}" data-txt="${(v.name+" "+v.steps.map(x=>x.t).join(" ")+" "+v.acts.map(a=>a.t+" "+a.run).join(" ")+" "+v.say+" "+v.how).toLowerCase()}">
-   <div class="v-head"><h3>${v.name}</h3><span class="cat">${v.cat}</span><span class="age">${v.age[0]}–${v.age[1]} سنين</span><span class="age">المستوى ${v.lvl} · ${v.ord}</span>${v.evi?`<span class="evi evi-${v.evi.c}" title="قوة الأدلة وراء الطريقة دي">${({strong:"أدلة قوية",moderate:"أدلة متوسطة",practice:"ممارسة شائعة"})[v.evi.c]}</span>`:""}</div>
+   <div class="v-head"><h3>${v.name}</h3><span class="cat">${v.cat}</span><span class="age">${v.age[0]}–${v.age[1]} ${UI.common.years}</span><span class="age">المستوى ${v.lvl} · ${v.ord}</span>${v.evi?`<span class="evi evi-${v.evi.c}" title="${UI.values.eviTitle}">${UI.evi[v.evi.c]}</span>`:""}</div>
 
-   ${v.how?`<p class="vhow"><b>الطريقة:</b> ${v.how}</p>`:""}
+   ${v.how?`<p class="vhow"><b>${UI.values.howLabel}</b> ${v.how}</p>`:""}
 
-   <div class="vsec"><h4 class="vlab">الخطوات — على مهلك، مفيش مواعيد</h4>
-    ${v.steps.map((x,i)=>`<div class="wk" style="--mc:${C[v.cat]}"><b>${i+1}</b><div><b class="stept">${x.t}.</b> ${x.d}<div class="stepsay">قولها: «${x.say}»</div></div></div>`).join("")}</div>
+   <div class="vsec"><h4 class="vlab">${UI.values.stepsH4}</h4>
+    ${v.steps.map((x,i)=>`<div class="wk" style="--mc:${C[v.cat]}"><b>${i+1}</b><div><b class="stept">${x.t}.</b> ${x.d}<div class="stepsay">${UI.common.sayLabel} «${x.say}»</div></div></div>`).join("")}</div>
 
-   <p class="vmastery"><b>علامة الإتقان:</b> ${v.mastery} <span>— شفتها بتتكرر من غير تدخل منك؟ القيمة ثبتت، انتقل للي بعدها.</span></p>
+   <p class="vmastery"><b>${UI.values.masteryLabel}</b> ${v.mastery} <span>${UI.values.masteryHint}</span></p>
 
-   <div class="deen"><h4>المحور الإسلامي — ${v.deen[0]}</h4><p>${v.deen[1]}</p>
-    <p class="dskill"><b>مهارة عملية جنبها:</b> ${v.skill}</p></div>
+   <div class="deen"><h4>${fmt(UI.values.deenH4,v.deen[0])}</h4><p>${v.deen[1]}</p>
+    <p class="dskill"><b>${UI.values.skillLabel}</b> ${v.skill}</p></div>
 
-   <p class="vsay">الجملة اللي بتتكرر: <b>«${v.say}»</b></p>
+   <p class="vsay">${UI.values.sayLine} <b>«${v.say}»</b></p>
 
-   ${v.sunnah?`<details class="vx" data-k="sun"><summary>موقف من سيرة النبي ﷺ</summary>
-    <div class="mx"><p class="mm">${v.sunnah.story}</p><p class="mf"><b>يعني إيه عندك في البيت:</b> ${v.sunnah.lesson}</p></div>
+   ${v.sunnah?`<details class="vx" data-k="sun"><summary>${UI.values.sunnahSummary}</summary>
+    <div class="mx"><p class="mm">${v.sunnah.story}</p><p class="mf"><b>${UI.values.sunnahLesson}</b> ${v.sunnah.lesson}</p></div>
     <p class="hdth">${v.sunnah.hadith}</p>
     <p class="hsrc">${v.sunnah.src} · <b>${v.sunnah.grade}</b></p>
    </details>`:""}
 
-   <details class="vx" data-k="act"><summary>نشاطين تعملهم معاه (${v.acts.length})</summary>
+   <details class="vx" data-k="act"><summary>${UI.values.actsSummary} (${v.acts.length})</summary>
     ${v.acts.map(a=>`<div class="act1"><h5>${a.t}</h5>
-     <div class="wk" style="--mc:${C[v.cat]}"><b>المواد</b><div>${a.mat}</div></div>
-     <div class="wk" style="--mc:${C[v.cat]}"><b>التجهيز</b><div>${a.prep}</div></div>
-     <div class="wk" style="--mc:${C[v.cat]}"><b>التنفيذ</b><div>${a.run}</div></div></div>`).join("")}</details>
+     <div class="wk" style="--mc:${C[v.cat]}"><b>${UI.values.actMat}</b><div>${a.mat}</div></div>
+     <div class="wk" style="--mc:${C[v.cat]}"><b>${UI.values.actPrep}</b><div>${a.prep}</div></div>
+     <div class="wk" style="--mc:${C[v.cat]}"><b>${UI.values.actRun}</b><div>${a.run}</div></div></div>`).join("")}</details>
 
-   ${v.mistakes&&v.mistakes.length?`<details class="vx" data-k="mis"><summary>أخطاء شائعة بتكسر القيمة دي (${v.mistakes.length})</summary>${v.mistakes.map(m=>`<div class="mx"><p class="mm">${m.m}</p><p class="mf"><b>البديل:</b> ${m.fix}</p></div>`).join("")}</details>`:""}
+   ${v.mistakes&&v.mistakes.length?`<details class="vx" data-k="mis"><summary>${UI.values.mistakesSummary} (${v.mistakes.length})</summary>${v.mistakes.map(m=>`<div class="mx"><p class="mm">${m.m}</p><p class="mf"><b>${UI.values.altLabel}</b> ${m.fix}</p></div>`).join("")}</details>`:""}
 
-   ${v.adapt&&v.adapt.length?`<details class="vx" data-k="adp"><summary>لو طفلك مختلف — تكييف الطريقة</summary>${v.adapt.map(x=>`<div class="mx"><p class="mm">الطفل ${x.kid}</p><p class="mf">${x.how}</p></div>`).join("")}</details>`:""}
+   ${v.adapt&&v.adapt.length?`<details class="vx" data-k="adp"><summary>${UI.values.adaptSummary}</summary>${v.adapt.map(x=>`<div class="mx"><p class="mm">${UI.values.adaptChild} ${x.kid}</p><p class="mf">${x.how}</p></div>`).join("")}</details>`:""}
 
-   ${v.evi?`<details class="vx" data-k="evi"><summary>الطريقة دي جاية منين؟ (${({strong:"أدلة قوية",moderate:"أدلة متوسطة",practice:"ممارسة شائعة"})[v.evi.c]})</summary>
+   ${v.evi?`<details class="vx" data-k="evi"><summary>${UI.values.eviSummary} (${UI.evi[v.evi.c]})</summary>
     <p style="margin:8px 0 0;font-size:14px;line-height:1.75">${v.evi.why}</p>
-    ${v.evi.schools.length?`<p style="margin:7px 0 0;font-size:13px;color:#54615B"><b>المدارس:</b> ${v.evi.schools.join(" · ")}</p>`:""}
+    ${v.evi.schools.length?`<p style="margin:7px 0 0;font-size:13px;color:#54615B"><b>${UI.common.schoolsLabel}</b> ${v.evi.schools.join(" · ")}</p>`:""}
     ${v.evi.src.length?`<ul class="evisrc">${v.evi.src.map(x=>`<li>${x.k?`<span class="k">${x.k}</span>`:""}${x.u?`<a href="${x.u}" target="_blank" rel="noopener">${x.t}</a>`:x.t}</li>`).join("")}</ul>`:""}
    </details>`:""}
 
-   <details class="vx" data-k="src"><summary>حاجات تقراها وتتفرج عليها عن القيمة دي (${v.src.length+stF.length+stox.length+stP.length+VID.filter(x=>x[5].includes(v.name)).slice(0,4).length})</summary>
-    <div class="chips">${v.src.map(([k,t,u])=>`<a class="chip" href="${u}" target="_blank" rel="noopener">${t} <i>${k}</i></a>`).join("")}${stF.map(x=>`<a class="chip" href="${S(x[1],x[2])}" target="_blank" rel="noopener">${x[0]} <i>قصة · مجاني</i></a>`).join("")}${stox.map(x=>`<a class="chip" href="${x[2]}" target="_blank" rel="noopener">${x[1]} <i>قصة · ${x[0]}</i></a>`).join("")}${stP.map(x=>`<a class="chip" href="${S(x[1],x[2])}" target="_blank" rel="noopener">${x[0]} <i>عصافير · مميز</i></a>`).join("")}${VID.filter(x=>x[5].includes(v.name)).slice(0,4).map(x=>`<a class="chip" href="${x[4]}" target="_blank" rel="noopener">${x[3]} <i>${x[1]==="playlist"?"بلاي ليست":"فيديو"}</i></a>`).join("")}</div></details>
+   <details class="vx" data-k="src"><summary>${UI.values.srcSummary} (${v.src.length+stF.length+stox.length+stP.length+VID.filter(x=>x[5].includes(v.name)).slice(0,4).length})</summary>
+    <div class="chips">${v.src.map(([k,t,u])=>`<a class="chip" href="${u}" target="_blank" rel="noopener">${t} <i>${k}</i></a>`).join("")}${stF.map(x=>`<a class="chip" href="${S(x[1],x[2])}" target="_blank" rel="noopener">${x[0]} <i>${UI.values.chipStoryFree}</i></a>`).join("")}${stox.map(x=>`<a class="chip" href="${x[2]}" target="_blank" rel="noopener">${x[1]} <i>${fmt(UI.values.chipStoryPlatform,x[0])}</i></a>`).join("")}${stP.map(x=>`<a class="chip" href="${S(x[1],x[2])}" target="_blank" rel="noopener">${x[0]} <i>${UI.values.chipStoryPremium}</i></a>`).join("")}${VID.filter(x=>x[5].includes(v.name)).slice(0,4).map(x=>`<a class="chip" href="${x[4]}" target="_blank" rel="noopener">${x[3]} <i>${x[1]==="playlist"?UI.common.playlist:UI.common.video}</i></a>`).join("")}</div></details>
   </article>`));});;});
  const vf=document.getElementById("vf"),vs=document.getElementById("vs"),vc=document.getElementById("vc");
  let cur="الكل";
@@ -725,7 +727,7 @@ $("ref").innerHTML=B.prose.ref;
    const c=h.querySelector(".seccount");
    if(c)c.textContent=vis===all.length?`(${all.length} قيمة)`:`(${vis} من ${all.length})`;
    h.classList.toggle("hidden",!vis);});
-  vc.textContent=`ظاهر ${n} من ${VALUES.length} قيمة`;};
+  vc.textContent=fmt(UI.values.count,n,VALUES.length);};
  ["الكل",...Object.keys(C),"المستوى 1","المستوى 2","المستوى 3","المستوى 4"].forEach((g,i)=>{const b=document.createElement("button");b.textContent=g;
   b.setAttribute("aria-pressed",i===0?"true":"false");
   b.onclick=()=>{[...vf.children].forEach(x=>x.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true");cur=g;vs.value="";ap();if(window.navFilter)navFilter("values",g==="الكل"?"":g);};vf.appendChild(b);});
@@ -739,7 +741,7 @@ $("ref").innerHTML=B.prose.ref;
 }
 /* stories */
 {
- const PNOTE={"عصافير":"القصص المعلّمة «مجاني» من قايمة عصافير المجانية الرسمية؛ المعلّمة «مميز» رسميًا للمشتركين — بتتقري ويب مجانًا حاليًا وممكن تتقفل في أي وقت","بالعربي نتعلم":"مجاني بالكامل (موقع بإعلانات)","راويتي":"مجاني بالكامل","منصة مدرسة":"مجاني بالكامل — قصص فيديو من مبادرات محمد بن راشد","مكتبة أبوظبي":"التصفح مجاني والاستعارة بعضوية المكتبة الرقمية (التسجيل مجاني)"};
+ const PNOTE={"عصافير":UI.stories.notes.asafeer,"بالعربي نتعلم":UI.stories.notes.belaraby,"راويتي":UI.stories.notes.rawyati,"منصة مدرسة":UI.stories.notes.madrasa,"مكتبة أبوظبي":UI.stories.notes.abudhabi};
  const SEC=[
   ["قبل النوم",["النوم"]],
   ["المشاعر والشجاعة",["المشاعر","الغضب","الخوف والشجاعة","الإحباط والمحاولة"]],
@@ -751,11 +753,11 @@ $("ref").innerHTML=B.prose.ref;
  const secOf=tag=>{const f=SEC.find(([,tags])=>tags.includes(tag));return f?f[0]:SEC[6][0];};
  const ALL=[...ST.map(([t,id,slug,tag,fr])=>({p:"عصافير",t,u:S(id,slug),tag,fr:fr?1:0})),...STX.map(([p,t,u,tag])=>({p,t,u,tag,fr:p==="مكتبة أبوظبي"?0:1}))];
  const tags=[...new Set(ALL.map(s=>s.tag))];
- $("stories").innerHTML=`<h1>مكتبة القصص — ${ALL.length} قصة</h1>
-  <p class="lede">المكتبة مقسّمة بنوع القصة، ومن جواها تفلتر بالمنصة أو القيمة أو تدوّر بالاسم. دوس <b>«المجاني بس»</b> عشان تشوف اللي مفتوح مجانًا بالكامل — وده أغلب المكتبة. القصص نفسها ظاهرة كمان جوه كروت القيم المرتبطة بيها.</p>
-  <div class="warn"><b>التصنيف تقديري:</b> مبني على العنوان وتصنيف المنصة، مش قراءة كل قصة — اعتبره نقطة بداية. اللينكات اتحقق منها يوم 14-8-2026.<br><span style="display:block;margin-top:9px;padding-top:9px;border-top:1px solid rgba(140,47,57,.18)">${Object.entries(PNOTE).map(([p,n])=>`<span style="display:block;margin-top:3px"><b>${p}:</b> ${n}</span>`).join("")}</span></div>
+ $("stories").innerHTML=`<h1>${fmt(UI.stories.h1,ALL.length)}</h1>
+  <p class="lede">${UI.stories.ledeA} <b>«${UI.stories.freeOnlyBtn}»</b> ${UI.stories.ledeB}</p>
+  <div class="warn"><b>${UI.stories.warnLabel}</b> ${UI.stories.warnText}<br><span style="display:block;margin-top:9px;padding-top:9px;border-top:1px solid rgba(140,47,57,.18)">${Object.entries(PNOTE).map(([p,n])=>`<span style="display:block;margin-top:3px"><b>${p}:</b> ${n}</span>`).join("")}</span></div>
   <div class="filter" id="spf"></div>
-  <div class="filter" id="sf"></div><input type="search" id="ss" placeholder="دوّر باسم القصة…">
+  <div class="filter" id="sf"></div><input type="search" id="ss" placeholder="${UI.stories.searchPlaceholder}">
   <div class="count" id="sc"></div><div id="sl"></div>`;
  const sl=document.getElementById("sl");
  const COLT={"المشاعر":"#6B4A86","الغضب":"#8C2F39","الخوف والشجاعة":"#A9552F","الإحباط والمحاولة":"#B5731E",
@@ -773,7 +775,7 @@ $("ref").innerHTML=B.prose.ref;
   items.forEach(s=>grid.appendChild(el(
    `<div class="card" style="--cc:${COLT[s.tag]||"#54615B"}" data-tag="${s.tag}" data-p="${s.p}" data-fr="${s.fr}" data-t="${(s.t+" "+s.p).toLowerCase()}">
     <h4><a href="${s.u}" target="_blank" rel="noopener">${s.t}</a></h4>
-    <div class="meta"><span>${s.tag}</span><span>${s.p}</span>${s.p==="عصافير"?`<span style="${s.fr?"color:#2C6E49;font-weight:700":"color:#B98B18;font-weight:700"}">${s.fr?"مجاني":"مميز"}</span>`:""}</div></div>`)));
+    <div class="meta"><span>${s.tag}</span><span>${s.p}</span>${s.p==="عصافير"?`<span style="${s.fr?"color:#2C6E49;font-weight:700":"color:#B98B18;font-weight:700"}">${s.fr?UI.common.free:UI.common.premium}</span>`:""}</div></div>`)));
   sl.appendChild(grid);});
  const spf=document.getElementById("spf"),sf=document.getElementById("sf"),ss=document.getElementById("ss"),sc=document.getElementById("sc");
  let curT="الكل",curP="الكل";
@@ -788,11 +790,11 @@ $("ref").innerHTML=B.prose.ref;
    const c=h.querySelector(".seccount");
    if(c)c.textContent=vis===tot?`(${tot} قصة)`:`(${vis} من ${tot})`;
    h.classList.toggle("hidden",!vis);if(grid)grid.classList.toggle("hidden",!vis);});
-  sc.textContent=`ظاهر ${n} من ${ALL.length} قصة`;};
+  sc.textContent=fmt(UI.stories.count,n,ALL.length);};
  ["الكل",...Object.keys(PNOTE)].forEach((g,i)=>{const b=document.createElement("button");b.textContent=g;
   b.setAttribute("aria-pressed",i===0?"true":"false");
   b.onclick=()=>{[...spf.children].forEach(x=>x.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true");curP=g;apS();};spf.appendChild(b);});
- {const b=document.createElement("button");b.textContent="المجاني بس";b.style.borderColor="#2C6E49";b.style.color="#2C6E49";
+ {const b=document.createElement("button");b.textContent=UI.stories.freeOnlyBtn;b.style.borderColor="#2C6E49";b.style.color="#2C6E49";
   b.onclick=()=>{onlyFree=!onlyFree;b.setAttribute("aria-pressed",onlyFree?"true":"false");if(onlyFree){b.style.background="#2C6E49";b.style.color="#fff";}else{b.style.background="";b.style.color="#2C6E49";}apS();};spf.appendChild(b);}
  ["الكل",...tags].forEach((g,i)=>{const b=document.createElement("button");b.textContent=g;
   b.setAttribute("aria-pressed",i===0?"true":"false");
@@ -802,67 +804,67 @@ $("ref").innerHTML=B.prose.ref;
 /* vids */
 {
  const TC={"قصص":"#6B4A86","آداب وقيم":"#2C6E49","قرآن":"#2F6E86","تعليمي":"#B5731E","مواقف":"#8C2F39"};
- $("vids").innerHTML=`<h1>الفيديوهات — ${VID.length} فيديو وبلاي ليست</h1>
-  <p class="lede">بلاي ليستات وفيديوهات بعينها من القنوات الموثوقة، مصنّفة بالنوع ومربوطة بالقيم. البلاي ليست بتفضل شغالة مدة أطول من الفيديو الواحد، عشان كده هي في الأول.</p>
-  <div class="warn">كل لينك هنا اتفتح واتأكدنا إنه شغال يوم 14-8-2026. لينكات يوتيوب بتموت مع الوقت — لو لينك باظ، دوّر باسم الفيديو جوه القناة نفسها (القنوات كلها في تبويب المصادر). استبعدنا الأغاني والموسيقى عمدًا: القنوات اللي أصلها أناشيد اخترنا منها القصص والمواقف بس، وإنك تتفرج معاه على أي حاجة أحسن من إنه يتفرج لوحده.</div>
-  <div class="filter" id="df"></div><input type="search" id="ds" placeholder="دوّر باسم الفيديو أو القناة أو القيمة…">
+ $("vids").innerHTML=`<h1>${fmt(UI.vids.h1,VID.length)}</h1>
+  <p class="lede">${UI.vids.lede}</p>
+  <div class="warn">${UI.vids.warn}</div>
+  <div class="filter" id="df"></div><input type="search" id="ds" placeholder="${UI.vids.searchPlaceholder}">
   <div class="count" id="dc"></div><div class="cards" id="dl"></div>`;
  const dl=document.getElementById("dl");
  VID.forEach(([ch,kind,type,title,url,vals])=>dl.appendChild(el(
   `<div class="card" style="--cc:${TC[type]||"#54615B"}" data-type="${type}" data-t="${(title+" "+ch+" "+vals.join(" ")).toLowerCase()}">
    <h4><a href="${url}" target="_blank" rel="noopener">${title}</a></h4>
-   <div class="meta"><span>${ch}</span><span>${type}</span><span>${kind==="playlist"?"بلاي ليست":"فيديو"}</span></div>
+   <div class="meta"><span>${ch}</span><span>${type}</span><span>${kind==="playlist"?UI.common.playlist:UI.common.video}</span></div>
    ${vals.length?`<div class="chips" style="margin-top:6px">${vals.map(v=>`<span class="chip" onclick="goVal('${v}')">${v}</span>`).join("")}</div>`:""}</div>`)));
  const df=document.getElementById("df"),ds=document.getElementById("ds"),dc=document.getElementById("dc");
  let curD="الكل";
  const apD=()=>{const q=ds.value.trim().toLowerCase();let n=0;
   [...dl.children].forEach(c=>{const ok=(curD==="الكل"||c.dataset.type===curD)&&(!q||c.dataset.t.includes(q));
-   c.classList.toggle("hidden",!ok);if(ok)n++;});dc.textContent=`ظاهر ${n} من ${VID.length} فيديو وبلاي ليست`;};
+   c.classList.toggle("hidden",!ok);if(ok)n++;});dc.textContent=fmt(UI.vids.count,n,VID.length);};
  ["الكل",...Object.keys(TC)].forEach((g,i)=>{const b=document.createElement("button");b.textContent=g;
   b.setAttribute("aria-pressed",i===0?"true":"false");
   b.onclick=()=>{[...df.children].forEach(x=>x.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true");curD=g;apD();};df.appendChild(b);});
  ds.oninput=apD;apD();
 }
 /* day */
-$("day").innerHTML=`<h1>اليوم كامل</h1>
- <p class="lede">اليوم فيه حوالي 12 ساعة صحيان. النشاط الموجّه 20 دقيقة منها عن قصد.</p>
+$("day").innerHTML=`<h1>${UI.day.h1}</h1>
+ <p class="lede">${UI.day.lede}</p>
  <div class="bar">${BAR.map(([n,h,c])=>`<div style="flex:${h};background:${c}">${h>=1.3?n:""}</div>`).join("")}</div>
  <div class="legend">${BAR.map(([n,h,c])=>`<span><i class="dot" style="background:${c}"></i>${n} · ${h>=1?h+" ساعة":"20 دقيقة"}</span>`).join("")}</div>
- <div class="panel"><p class="big">الـ 20 دقيقة الموجّهة بتزرع القيمة. باقي اليوم هو اللي بيثبّتها.</p><ul>
-  <li><b>اللعب الحر هو المنهج الحقيقي</b> — 3–4 ساعات يوميًا.</li>
-  <li><b>الحياة اليومية نفسها نشاط.</b></li><li><b>الملل مطلوب</b> — سيبه يزهق نص ساعة بلا إنقاذ.</li></ul></div>
- <h2 class="sec">ساعة بساعة</h2>
+ <div class="panel"><p class="big">${UI.day.big}</p><ul>
+  <li><b>${UI.day.pt1B}</b> ${UI.day.pt1T}</li>
+  <li><b>${UI.day.pt2B}</b></li><li><b>${UI.day.pt3B}</b> ${UI.day.pt3T}</li></ul></div>
+ <h2 class="sec">${UI.day.hourH2}</h2>
  ${DAY.map(([a,b,t,c,p,r])=>`<article class="slot" style="--sc:${c}"><div class="t"><b>${a}</b>${b}</div>
   <div class="c"><h3>${t}</h3><p>${p}</p><p class="role">${r}</p></div></article>`).join("")}
- <h2 class="sec">لو بيروح حضانة</h2>
+ <h2 class="sec">${UI.day.nurseryH2}</h2>
  <div class="panel"><ul>
-  <li><b>أول ساعة بعد الرجوع بلا أي مطالب</b> — هو مستهلك تمامًا.</li>
-  <li>لعب حر لحد 15:30، بعدين النشاط الموجّه، بعدين برّه.</li>
-  <li>لو رجع بيعيّط بلا سبب: ده تفريغ في المكان الآمن. الرد حضن وسكوت.</li></ul></div>
- <h2 class="sec">يلعب لوحده إزاي</h2>
- <div class="panel"><ol><li>ابدأ 5 دقايق: «هقعد هنا وأشوفك» — واقعد فعلًا.</li>
-  <li>زوّد 5 دقايق كل أسبوع.</li><li>متقاطعش لعبه بالمدح.</li>
-  <li><b>تدوير اللعب:</b> 4 مجموعات وواحدة كل أسبوع — أكتر حاجة بتفرق.</li></ol></div>`;
+  <li><b>${UI.day.nur1B}</b> ${UI.day.nur1T}</li>
+  <li>${UI.day.nur2}</li>
+  <li>${UI.day.nur3}</li></ul></div>
+ <h2 class="sec">${UI.day.aloneH2}</h2>
+ <div class="panel"><ol><li>${UI.day.alone1}</li>
+  <li>${UI.day.alone2}</li><li>${UI.day.alone3}</li>
+  <li><b>${UI.day.alone4B}</b> ${UI.day.alone4T}</li></ol></div>`;
 /* acts */
 {
- $("acts").innerHTML=`<h1>الأنشطة</h1><p class="lede">${ACT.length} نشاط بخامات البيت، وجدول 28 يوم من غير تكرار.</p>
-  <div class="picker"><h3>مش عارف تعمل إيه النهارده؟</h3><p class="s">دوس وهيطلعلك نشاط عشوائي.</p>
-   <div class="pout" id="po"><h4>اضغط الزرار</h4><p>وهيختارلك نشاط من ${ACT.length}.</p></div><button id="pb">اقترح نشاط</button></div>
-  <h2 class="sec">جدول 28 يوم</h2>
-  <table><thead><tr><th>اليوم</th><th>أسبوع 1</th><th>أسبوع 2</th><th class="hide">أسبوع 3</th><th class="hide">أسبوع 4</th></tr></thead>
+ $("acts").innerHTML=`<h1>${UI.acts.h1}</h1><p class="lede">${fmt(UI.acts.lede,ACT.length)}</p>
+  <div class="picker"><h3>${UI.acts.pickerH3}</h3><p class="s">${UI.acts.pickerSub}</p>
+   <div class="pout" id="po"><h4>${UI.acts.pickerIdleH4}</h4><p>${fmt(UI.acts.pickerIdleP,ACT.length)}</p></div><button id="pb">${UI.acts.pickerBtn}</button></div>
+  <h2 class="sec">${UI.acts.planH2}</h2>
+  <table><thead><tr><th>${UI.acts.thDay}</th><th>${UI.acts.thW1}</th><th>${UI.acts.thW2}</th><th class="hide">${UI.acts.thW3}</th><th class="hide">${UI.acts.thW4}</th></tr></thead>
   <tbody>${THEMES.map(([day,cat])=>{const l=ACT.filter(a=>a[0]===cat);
    return `<tr><td class="k"><b>${day}</b><br><span style="color:${ACAT[cat]}">${cat}</span></td>
    ${[0,1,2,3].map(i=>`<td class="${i>1?'hide':''}">${l[i%l.length][1]}</td>`).join("")}</tr>`}).join("")}</tbody></table>
-  <h2 class="sec">بنك الأنشطة</h2><div class="filter" id="af"></div><div class="cards" id="ac"></div>
-  <h2 class="sec">الجو حر — أنشطة جوّه</h2>
-  <div class="panel"><ul><li>مسار حركة بالشريط اللاصق، مخدّات على الأرض تبقى جُزر، سباق زحف.</li>
-   <li>لعب المياه في البانيو — بيكسبك 40 دقيقة.</li>
-   <li>أماكن مكيّفة: المكتبات، ملاعب داخلية الصبح بدري، الأكواريوم.</li>
-   <li>في الشهور الحرة وقت الخروج الوحيد بعد المغرب.</li></ul></div>`;
+  <h2 class="sec">${UI.acts.bankH2}</h2><div class="filter" id="af"></div><div class="cards" id="ac"></div>
+  <h2 class="sec">${UI.acts.indoorH2}</h2>
+  <div class="panel"><ul><li>${UI.acts.indoor1}</li>
+   <li>${UI.acts.indoor2}</li>
+   <li>${UI.acts.indoor3}</li>
+   <li>${UI.acts.indoor4}</li></ul></div>`;
  const ac=document.getElementById("ac");
  ACT.forEach(([c,t,d,dur,prep,how,age])=>ac.appendChild(el(`<div class="card" style="--cc:${ACAT[c]}" data-cat="${c}" data-prep="${prep}" data-amin="${age[0]}" data-amax="${age[1]}">
-  <h4>${t}</h4><p>${d}</p><div class="meta"><span>${c}</span><span>${dur}</span><span>${prep}</span><span>${age[0]}–${age[1]} سنين</span></div>
-  ${how?`<details style="margin-top:6px"><summary style="cursor:pointer;font-size:13.5px;font-weight:600;color:#2F5D50">إزاي تعمله؟</summary><p style="margin:6px 0 0;font-size:14px">${how}</p></details>`:""}</div>`)));
+  <h4>${t}</h4><p>${d}</p><div class="meta"><span>${c}</span><span>${dur}</span><span>${prep}</span><span>${age[0]}–${age[1]} ${UI.common.years}</span></div>
+  ${how?`<details style="margin-top:6px"><summary style="cursor:pointer;font-size:13.5px;font-weight:600;color:#2F5D50">${UI.acts.howSummary}</summary><p style="margin:6px 0 0;font-size:14px">${how}</p></details>`:""}</div>`)));
  const af=document.getElementById("af");
  ["الكل",...Object.keys(ACAT),"بدون تجهيز"].forEach((g,i)=>{const b=document.createElement("button");b.textContent=g;
   b.setAttribute("aria-pressed",i===0?"true":"false");
@@ -880,21 +882,21 @@ $("food").innerHTML=B.prose.food;
  const MKC={"فطار":"var(--c6)","سناك":"var(--c5)","غدا":"var(--c3)","عشا":"var(--c4)"};
  const mealCard=m=>`<div class="meal" style="--mc2:${MKC[m.k]}">
   <div class="v-head"><h3>${m.t}</h3><span class="cat" style="background:${MKC[m.k]}">${m.k}</span>
-   <span class="age">${m.p}</span><span class="age">${m.age[0]}–${m.age[1]} سنين</span>
-   ${m.nu?`<span class="evi evi-strong">ينفع للحضانة</span>`:""}</div>
+   <span class="age">${m.p}</span><span class="age">${m.age[0]}–${m.age[1]} ${UI.common.years}</span>
+   ${m.nu?`<span class="evi evi-strong">${UI.food.nurseryOk}</span>`:""}</div>
   <ul class="mitems">${m.i.map(x=>`<li>${x}</li>`).join("")}</ul>
-  <p class="say"><b>بيدي إيه:</b> ${m.w}</p>
-  ${m.kj?`<p class="mkid"><b>حتة طفلك:</b> ${m.kj}</p>`:""}
-  ${m.sf?`<p class="msafe"><b>انتبه:</b> ${m.sf}</p>`:""}
+  <p class="say"><b>${UI.food.givesLabel}</b> ${m.w}</p>
+  ${m.kj?`<p class="mkid"><b>${UI.food.kidPartLabel}</b> ${m.kj}</p>`:""}
+  ${m.sf?`<p class="msafe"><b>${UI.food.watchLabel}</b> ${m.sf}</p>`:""}
   ${m.tg.length?`<div class="chips">${m.tg.map(t=>`<span class="chip mtag" data-t="${t}">${t}</span>`).join("")}</div>`:""}
  </div>`;
 
  const host=el(`<div>
   <h2 class="sec" style="--a:var(--c6)">اقترحلي وجبة</h2>
-  <p class="note">مش عارف تعمل إيه النهارده؟ دوس على الوجبة اللي محتاجها وهيطلعلك اقتراح — والاقتراح بيمشي على السن اللي مختاره فوق.</p>
+  <p class="note">${UI.food.pickerNote}</p>
   <div class="picker mealpick"><div class="cta" id="mealBtns">${MK.map(k=>`<button data-k="${k}">${k}</button>`).join("")}
    <button data-k="أي حاجة" class="p">أي حاجة</button></div>
-   <div class="pout" id="mealOut"><h4>اضغط على نوع الوجبة</h4><p>وهيختارلك واحدة من ${MEALS.length} فكرة.</p></div></div>
+   <div class="pout" id="mealOut"><h4>${UI.food.pickerIdleH4}</h4><p>${fmt(UI.food.pickerIdleP,MEALS.length)}</p></div></div>
   <h2 class="sec" style="--a:var(--c6)">بنك الوجبات — ${MEALS.length} فكرة</h2>
   <div class="filter" id="mealFilter"></div>
   <div class="filter" id="mealTagFilter"></div>
@@ -912,7 +914,7 @@ $("food").innerHTML=B.prose.food;
    const ageOk=!window.AGE||((+c.dataset.amin)<=window.AGE&&window.AGE<=(+c.dataset.amax));
    const ok=(curK==="الكل"||c.dataset.k===curK)&&(curT==="الكل"||c.dataset.tg.split("|").includes(curT))&&ageOk;
    c.classList.toggle("hidden",!ok);if(ok)n++;});
-  cnt.textContent=`ظاهر ${n} من ${MEALS.length} فكرة`;};
+  cnt.textContent=fmt(UI.food.count,n,MEALS.length);};
 
  const mf=document.getElementById("mealFilter");
  ["الكل",...MK].forEach((g,i)=>{const b=document.createElement("button");b.textContent=g;
@@ -932,13 +934,13 @@ $("food").innerHTML=B.prose.food;
   const b=e.target.closest("button");if(!b)return;
   const k=b.dataset.k;
   const pool=MEALS.filter(m=>(k==="أي حاجة"||m.k===k)&&(!window.AGE||(m.age[0]<=window.AGE&&window.AGE<=m.age[1])));
-  if(!pool.length){document.getElementById("mealOut").innerHTML=`<h4>مفيش اقتراح</h4><p>غيّر السن المختار فوق وجرّب تاني.</p>`;return;}
+  if(!pool.length){document.getElementById("mealOut").innerHTML=`<h4>${UI.food.noneH4}</h4><p>${UI.food.noneP}</p>`;return;}
   const m=pool[Math.floor(Math.random()*pool.length)];
   document.getElementById("mealOut").innerHTML=`<h4>${m.t}</h4>
    <p>${m.i.join(" · ")}</p>
    <p style="margin-top:6px">${m.w}</p>
-   ${m.sf?`<p style="margin-top:6px">انتبه: ${m.sf}</p>`:""}
-   <div class="meta"><span>${m.k}</span><span>${m.p}</span><span>${m.age[0]}–${m.age[1]} سنين</span>${m.nu?`<span>ينفع للحضانة</span>`:""}</div>`;};
+   ${m.sf?`<p style="margin-top:6px">${UI.food.watchLabel} ${m.sf}</p>`:""}
+   <div class="meta"><span>${m.k}</span><span>${m.p}</span><span>${m.age[0]}–${m.age[1]} ${UI.common.years}</span>${m.nu?`<span>${UI.food.nurseryOk}</span>`:""}</div>`;};
 
  // clicking a tag on a card filters by it
  list.addEventListener("click",e=>{const t=e.target.closest(".mtag");if(!t)return;
@@ -954,9 +956,9 @@ $("food").innerHTML=B.prose.food;
  const esc=t=>String(t==null?"":t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const nl=t=>esc(t).replace(/\n+/g,"<br>");
  const ago=ts=>{const d=Math.floor((Date.now()-ts)/1000);
-  if(d<60)return "دلوقتي";if(d<3600)return Math.floor(d/60)+" دقيقة";
-  if(d<86400)return Math.floor(d/3600)+" ساعة";if(d<2592000)return Math.floor(d/86400)+" يوم";
-  return Math.floor(d/2592000)+" شهر";};
+  if(d<60)return UI.comm.agoNow;if(d<3600)return Math.floor(d/60)+" "+UI.comm.agoMin;
+  if(d<86400)return Math.floor(d/3600)+" "+UI.comm.agoHour;if(d<2592000)return Math.floor(d/86400)+" "+UI.comm.agoDay;
+  return Math.floor(d/2592000)+" "+UI.comm.agoMonth;};
 
  /* identity: a random id kept in this browser — not authentication */
  let VISITOR=localStorage.getItem("qaVisitor");
@@ -969,8 +971,8 @@ $("food").innerHTML=B.prose.food;
   const r=await fetch(API+path,{method:body?"POST":"GET",
    headers:{"content-type":"application/json","x-visitor-id":VISITOR},
    body:body?JSON.stringify(body):undefined});
-  const d=await r.json().catch(()=>({error:"رد غير مفهوم من السيرفر"}));
-  if(!r.ok)throw new Error(d.error||"حصل خطأ");
+  const d=await r.json().catch(()=>({error:UI.comm.badResponse}));
+  if(!r.ok)throw new Error(d.error||UI.comm.genericError);
   return d;};
 
  /* tag suggestions come from the guide's own vocabulary so people converge on the same words */
@@ -978,18 +980,18 @@ $("food").innerHTML=B.prose.food;
   "نوم","أكل","حضانة","إخوات","شاشات","خروجات","سفر","مرض","روتين الصبح","لانش بوكس"])];
  let TAGORDER=[...SUGGEST];
 
- $("comm").innerHTML=`<h1>المجتمع</h1>
-  <p class="lede">أهالي بيحكوا تجاربهم: موقف عدّى وعرفت تتصرف فيه، قصة نفعت مع طفلك، قيمة زرعتها، أو وجبة نجحت معاك. اللي تكتبه هنا ممكن يوفّر على حد تاني شهور.</p>
-  <div class="warn"><b>الفلتر شغال:</b> أي مشاركة فيها ألفاظ مش مناسبة بترفض على طول، واللي فيها لينكات أو كلام حاد بتتحجز لمراجعة قبل ما تظهر.<br>
-   والمشاركات دي <b>تجارب أهالي مش مرجع علمي</b> . خدها إلهام، وأي قلق صحي أو نفسي مرجعه الطبيب.</div>
+ $("comm").innerHTML=`<h1>${UI.comm.h1}</h1>
+  <p class="lede">${UI.comm.lede}</p>
+  <div class="warn"><b>${UI.comm.warnLabel}</b> ${UI.comm.warnText}<br>
+   ${UI.comm.warnPre} <b>${UI.comm.warnBold}</b> ${UI.comm.warnPost}</div>
   <div class="commtop">
-   <button class="addbtn" id="cOpen">＋ شارك تجربتك</button>
+   <button class="addbtn" id="cOpen">＋ ${UI.comm.shareBtn}</button>
    <span class="cwho" id="cWho"></span>
   </div>
   <div class="filter" id="cKindFilter"></div>
   <div class="filter" id="cTagFilter"></div>
   <div class="count" id="cCountLbl"></div>
-  <div id="cFeed"><p class="note">بنحمّل المشاركات…</p></div>
+  <div id="cFeed"><p class="note">${UI.comm.loading}</p></div>
   <div class="pager" id="cPager"></div>`;
 
  const $$=id=>document.getElementById(id);
@@ -998,23 +1000,23 @@ $("food").innerHTML=B.prose.food;
  /* ---- the form lives in the shared sheet, not on the page ---- */
  let kind=KINDS[0],chosen=[];
  const formHTML=()=>`<form class="cform" id="cForm">
-   ${MYNAME?`<p class="cwho2">بتشارك باسم <b>${esc(MYNAME)}</b> — <button type="button" class="linkbtn" id="cRename">غيّر</button></p>`
-    :`<label>اسمك الأول <span class="req">*</span>
-      <input id="cName" maxlength="40" placeholder="اسمك" autocomplete="given-name"></label>`}
-   <label>نوع المشاركة <span class="req">*</span>
+   ${MYNAME?`<p class="cwho2">${UI.comm.postingAs} <b>${esc(MYNAME)}</b> — <button type="button" class="linkbtn" id="cRename">${UI.comm.change}</button></p>`
+    :`<label>${UI.comm.firstName} <span class="req">*</span>
+      <input id="cName" maxlength="40" placeholder="${UI.comm.namePlaceholder}" autocomplete="given-name"></label>`}
+   <label>${UI.comm.kindLabel} <span class="req">*</span>
     <div class="kpick" id="cKind">${KINDS.map((k,i)=>`<button type="button" data-k="${k}" aria-pressed="${k===kind?"true":"false"}">${k}</button>`).join("")}</div></label>
-   <label>العنوان <span class="req">*</span>
-    <input id="cTitle" maxlength="120" placeholder="مثلاً: رفض ياخد الدوا وكل يوم معركة" required></label>
-   <label>احكي اللي حصل <span class="req">*</span>
-    <textarea id="cBody" rows="6" maxlength="4000" placeholder="إيه اللي حصل بالظبط؟ عملت إيه؟ وإيه اللي نفع في الآخر؟" required></textarea>
-    <small class="hint"><span id="cCount">0</span>/4000 — على الأقل 30 حرف</small></label>
-   <label>المشاركة دي عن إيه؟ <span class="req">*</span>
+   <label>${UI.comm.titleLabel} <span class="req">*</span>
+    <input id="cTitle" maxlength="120" placeholder="${UI.comm.titlePlaceholder}" required></label>
+   <label>${UI.comm.bodyLabel} <span class="req">*</span>
+    <textarea id="cBody" rows="6" maxlength="4000" placeholder="${UI.comm.bodyPlaceholder}" required></textarea>
+    <small class="hint"><span id="cCount">0</span>${UI.comm.bodyHint}</small></label>
+   <label>${UI.comm.tagsLabel} <span class="req">*</span>
     <div class="tagpick" id="cTags"></div>
-    <div class="tagadd"><input id="cTagNew" maxlength="30" placeholder="أو اكتب تاج جديد"><button type="button" id="cTagAdd">ضيف</button></div>
-    <small class="hint">اختار لحد 5 — دوس على التاج عشان تشيله</small></label>
-   <label>مناسبة لسن <span class="req">*</span>
-    <span class="ages"><select id="cAgeMin"></select> <span>لـ</span> <select id="cAgeMax"></select> <span>سنين</span></span></label>
-   <div class="cactions"><button type="submit" id="cSubmit">انشر المشاركة</button>
+    <div class="tagadd"><input id="cTagNew" maxlength="30" placeholder="${UI.comm.newTagPlaceholder}"><button type="button" id="cTagAdd">${UI.comm.addTag}</button></div>
+    <small class="hint">${UI.comm.tagsHint}</small></label>
+   <label>${UI.comm.ageLabel} <span class="req">*</span>
+    <span class="ages"><select id="cAgeMin"></select> <span>${UI.comm.ageTo}</span> <select id="cAgeMax"></select> <span>${UI.common.years}</span></span></label>
+   <div class="cactions"><button type="submit" id="cSubmit">${UI.comm.submit}</button>
     <span class="cmsg" id="cMsg"></span></div>
   </form>`;
 
@@ -1051,7 +1053,7 @@ $("food").innerHTML=B.prose.food;
  };
  $$("cOpen").onclick=openForm;
 
- const drawWho=()=>{$$("cWho").innerHTML=MYNAME?`بتشارك باسم <b>${esc(MYNAME)}</b>`:"";};
+ const drawWho=()=>{$$("cWho").innerHTML=MYNAME?`${UI.comm.postingAs} <b>${esc(MYNAME)}</b>`:"";};
  drawWho();
 
  async function submit(ev){
@@ -1059,18 +1061,18 @@ $("food").innerHTML=B.prose.food;
   const msg=$$("cMsg");
   let name=MYNAME;
   if(!name){name=($$("cName")?.value||"").trim();
-   if(name.length<2){msg.textContent="اكتب اسمك الأول";msg.className="cmsg err";return;}}
-  if(!chosen.length){msg.textContent="اختار تاج واحد على الأقل";msg.className="cmsg err";return;}
+   if(name.length<2){msg.textContent=UI.comm.errName;msg.className="cmsg err";return;}}
+  if(!chosen.length){msg.textContent=UI.comm.errTag;msg.className="cmsg err";return;}
   const payload={kind,name,title:$$("cTitle").value.trim(),body:$$("cBody").value.trim(),
    tags:chosen,age_min:+$$("cAgeMin").value,age_max:+$$("cAgeMax").value};
-  if(payload.age_min>payload.age_max){msg.textContent="السن الأصغر لازم يكون أقل من الأكبر";msg.className="cmsg err";return;}
-  $$("cSubmit").disabled=true;msg.textContent="بنبعت…";msg.className="cmsg";
+  if(payload.age_min>payload.age_max){msg.textContent=UI.comm.errAge;msg.className="cmsg err";return;}
+  $$("cSubmit").disabled=true;msg.textContent=UI.comm.sending;msg.className="cmsg";
   try{const r=await api("/post",payload);
    if(!MYNAME){MYNAME=name;localStorage.setItem("qaName",name);drawWho();}
    chosen=[];offset=0;
    closeSheet();
    await load(true);
-   alertLine(r.message||"اتنشرت — شكرًا 🌱",r.status==="pending");
+   alertLine(r.message||UI.comm.posted,r.status==="pending");
   }catch(e){msg.textContent=e.message;msg.className="cmsg err";$$("cSubmit").disabled=false;}
  }
 
@@ -1083,14 +1085,14 @@ $("food").innerHTML=B.prose.food;
  /* ---- feed with filters and paging ---- */
  let FEED=[],TOTAL=0,offset=0,curKind="الكل",curTag="";
  const drawFeed=()=>{
-  $$("cCountLbl").textContent=TOTAL?`${TOTAL} مشاركة`:"";
-  if(!TOTAL){feedEl.innerHTML=`<div class="panel"><p style="margin:0">لسه مفيش مشاركات — <b>ابقى انت الأول</b>. أي موقف عدّى معاك وعرفت تتصرف فيه هيفيد أب أو أم تانية.</p></div>`;pager.innerHTML="";return;}
-  if(!FEED.length){feedEl.innerHTML=`<p class="note">مفيش مشاركات بالفلتر ده.</p>`;pager.innerHTML="";return;}
+  $$("cCountLbl").textContent=TOTAL?fmt(UI.comm.totalLbl,TOTAL):"";
+  if(!TOTAL){feedEl.innerHTML=`<div class="panel"><p style="margin:0">${UI.comm.emptyPre} <b>${UI.comm.emptyBold}</b>${UI.comm.emptyPost}</p></div>`;pager.innerHTML="";return;}
+  if(!FEED.length){feedEl.innerHTML=`<p class="note">${UI.comm.noMatch}</p>`;pager.innerHTML="";return;}
   feedEl.innerHTML=FEED.map(p=>{
    const liked=QA.likes.has("post:"+p.id);
    return `<article class="cpost" style="--kc:${KCOL[p.kind]||"var(--c7)"}">
     <div class="v-head"><h3>${esc(p.title)}</h3><span class="cat" style="background:${KCOL[p.kind]||"var(--c7)"}">${esc(p.kind)}</span>
-     <span class="age">${p.age_min}–${p.age_max} سنين</span></div>
+     <span class="age">${p.age_min}–${p.age_max} ${UI.common.years}</span></div>
     <p class="cmeta">${esc(p.author_name)} · من ${ago(p.created_at)}</p>
     <p class="cbody">${nl(p.body)}</p>
     ${p.tags&&p.tags.length?`<div class="chips">${p.tags.map(t=>`<span class="chip ctag" data-t="${esc(t)}">${esc(t)}</span>`).join("")}</div>`:""}
@@ -1098,9 +1100,9 @@ $("food").innerHTML=B.prose.food;
    </article>`;}).join("");
   const pages=Math.ceil(TOTAL/20),cur=Math.floor(offset/20)+1;
   pager.innerHTML=pages>1?`
-   <button ${offset===0?"disabled":""} data-o="${Math.max(0,offset-20)}">السابق</button>
-   <span>صفحة ${cur} من ${pages}</span>
-   <button ${cur>=pages?"disabled":""} data-o="${offset+20}">التالي</button>`:"";
+   <button ${offset===0?"disabled":""} data-o="${Math.max(0,offset-20)}">${UI.comm.prev}</button>
+   <span>${fmt(UI.comm.page,cur,pages)}</span>
+   <button ${cur>=pages?"disabled":""} data-o="${offset+20}">${UI.comm.next}</button>`:"";
  };
 
  pager.onclick=e=>{const b=e.target.closest("button[data-o]");if(!b||b.disabled)return;
@@ -1116,7 +1118,7 @@ $("food").innerHTML=B.prose.food;
   const tf=$$("cTagFilter");
   if(!tags.length){tf.innerHTML="";return;}
   tf.innerHTML="";
-  [{t:"كل التاجات",n:0},...tags.slice(0,24)].forEach((x,i)=>{
+  [{t:UI.comm.allTags,n:0},...tags.slice(0,24)].forEach((x,i)=>{
    const b=document.createElement("button");b.textContent=i===0?x.t:`${x.t} (${x.n})`;
    b.setAttribute("aria-pressed",(i===0&&!curTag)||x.t===curTag?"true":"false");
    b.onclick=()=>{[...tf.children].forEach(y=>y.setAttribute("aria-pressed","false"));
@@ -1150,52 +1152,52 @@ $("food").innerHTML=B.prose.food;
    drawTagFilter(d.tags||[]);drawFeed();
    if(window.paintSitLikes)paintSitLikes();
   }catch(e){
-   feedEl.innerHTML=`<div class="panel"><p style="margin:0">مش قادر أوصل للمشاركات دلوقتي. اتأكد إن النت شغال وجرّب تاني بعد شوية.</p></div>`;}
+   feedEl.innerHTML=`<div class="panel"><p style="margin:0">${UI.comm.loadError}</p></div>`;}
  }
  load();
 }
 
 /* partners */
-$("partners").innerHTML=`<h1>أدوات بنستعملها</h1>
-<p class="lede">حاجات بنستعملها إحنا فعلًا، مش إعلانات مدفوعة.</p>
+$("partners").innerHTML=`<h1>${UI.partners.h1}</h1>
+<p class="lede">${UI.partners.lede}</p>
 
-<h2 class="sec" style="--a:var(--c4)"><a href="https://aro.day/" target="_blank" rel="noopener" style="color:inherit">aro.day</a> — تنظيم اليوم لما تبقى ماسك حاجات كتير مع بعض</h2>
+<h2 class="sec" style="--a:var(--c4)"><a href="https://aro.day/" target="_blank" rel="noopener" style="color:inherit">aro.day</a> — ${UI.partners.aroTagline}</h2>
 <div class="partner">
- <div class="pmeta"><span class="ptag">أداة إنتاجية</span><span class="ptag pfree">مجاني للاستخدام</span><span class="ptag">من نفس صاحب الموقع</span></div>
- <p><b>إيه هو؟</b> مخطط يوم للناس اللي ماسكين حاجات كتير مع بعض وعليهم مواعيد. بيشتغل من المتصفح على طول، وفيه نسخة بتشتغل محليًا على جهازك والداتا كلها عندك في ملف واحد.</p>
+ <div class="pmeta"><span class="ptag">${UI.partners.tagTool}</span><span class="ptag pfree">${UI.partners.tagFree}</span><span class="ptag">${UI.partners.tagOwner}</span></div>
+ <p><b>${UI.partners.whatLabel}</b> ${UI.partners.whatText}</p>
  <div class="pvid">
-  <video id="aroVid" controls muted playsinline preload="metadata" poster="/aroday-poster.jpg" aria-label="فيديو تعريفي عن aro.day">
+  <video id="aroVid" controls muted playsinline preload="metadata" poster="/aroday-poster.jpg" aria-label="${UI.partners.videoAria}">
    <source src="/aroday-demo.mp4" type="video/mp4">
-   متصفحك مش بيشغّل الفيديو — <a href="https://aro.day/" target="_blank" rel="noopener">افتح الموقع مباشرة</a>.
+   ${UI.partners.videoFallback} <a href="https://aro.day/" target="_blank" rel="noopener">${UI.partners.videoFallbackLink}</a>.
   </video>
-  <button class="unmute" id="aroUnmute" type="button" hidden>🔇 اضغط للصوت</button>
-  <p class="pcap">فيديو تعريفي · 47 ثانية</p>
+  <button class="unmute" id="aroUnmute" type="button" hidden>${UI.partners.unmute}</button>
+  <p class="pcap">${UI.partners.videoCap}</p>
  </div>
  <ul class="pts">
-  <li><b>تخطيط تلقائي لليوم:</b> بدل ما تقعد ترتّب المهام بإيدك، بيوزّعها على يومك حسب أولويتها والوقت المتاح — وانت تعدّل اللي مش عاجبك.</li>
-  <li><b>مهام فرعية:</b> المهمة الكبيرة بتتفكّ لخطوات صغيرة، وتشوف انت واقف فين فيها.</li>
-  <li><b>نوتس:</b> ملاحظات ملزوقة بالمهمة نفسها — التفاصيل بتفضل مع شغلها مش في مكان تاني.</li>
-  <li><b>تايمرات متوازية:</b> أكتر من حاجة شغالة في نفس الوقت من غير ما تتوه بينهم، وبريكات محسوبة جوه الخطة.</li>
-  <li><b>سحب وإفلات:</b> ترتّب يومك بإيدك في ثواني لما الخطة تتغيّر.</li>
-  <li><b>داتا محلية:</b> النسخة المحلية بتحفظ كل حاجة على جهازك في ملف واحد.</li>
+  <li><b>${UI.partners.pt1B}</b> ${UI.partners.pt1T}</li>
+  <li><b>${UI.partners.pt2B}</b> ${UI.partners.pt2T}</li>
+  <li><b>${UI.partners.pt3B}</b> ${UI.partners.pt3T}</li>
+  <li><b>${UI.partners.pt4B}</b> ${UI.partners.pt4T}</li>
+  <li><b>${UI.partners.pt5B}</b> ${UI.partners.pt5T}</li>
+  <li><b>${UI.partners.pt6B}</b> ${UI.partners.pt6T}</li>
  </ul>
- <p style="margin:12px 0 0"><a class="chip" href="https://aro.day/" target="_blank" rel="noopener">افتح aro.day <i>مجانًا</i></a></p>
+ <p style="margin:12px 0 0"><a class="chip" href="https://aro.day/" target="_blank" rel="noopener">${UI.partners.openAro} <i>${UI.partners.openAroTag}</i></a></p>
 </div>
 
-<h2 class="sec" style="--a:var(--c5)">عندك حاجة تستاهل تتحط هنا؟</h2>
-<div class="panel"><p style="margin:0 0 8px">القسم ده مش للإعلانات. الشرط بسيط: تكون حاجة <b>بنستعملها فعلًا</b> ونقدر نقول لأي حد «جرّبها» وإحنا مرتاحين، وتكون مفيدة لأب أو أم بجد — سواء كانت أداة، أو منصة تعليمية، أو مبادرة.</p>
-<p style="margin:0">لو عندك حاجة كده، افتح Issue على الريبو واحكيلنا عنها. وأي حاجة تتحط هنا هيبقى مكتوب جنبها لو فيها أي مصلحة لينا، زي ما عملنا فوق.</p></div>`;
+<h2 class="sec" style="--a:var(--c5)">${UI.partners.suggestH2}</h2>
+<div class="panel"><p style="margin:0 0 8px">${UI.partners.suggestPre} <b>${UI.partners.suggestBold}</b> ${UI.partners.suggestPost}</p>
+<p style="margin:0">${UI.partners.suggestP2}</p></div>`;
 
 {
  const K=[...new Set([...YTC.map(y=>"قنوات · "+y[1]),...RES.map(r=>r[0])])];
- $("res").innerHTML=`<h1>المصادر والقنوات</h1>
-  <p class="lede">كل اللينكات في مكان واحد. قنوات اليوتيوب بلينك القناة نفسها لأنه ثابت.</p>
-  <div class="warn">اللينكات دي للقنوات والصفحات الصحيحة، بس <b>مشوفتش محتوى كل قناة بنفسي</b> — اتفرج على حلقتين قبل ما تعتمد أي واحدة. ومتسيبهاش على يوتيوب العادي: يوتيوب كيدز أو قايمة تشغيل محددة أو تحميل أوفلاين.</div>
-  <div class="warn" id="twNote" style="display:none"><b>عن Twinkl:</b> أقسامها اتراجعت واحد واحد يوم 14-8-2026 — أي تحميل منها، حتى المجاني، محتاج تعمل حساب. الحساب المجاني بينزّل الموارد المعلّمة Free بس، والأغلبية الساحقة بالاشتراك المدفوع. اللي متعلّم «اشتراك» يعني كده بصراحة.</div>
+ $("res").innerHTML=`<h1>${UI.res.h1}</h1>
+  <p class="lede">${UI.res.lede}</p>
+  <div class="warn">${UI.res.warnPre} <b>${UI.res.warnBold}</b> ${UI.res.warnPost}</div>
+  <div class="warn" id="twNote" style="display:none"><b>${UI.res.twinklLabel}</b> ${UI.res.twinklText}</div>
   <div class="filter" id="rf"></div>
-  <table><thead><tr><th>المصدر</th><th class="hide">النوع</th><th>ملاحظة</th></tr></thead><tbody id="rt"></tbody></table>`;
+  <table><thead><tr><th>${UI.res.thSource}</th><th class="hide">${UI.res.thKind}</th><th>${UI.res.thNote}</th></tr></thead><tbody id="rt"></tbody></table>`;
  const rt=document.getElementById("rt");
- YTC.forEach(([n,cat,d,u])=>rt.appendChild(el(`<tr data-k="قنوات · ${cat}"><td><a href="${u}" target="_blank" rel="noopener">${n}</a></td><td class="k hide">قناة · ${cat}</td><td class="k">${d}</td></tr>`)));
+ YTC.forEach(([n,cat,d,u])=>rt.appendChild(el(`<tr data-k="قنوات · ${cat}"><td><a href="${u}" target="_blank" rel="noopener">${n}</a></td><td class="k hide">${fmt(UI.res.channelCell,cat)}</td><td class="k">${d}</td></tr>`)));
  RES.forEach(([k,n,u,p])=>rt.appendChild(el(`<tr data-k="${k}"><td><a href="${u}" target="_blank" rel="noopener">${n}</a></td><td class="k hide">${k}</td><td class="k">${p}</td></tr>`)));
  const rf=document.getElementById("rf");
  ["الكل",...K].forEach((g,i)=>{const b=document.createElement("button");b.textContent=g;
@@ -1204,25 +1206,18 @@ $("partners").innerHTML=`<h1>أدوات بنستعملها</h1>
    [...rt.children].forEach(tr=>tr.classList.toggle("hidden",!(g==="الكل"||tr.dataset.k===g)));
    const tn=document.getElementById("twNote");if(tn)tn.style.display=g==="Twinkl"?"":"none";};rf.appendChild(b);});
 }
-[...app.children].forEach(s=>s.appendChild(el(`<footer><p><b>الاستمرارية أهم من الكمال.</b> 3 أيام في الأسبوع لمدة سنتين أقوى من 7 أيام لمدة شهر.</p></footer>`)));
+[...app.children].forEach(s=>s.appendChild(el(`<footer><p><b>${UI.footer.b}</b> ${UI.footer.t}</p></footer>`)));
 /* ponytail: star count is best-effort — offline/rate-limited just leaves the plain link */
 fetch("https://api.github.com/repos/MotazAbuElnasr/qurrat-ayn-parenting-guide").then(r=>r.json())
  .then(d=>{if(typeof d.stargazers_count==="number")document.querySelectorAll(".ghstars").forEach(e=>e.textContent=d.stargazers_count)}).catch(()=>{});
 /* ===== unified in-tab index (one pattern for every tab) ===== */
-const TOC2={ref:{
- "الأساس":["المدارس التربوية","الثقة بالنفس","دور الأب","فيه فروق حقيقية بين تربية البنت والولد","اتفادى إيه","حاجات بتفرق","الاستقلال: خليه"],
- "اليوم بيومه":["النوم","الأكل الانتقائي","السكر والحلويات في الطفولة المبكرة","الشاشات","الحمام","سنان طفلك","المرض والدكتور","أجازة البلد الطويلة — والأيام الصعبة بعد الرجوع"],
- "نمو ومهارات":["جدول التطور","الإيد والقلم: العضلات الدقيقة وجاهزية الكتابة","لو حسيت إن فيه حاجة مختلفة: التقييم والتدخل المبكر"],
- "مشاعر وعلاقات":["المخاوف والقلق","أخ جديد","الأسئلة الصعبة","تعدد المربيين","الخناق قدامه","مفيش حد تسيبه معاه: شبكة الأمان الغايبة وخطة الطوارئ","نصيحة العيلة لما تبقى حكم على كفاءتك"],
- "حماية ومدرسة":["الحماية الاجتماعية","جاهزية المدرسة","اللغة والثنائية","الأمان في البيت","الإسعافات الأولية: أول ٦٠ ثانية","المدرسة الدولية"],
- "دين ومواسم":["رمضان","العيدين","العين والحسد: تحمي طفلك من غير ما تزرع فيه خوف من الناس"],
- "مراجع":["انحياز الدليل","الأطر والمنهجيات"]}};
+const TOC2={ref:B.nav.toc2};
 
 /* the sheet — a single shared element */
 const sheet=el(`<div class="sheet" id="ixSheet" role="dialog" aria-modal="true">
  <div class="bd"></div>
- <div class="pnl"><div class="hd"><h3></h3><button aria-label="اقفل">✕</button></div>
-  <div class="sr"><input type="search" id="ixq" placeholder="دوّر في الفهرس…"></div>
+ <div class="pnl"><div class="hd"><h3></h3><button aria-label="${UI.nav.close}">✕</button></div>
+  <div class="sr"><input type="search" id="ixq" placeholder="${UI.nav.searchPlaceholder}"></div>
   <div class="bdy"></div></div></div>`);
 document.body.appendChild(sheet);
 const sheetBody=sheet.querySelector(".bdy"),sheetTitle=sheet.querySelector(".hd h3"),sheetQ=sheet.querySelector("#ixq");
@@ -1249,7 +1244,7 @@ window.openSheet=(title,model)=>{
     const b=el(`<button class="it">${it.label}${it.sub?`<small>${it.sub}</small>`:""}</button>`);
     b.onclick=()=>{closeSheet();it.run();};
     sheetBody.appendChild(b);shown++;});});
-  if(!shown)sheetBody.appendChild(el(`<div class="none">مفيش نتيجة لـ «${q}»</div>`));
+  if(!shown)sheetBody.appendChild(el(`<div class="none">${fmt(UI.nav.noResult,q)}</div>`));
  };
  draw("");
  sheetQ.oninput=()=>draw(sheetQ.value.trim().toLowerCase());
@@ -1316,9 +1311,9 @@ TABS.forEach(([id,tabLabel])=>{
  if(!model||!model.length)return;
  const v=$(id);
  const bar=el(`<div class="navbar">
-  <button class="ix"><svg viewBox="0 0 16 16"><rect y="2" width="16" height="2" rx="1"/><rect y="7" width="16" height="2" rx="1"/><rect y="12" width="16" height="2" rx="1"/></svg>الفهرس</button>
+  <button class="ix"><svg viewBox="0 0 16 16"><rect y="2" width="16" height="2" rx="1"/><rect y="7" width="16" height="2" rx="1"/><rect y="12" width="16" height="2" rx="1"/></svg>${UI.nav.index}</button>
   <span class="here"></span>
-  <span class="fchip"><span></span><button aria-label="شيل الفلتر">✕</button></span></div>`);
+  <span class="fchip"><span></span><button aria-label="${UI.nav.clearFilter}">✕</button></span></div>`);
  const here=bar.querySelector(".here"),chip=bar.querySelector(".fchip"),chipTxt=chip.querySelector("span"),chipX=chip.querySelector("button");
  bar.querySelector(".ix").onclick=()=>openSheet(tabLabel,model);
  const _unused=()=>{
@@ -1334,7 +1329,7 @@ TABS.forEach(([id,tabLabel])=>{
      const b=el(`<button class="it">${it.label}${it.sub?`<small>${it.sub}</small>`:""}</button>`);
      b.onclick=()=>{closeSheet();it.run();};
      sheetBody.appendChild(b);shown++;});});
-   if(!shown)sheetBody.appendChild(el(`<div class="none">مفيش نتيجة لـ «${q}»</div>`));
+   if(!shown)sheetBody.appendChild(el(`<div class="none">${fmt(UI.nav.noResult,q)}</div>`));
   };
   draw("");
   sheetQ.oninput=()=>draw(sheetQ.value.trim().toLowerCase());
@@ -1356,7 +1351,7 @@ TABS.forEach(([id])=>{const n=NAVS[id];if(!n)return;const v=$(id);
    n.here.textContent=e.target.textContent.replace(/\(.*?\)/g,"").replace(/^[0-9]+ · /,"").trim();});},
   {rootMargin:"-12% 0px -78% 0px"});
  marks.forEach(h=>obs.observe(h));});
-const tt=document.createElement("button");tt.id="totop";tt.textContent="↑";tt.title="ارجع لفوق";
+const tt=document.createElement("button");tt.id="totop";tt.textContent="↑";tt.title=UI.nav.backToTop;
 tt.onclick=()=>window.scrollTo({top:0,behavior:"smooth"});document.body.appendChild(tt);
 addEventListener("scroll",()=>{tt.style.display=scrollY>600?"block":"none"});
 window.openSub=node=>{
@@ -1370,20 +1365,7 @@ window.secGo=(tab,match)=>{go(tab);setTimeout(()=>{const h=[...$(tab).querySelec
 const setTop=()=>document.documentElement.style.setProperty("--toph",document.querySelector(".top").offsetHeight+"px");
 setTop();addEventListener("resize",setTop);
 /* ===== sub-pages: turn one long tab into a few short ones ===== */
-const SUBPAGES={ref:Object.entries(TOC2.ref),
- sits:[
-  ["انفعالات ومشاعر",["انفعالات ومشاعر"]],
-  ["سلوك مؤذي",["سلوك مؤذي"]],
-  ["الروتين اليومي",["الروتين اليومي"]],
-  ["أماكن عامة وخروجات",["أماكن عامة وخروجات"]],
-  ["اجتماعي وإخوات",["اجتماعي وإخوات"]],
- ],
- food:[
- ["اقتراح وجبة",["اقترحلي وجبة"]],
- ["بنك الوجبات",["بنك الوجبات"]],
- ["اللانش بوكس",["اللانش بوكس","لما يرفض الأكل"]],
- ["قواعد التغذية",["التغذية 1","التغذية 2","التغذية 3","التغذية 4","التغذية 5"]],
-]};
+const SUBPAGES=B.nav.subpages;
 Object.entries(SUBPAGES).forEach(([tab,pages])=>{
  const v=$(tab);if(!v)return;
  [...v.children].forEach(k=>{
@@ -1431,10 +1413,10 @@ Object.entries(SUBPAGES).forEach(([tab,pages])=>{
   }
   v.addEventListener("play",()=>{btn.hidden=false;});
   btn.onclick=()=>{v.muted=!v.muted;
-   btn.textContent=v.muted?"🔇 اضغط للصوت":"🔊 الصوت شغال";
+   btn.textContent=v.muted?UI.partners.unmute:UI.partners.soundOn;
    if(v.paused)v.play().catch(()=>{});};
   // using the native controls to unmute should update our button too
-  v.addEventListener("volumechange",()=>{btn.textContent=v.muted?"🔇 اضغط للصوت":"🔊 الصوت شغال";});
+  v.addEventListener("volumechange",()=>{btn.textContent=v.muted?UI.partners.unmute:UI.partners.soundOn;});
  }
 }
 /* the reference is HTML, not an array, so its count is read back from the DOM */
@@ -1444,7 +1426,7 @@ go(location.hash.replace("#","")||"home");
 /* age selector */
 {
  const sel=document.getElementById("ageSel");
- sel.innerHTML='<option value="0">كل الأعمار</option>'+[2,3,4,5,6,7,8,9,10,11,12].map(a=>`<option value="${a}">${a===2?"سنتين":a+" "+(a>10?"سنة":"سنين")}</option>`).join("");
+ sel.innerHTML='<option value="0">'+UI.common.allAges+'</option>'+[2,3,4,5,6,7,8,9,10,11,12].map(a=>`<option value="${a}">${a===2?UI.common.twoYears:a+" "+(a>10?UI.common.yearOne:UI.common.years)}</option>`).join("");
  window.AGE=+(localStorage.getItem("guideAge")||0)||null;
  sel.value=String(window.AGE||0);
  window.applyAge=()=>{
