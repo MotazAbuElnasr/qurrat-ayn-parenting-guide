@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>قُرّة عين — مرجع التربية في الطفولة المبكرة</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#14201C">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -21,6 +25,8 @@ a{color:var(--a)}
 .top{position:sticky;top:0;z-index:30;background:rgba(233,237,231,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
 .top .inner{max-width:1240px;margin:0 auto;padding:10px 16px}
 .brand{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.brand .mark{width:30px;height:30px;flex:0 0 auto;border-radius:8px;margin-inline-end:9px}
+@media(max-width:620px){.brand .mark{width:26px;height:26px;margin-inline-end:7px}}
 .brand b{font-family:"Aref Ruqaa",serif;font-size:19px}
 .brand span{font-size:12px;color:var(--soft)}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
@@ -317,7 +323,12 @@ h2.sec,article.sit,article.v{scroll-margin-top:calc(var(--toph,86px) + 62px)}
 </head>
 <body>
 <div class="top"><div class="inner">
- <div class="brand"><b>قُرّة عين</b><span>مرجع الطفولة المبكرة</span>
+ <div class="brand"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+   <rect width="64" height="64" rx="14" fill="#14201C"/>
+   <g fill="none" stroke="#E9EDE7" stroke-width="4" stroke-linecap="round"><path d="M8 32 Q32 3 56 32"/><path d="M8 32 Q32 61 56 32"/></g>
+   <path d="M32 45c-9 0-14-6-13-14 8-1 13 5 13 14z" fill="#3F7A46"/>
+   <path d="M32 45c9 0 14-6 13-14-8-1-13 5-13 14z" fill="#7FBF8A"/>
+  </svg><b>قُرّة عين</b><span>مرجع الطفولة المبكرة</span>
   <label class="agebar">سن طفلك <select id="ageSel"></select></label>
   <a class="gh" href="https://github.com/MotazAbuElnasr/qurrat-ayn-parenting-guide" target="_blank" rel="noopener">★<span class="ghl"> Star on GitHub</span> <b class="ghstars"></b></a></div>
  <div class="tabs" id="tabs" role="tablist"></div>

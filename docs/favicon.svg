@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="قُرّة عين">
+  <rect width="64" height="64" rx="14" fill="#14201C"/>
+  <g fill="none" stroke="#E9EDE7" stroke-width="4" stroke-linecap="round">
+    <path d="M8 32 Q32 3 56 32"/>
+    <path d="M8 32 Q32 61 56 32"/>
+  </g>
+  <path d="M32 45c-9 0-14-6-13-14 8-1 13 5 13 14z" fill="#3F7A46"/>
+  <path d="M32 45c9 0 14-6 13-14-8-1-13 5-13 14z" fill="#7FBF8A"/>
+</svg>
