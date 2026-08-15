@@ -444,13 +444,16 @@ details.vx[data-k="evi"] summary{color:#2F6E86}
 .fbbox textarea{width:100%;box-sizing:border-box;font:inherit;font-size:15px;line-height:1.8;
  border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--paper);
  color:var(--ink);min-height:110px;resize:vertical}
+#mkNote{min-height:64px}
+.fbkinds{max-height:none}
 .fbrow{display:flex;gap:8px;margin-top:12px}
 .fbrow button{flex:1;font:inherit;font-size:15px;font-weight:700;cursor:pointer;border-radius:12px;
  padding:11px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
 .fbrow button.go{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .fbnote{margin:10px 0 0;font-size:13px;color:var(--soft);line-height:1.7}
 .fbquote{margin:0 0 12px;padding:8px 11px;border-inline-start:3px solid var(--line);
- background:var(--paper);border-radius:0 8px 8px 0;font-size:13.5px;line-height:1.75;color:var(--soft)}
+ background:var(--paper);border-radius:0 8px 8px 0;font-size:13.5px;line-height:1.75;color:var(--soft);
+ max-height:96px;overflow:auto}
 .mkbar{position:fixed;inset-block-end:0;inset-inline:0;z-index:70;background:var(--ink);
  color:var(--paper);display:none;gap:10px;align-items:center;justify-content:space-between;
  padding:9px 14px calc(9px + env(safe-area-inset-bottom));font-size:13.5px;font-weight:600}
@@ -459,6 +462,11 @@ details.vx[data-k="evi"] summary{color:#2F6E86}
  padding:0 13px;border:1px solid rgba(255,255,255,.35);background:transparent;color:var(--paper);
  min-height:40px;display:inline-flex;align-items:center}
 .mkhit{background:#FFF3C4;box-shadow:0 0 0 2px #FFF3C4}
+.mkpill{position:absolute;z-index:75;display:none;font:inherit;font-size:13px;font-weight:700;
+ cursor:pointer;background:var(--ink);color:var(--paper);border:0;border-radius:999px;
+ padding:0 16px;min-height:40px;box-shadow:0 6px 18px rgba(20,28,24,.28)}
+.mkpill.on{display:inline-flex;align-items:center}
+.mkdone{margin:0 0 12px;font-size:13px;color:var(--soft);line-height:1.7}
 .jumped{animation:jump 1.6s ease}
 @keyframes jump{0%,100%{background:transparent}18%{background:#FFF6D8}}
 .helpus{margin:18px 0 0;padding:15px 16px;border:1px solid var(--line);border-radius:14px;
@@ -1765,7 +1773,11 @@ async function load(dialect){
  const closeFb=()=>{wrap.classList.remove("on");target=null;quoted="";};
  $("fbNo").onclick=closeFb;
  wrap.addEventListener("click",e=>{if(e.target===wrap)closeFb();});
- document.addEventListener("keydown",e=>{if(e.key==="Escape"&&wrap.classList.contains("on"))closeFb();});
+ document.addEventListener("keydown",e=>{
+  if(e.key!=="Escape")return;
+  if(wrap.classList.contains("on"))closeFb();
+  if(typeof mw!=="undefined"&&mw.classList.contains("on"))closeMk();
+ });
  $("fbGo").onclick=async()=>{
   const body=$("fbBody").value.trim();
   if(!picked){toast("اختار نوع الملاحظة");return;}
@@ -1796,22 +1808,78 @@ async function load(dialect){
  document.body.appendChild(bar);
  const mkN=()=>{bar.querySelector("#mkN").textContent=readMarks().length+" علامة";};
 
+ /* the sheet, built once */
+ let mkPicked="",mkQuote="",mkCard=null;
+ const mw=document.createElement("div");
+ mw.className="fbwrap";mw.setAttribute("role","dialog");mw.setAttribute("aria-modal","true");
+ mw.innerHTML='<div class="fbbox">'
+  +'<h4>علامة على النص</h4>'
+  +'<p class="sub" id="mkWhere"></p>'
+  +'<div class="fbquote" id="mkQ"></div>'
+  +'<div class="fbkinds" id="mkK"></div>'
+  +'<textarea id="mkNote" maxlength="800" placeholder="الملاحظة — اختيارية. اللي وحش فيها بالظبط."></textarea>'
+  +'<p class="mkdone" id="mkCount"></p>'
+  +'<div class="fbrow"><button type="button" id="mkNo">إلغاء</button>'
+  +'<button type="button" class="go" id="mkYes">احفظ</button></div></div>';
+ document.body.appendChild(mw);
+ const mq=id=>mw.querySelector("#"+id);
+ MK_KINDS.forEach(k=>{
+  const x=document.createElement("button");x.type="button";x.textContent=k;
+  x.setAttribute("aria-pressed","false");
+  x.onclick=()=>{mkPicked=k;[...mq("mkK").children].forEach(y=>y.setAttribute("aria-pressed",String(y===x)));};
+  mq("mkK").appendChild(x);
+ });
+ const closeMk=()=>{mw.classList.remove("on");mkQuote="";mkCard=null;mkPicked="";};
+ mq("mkNo").onclick=closeMk;
+ mw.addEventListener("click",e=>{if(e.target===mw)closeMk();});
+ mq("mkYes").onclick=()=>{
+  if(!mkPicked){toast("اختار النوع");return;}
+  const marks=readMarks();
+  marks.push({t:Date.now(),kind:mkPicked,note:mq("mkNote").value.trim(),quote:mkQuote,
+   type:mkCard?mkCard.dataset.fbt:"",id:mkCard?mkCard.dataset.fbi:"",dialect:curDialect()});
+  writeMarks(marks);mkN();
+  const sel=window.getSelection();if(sel)sel.removeAllRanges();
+  pill.classList.remove("on");
+  closeMk();toast("اتسجلت — "+marks.length);
+ };
+
+ /* the pill that follows a selection, because a phone has no keyboard */
+ const pill=document.createElement("button");
+ pill.type="button";pill.className="mkpill";pill.textContent="علّم";
+ document.body.appendChild(pill);
+ function showPill(){
+  if(!marksOn()){pill.classList.remove("on");return;}
+  const sel=window.getSelection();
+  if(!sel||sel.isCollapsed||String(sel).trim().length<3){pill.classList.remove("on");return;}
+  const r=sel.getRangeAt(0).getBoundingClientRect();
+  if(!r||(!r.width&&!r.height)){pill.classList.remove("on");return;}
+  pill.classList.add("on");
+  const top=r.top+window.scrollY-46;
+  pill.style.top=(top<window.scrollY+8?r.bottom+window.scrollY+8:top)+"px";
+  pill.style.insetInlineStart=Math.max(8,r.left+window.scrollX)+"px";
+ }
+ document.addEventListener("mouseup",()=>setTimeout(showPill,10));
+ document.addEventListener("touchend",()=>setTimeout(showPill,10));
+ document.addEventListener("selectionchange",()=>{
+  const sel=window.getSelection();
+  if(!sel||sel.isCollapsed)pill.classList.remove("on");
+ });
+ pill.onclick=e=>{e.preventDefault();markSelection();};
+
  function markSelection(){
   const sel=window.getSelection();
   const text=String(sel).trim();
-  if(text.length<3)return;
+  if(text.length<3){toast("حدد الجملة الأول");return;}
   const node=sel.anchorNode&&(sel.anchorNode.nodeType===1?sel.anchorNode:sel.anchorNode.parentElement);
-  const card=node&&node.closest?node.closest("[data-fbi]"):null;
-  const kind=window.prompt("النوع؟\n"+MK_KINDS.join(" · "),MK_KINDS[0]);
-  if(kind===null)return;
-  const note=window.prompt("الملاحظة (اختياري)","");
-  if(note===null)return;
-  const marks=readMarks();
-  marks.push({t:Date.now(),kind:kind.trim()||"—",note:note.trim(),quote:text.slice(0,600),
-   type:card?card.dataset.fbt:"",id:card?card.dataset.fbi:"",
-   dialect:curDialect()});
-  writeMarks(marks);mkN();sel.removeAllRanges();
-  toast("اتسجلت — "+marks.length);
+  mkCard=node&&node.closest?node.closest("[data-fbi]"):null;
+  mkQuote=text.slice(0,600);mkPicked="";
+  mq("mkWhere").textContent=mkCard?(T[mkCard.dataset.fbt]||"")+": "+mkCard.dataset.fbi:"بره الكروت";
+  mq("mkQ").textContent="«"+mkQuote+"»";
+  mq("mkNote").value="";
+  mq("mkCount").textContent=readMarks().length+" علامة متسجلة قبل دي";
+  [...mq("mkK").children].forEach(y=>y.setAttribute("aria-pressed","false"));
+  pill.classList.remove("on");
+  mw.classList.add("on");
  }
  bar.querySelector("#mkCopy").onclick=async()=>{
   const marks=readMarks();
@@ -1823,7 +1891,15 @@ async function load(dialect){
   ].filter(Boolean).join("\n")).join("\n\n");
   const head=marks.length+" علامة · "+curDialect()+"\n\n";
   try{await navigator.clipboard.writeText(head+out);toast("اتنسخوا كلهم");}
-  catch(e){window.prompt("انسخ من هنا:",head+out);}
+  catch(e){
+   /* some browsers refuse the clipboard without a gesture they recognise; give
+      the text back in something a person can select instead of a prompt */
+   mq("mkWhere").textContent="كل العلامات";
+   mq("mkQ").textContent="";
+   mq("mkNote").value=head+out;
+   mq("mkCount").textContent="المتصفح رفض النسخ. حدد الكلام ده وانسخه بإيدك.";
+   mw.classList.add("on");mq("mkNote").select();
+  }
  };
  bar.querySelector("#mkClear").onclick=()=>{
   if(!readMarks().length)return;
