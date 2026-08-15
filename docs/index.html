@@ -126,7 +126,7 @@ td.k{white-space:nowrap;font-size:12.5px;color:var(--soft)}
 .why{background:linear-gradient(180deg,#F5F8F3,var(--card) 70%);border:1px solid var(--line);border-radius:18px;padding:22px 24px 18px;margin:12px 0 4px}
 .why p{max-width:66ch;margin:0 0 13px;font-size:15px;line-height:1.95}
 .why p.op{font-size:16.5px;font-weight:500;line-height:1.9}
-.why p.ask{margin-bottom:4px;font-weight:600}
+.why p.pre{margin-bottom:6px}
 .why3{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px;margin:12px 0 18px}
 .why3 div{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--wc);border-radius:12px;padding:11px 13px}
 .why3 b{display:block;font-family:"Aref Ruqaa",serif;font-size:18px;color:var(--wc);margin-bottom:3px}
@@ -599,10 +599,9 @@ $("home").innerHTML=`
 <div class="why">
  <p class="op">${UI.home.why.p1}</p>
  <p>${UI.home.why.p2}</p>
- <p class="ask">${UI.home.why.p3}</p>
- <div class="why3">${UI.home.why.points.map(([t,d],i)=>`<div style="--wc:var(--c${[1,4,6][i]||7})"><b>${t}</b><span>${d}</span></div>`).join("")}</div>
+ <p class="pre">${UI.home.why.p3}</p>
+ <div class="why3">${UI.home.why.points.map(([t,d],i)=>`<div style="--wc:var(--c${[1,4,6][i]||7})"><b>${t}</b><span>${fmt(d,VALUES.length)}</span></div>`).join("")}</div>
  <p>${UI.home.why.p4}</p>
- <p>${UI.home.why.p5}</p>
 </div>
 
 ${[
@@ -1548,7 +1547,7 @@ addEventListener("hashchange",()=>{const id=location.hash.replace("#","");if(TAB
 
 const DIALECT_NAMES={msa:"العربية الفصحى",eg:"مصري",sham:"شامي",gulf:"خليجي",maghreb:"مغربي"};
 const CONTENT_V=1;
-const DIALECTS_AVAILABLE=["msa","eg"]; /* build:dialects */
+const DIALECTS_AVAILABLE=["msa","eg","sham"]; /* build:dialects */
 function shellMsg(html){
  const el=document.getElementById("shellState");
  if(el)el.innerHTML=html;
