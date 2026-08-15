@@ -831,6 +831,7 @@ $("ref").innerHTML=B.prose.ref;
 
    ${v.evi?`<details class="vx" data-k="evi"><summary>${UI.values.eviSummary} (${UI.evi[v.evi.c]})</summary>
     <p style="margin:8px 0 0;font-size:14px;line-height:1.75">${v.evi.why}</p>
+    ${v.evi.cav?`<p class="msafe" style="margin-top:8px"><b>${UI.values.eviLimits}</b> ${v.evi.cav}</p>`:""}
     ${v.evi.schools.length?`<p style="margin:7px 0 0;font-size:13px;color:#54615B"><b>${UI.common.schoolsLabel}</b> ${v.evi.schools.join(" · ")}</p>`:""}
     ${v.evi.src.length?`<ul class="evisrc">${v.evi.src.map(x=>`<li>${x.k?`<span class="k">${x.k}</span>`:""}${x.u?`<a href="${x.u}" target="_blank" rel="noopener">${x.t}</a>`:x.t}</li>`).join("")}</ul>`:""}
    </details>`:""}
