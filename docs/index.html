@@ -488,12 +488,19 @@ details.vx[data-k="evi"] summary{color:#2F6E86}
  background:var(--ink);color:#fff;border:0;border-radius:10px;padding:8px 14px}
 .navbar .ix svg{width:13px;height:13px;fill:currentColor}
 .navbar .here{flex:1 1 auto;min-width:0;font-size:12.5px;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.navbar .fchip{flex:0 0 auto;display:none;align-items:center;gap:6px;font-size:12.5px;font-weight:700;
+.navbar .fchip{flex:0 0 auto;display:none;align-items:center;gap:6px;font-size:12.5px;font-weight:700;cursor:pointer;
  background:#FBF6EA;border:1px solid #C9A94E;color:#7A5A18;border-radius:999px;padding:4px 6px 4px 11px;max-width:52vw}
 .navbar .fchip.on{display:inline-flex}
 .navbar .fchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .navbar .fchip button{flex:0 0 auto;font:inherit;font-size:14px;line-height:1;cursor:pointer;border:0;border-radius:50%;
  width:19px;height:19px;background:#C9A94E;color:#fff;display:grid;place-content:center;padding:0}
+/* the shortcut is only worth naming where there is a keyboard to press it on */
+.navbar .fchip kbd{display:none}
+@media(min-width:760px) and (hover:hover){
+ .navbar .fchip{max-width:38vw}
+ .navbar .fchip kbd{display:inline-block;direction:ltr;font:inherit;font-size:10px;font-weight:700;line-height:1;
+  border:1px solid rgba(201,169,78,.75);border-radius:5px;padding:3px 5px;opacity:.9}
+}
 /* put away by a pick from the index */
 .ixhide{display:none!important}
 .sheet{position:fixed;inset:0;z-index:60;display:none}
@@ -1340,7 +1347,18 @@ const sheetBody=sheet.querySelector(".bdy"),sheetTitle=sheet.querySelector(".hd 
 const closeSheet=()=>{sheet.classList.remove("on");document.body.style.overflow="";};
 sheet.querySelector(".bd").onclick=()=>{if(Date.now()-(window.__sheetAt||0)<400)return;closeSheet();};
 sheet.querySelector(".hd button").onclick=closeSheet;
-addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet();});
+/* Escape closes what is on top: the sheet first, then — with nothing open over
+   the page — the pick that is narrowing the tab the reader is looking at.
+   On capture, because the dialogs close themselves on the way up: reading their
+   state afterwards says "nothing open" and one key would take two things off. */
+addEventListener("keydown",e=>{
+ if(e.key!=="Escape")return;
+ if(sheet.classList.contains("on"))return closeSheet();
+ if(document.querySelector(".fbwrap.on"))return;   // a dialog of its own owns the key
+ const v=[...app.children].find(s=>s.classList.contains("on"));
+ const id=v&&v.id.slice(2),n=id&&NAVS[id];
+ if(n&&n.chip.classList.contains("on"))ixReset(id);
+},true);
 window.openSheetHTML=(title,html)=>{
  sheetTitle.textContent=title;
  sheet.querySelector(".sr").style.display="none";
@@ -1512,15 +1530,19 @@ TABS.forEach(([id,tabLabel])=>{
  const model=indexFor(id);
  if(!model||!model.length)return;
  const v=$(id);
+ /* the chip sits next to the index button, not across the bar from it: the hand
+    that opened the index is already there when it wants the pick off again */
  const bar=el(`<div class="navbar">
   <button class="ix"><svg viewBox="0 0 16 16"><rect y="2" width="16" height="2" rx="1"/><rect y="7" width="16" height="2" rx="1"/><rect y="12" width="16" height="2" rx="1"/></svg>${UI.nav.index}</button>
-  <span class="here"></span>
-  <span class="fchip"><span></span><button aria-label="${UI.nav.clearFilter}">✕</button></span></div>`);
- const here=bar.querySelector(".here"),chip=bar.querySelector(".fchip"),chipTxt=chip.querySelector("span"),chipX=chip.querySelector("button");
+  <span class="fchip" role="button" tabindex="0" title="${UI.nav.clearFilter} (Esc)"><span></span><kbd>Esc</kbd><button aria-label="${UI.nav.clearFilter}" tabindex="-1">✕</button></span>
+  <span class="here"></span></div>`);
+ const here=bar.querySelector(".here"),chip=bar.querySelector(".fchip"),chipTxt=chip.querySelector("span");
  /* the sheet shows the pick that is on and offers the way out of it */
  bar.querySelector(".ix").onclick=()=>openSheet(tabLabel,model,{
   cur:chip.classList.contains("on")?chipTxt.textContent:"",reset:()=>ixReset(id)});
- chipX.onclick=()=>ixReset(id);
+ /* the whole chip is the target, not the ✕ inside it */
+ chip.onclick=()=>ixReset(id);
+ chip.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();ixReset(id);}};
  /* the search box and the filter chips are the tab's own way of narrowing —
     one narrowing at a time, so reaching for those puts the index pick away */
  v.addEventListener("input",e=>{if(e.target.matches("input[type=search]")&&ixOn(v))ixReset(id);});
@@ -1530,7 +1552,10 @@ TABS.forEach(([id,tabLabel])=>{
 });
 /* shared API: show/hide the active-filter chip */
 window.navFilter=(tabId,text)=>{const n=NAVS[tabId];if(!n)return;
- if(text){n.chipTxt.textContent=text;n.chip.classList.add("on");}else n.chip.classList.remove("on");
+ if(text){n.chipTxt.textContent=text;n.chip.classList.add("on");
+  // the chip is one button; read out what it takes off, not "Esc ✕"
+  n.chip.setAttribute("aria-label",UI.nav.clearFilter+": "+text);
+ }else n.chip.classList.remove("on");
  // the chip says where the reader is while it is on, so the two never say it twice
  n.here.textContent=text?"":(n.last||"");};
 /* "you are here" label follows the scroll */
