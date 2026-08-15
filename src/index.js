@@ -23,7 +23,7 @@ const FEEDBACK_PER_IP_DAY = 60;
 // What a note can hang on, and why it was written. Both lists are closed so a
 // row in the queue is always something that can be grouped and acted on.
 const FB_TARGETS = ['sit', 'val', 'meal', 'act', 'ref', 'home'];
-const FB_KINDS = ['مش واضح', 'مش شغال معايا', 'غلط', 'ناقص', 'اقتراح'];
+const FB_KINDS = ['unclear', 'didnt_work', 'wrong', 'missing', 'idea'];
 const PAGE = 20;
 
 /** Tags are stored pipe-wrapped ('|a|b|') so LIKE '%|a|%' can never match half a tag. */

@@ -564,6 +564,9 @@ const VL=n=>`<span class="chip" onclick="goVal('${n}')">${n} <i>في البنك<
 
 function boot(B){
 const UI=B.ui;
+/* the share and feedback block is built before this runs and lives outside this
+   scope, so it needs a handle on the labels */
+window.QAUI=UI;
 const fmt=(s,...a)=>String(s==null?"":s).replace(/\{(\d+)\}/g,(m,i)=>a[i]==null?m:a[i]);
 const YTC=B.data.YTC;
 const RES=B.data.RES;
@@ -1677,7 +1680,12 @@ async function load(dialect){
   tEl.textContent=msg;tEl.style.opacity="1";
   clearTimeout(tTimer);tTimer=setTimeout(()=>{tEl.style.opacity="0";},2600);
  }
- const FB_KINDS=["مش واضح","مش شغال معايا","غلط","ناقص","اقتراح"];
+ /* the labels live in the bundle, and the bundle lands after this block is
+    built — so read them when they are shown, never at construction */
+ const L=()=>((window.QAUI&&window.QAUI.fb)||{});
+ /* [key, name]: the key travels, the name is only ever shown */
+ const FB_KINDS=()=>L().kinds||[["unclear","مش واضح"],["didnt_work","مش شغال معايا"],
+  ["wrong","غلط"],["missing","ناقص"],["idea","اقتراح"]];
  const curDialect=()=>{try{return localStorage.getItem("dialect")||"";}catch(e){return "";}};
  /* the same visitor id the board uses; it is a handle, never authentication */
  const visitor=()=>{try{return localStorage.getItem("qaVisitor")||"";}catch(e){return "";}};
@@ -1718,8 +1726,8 @@ async function load(dialect){
   const type=card.dataset.fbt,id=card.dataset.fbi;
   const body=cardText(card)+"\n\n"+linkTo(type,id);
   if(navigator.share){try{await navigator.share({title:id,text:body});return;}catch(e){if(e&&e.name==="AbortError")return;}}
-  try{await navigator.clipboard.writeText(body);toast("اتنسخ — الصقه في أي مكان");}
-  catch(e){toast("مقدرناش ننسخ، اعمل تحديد ونسخ بإيدك");}
+  try{await navigator.clipboard.writeText(body);toast(L().copied||"اتنسخ");}
+  catch(e){toast(L().nocopy||"مقدرناش ننسخ");}
  }
 
  /* ── landing on a shared link ──────────────────────────────────────────── */
@@ -1743,50 +1751,59 @@ async function load(dialect){
  const wrap=document.createElement("div");
  wrap.className="fbwrap";wrap.setAttribute("role","dialog");wrap.setAttribute("aria-modal","true");
  wrap.innerHTML='<div class="fbbox">'
-  +'<h4 id="fbTitle">قول لنا</h4>'
+  +'<h4 id="fbTitle"></h4>'
   +'<p class="sub" id="fbSub"></p>'
   +'<div class="fbquote" id="fbQuote" hidden></div>'
   +'<div class="fbkinds" id="fbKinds"></div>'
-  +'<textarea id="fbBody" maxlength="1200" placeholder="اكتب اللي شفته. لو حاجة مش نافعة معاك، احكي اللي حصل بالظبط."></textarea>'
-  +'<p class="fbnote">مفيش اسم ولا إيميل. اللي بتكتبه بيتقرا وبيتغيّر على أساسه.</p>'
-  +'<div class="fbrow"><button type="button" id="fbNo">إلغاء</button>'
-  +'<button type="button" class="go" id="fbGo">ابعت</button></div></div>';
+  +'<textarea id="fbBody" maxlength="1200" placeholder=""></textarea>'
+  +'<p class="fbnote" id="fbNote"></p>'
+  +'<div class="fbrow"><button type="button" id="fbNo"></button>'
+  +'<button type="button" class="go" id="fbGo"></button></div></div>';
  document.body.appendChild(wrap);
- const $=id=>wrap.querySelector("#"+id);
- FB_KINDS.forEach(k=>{
-  const b=document.createElement("button");b.type="button";b.textContent=k;
-  b.setAttribute("aria-pressed","false");
-  b.onclick=()=>{picked=k;[...$("fbKinds").children].forEach(x=>x.setAttribute("aria-pressed",String(x===b)));};
-  $("fbKinds").appendChild(b);
- });
+ const q=id=>wrap.querySelector("#"+id);
+ function fillKinds(){
+  const box=q("fbKinds");box.textContent="";
+  FB_KINDS().forEach(([key,name])=>{
+   const b=document.createElement("button");b.type="button";b.textContent=name;
+   b.setAttribute("aria-pressed","false");
+   b.onclick=()=>{picked=key;[...box.children].forEach(x=>x.setAttribute("aria-pressed",String(x===b)));};
+   box.appendChild(b);
+  });
+ }
  function openFb(card,quote){
   target=card;quoted=quote||"";picked="";
   const type=card?card.dataset.fbt:"home",id=card?card.dataset.fbi:"";
-  $("fbSub").textContent=card?(T[type]||"الجزء")+": "+id:"أي حاجة في الموقع كله.";
-  const q=$("fbQuote");
-  if(quoted){q.textContent="«"+quoted+"»";q.hidden=false;}else q.hidden=true;
-  [...$("fbKinds").children].forEach(x=>x.setAttribute("aria-pressed","false"));
-  $("fbBody").value="";wrap.classList.add("on");setTimeout(()=>$("fbBody").focus(),60);
+  const t=L();
+  q("fbTitle").textContent=t.fbTitle||"قول لنا";
+  q("fbBody").placeholder=t.fbPlace||"";
+  q("fbNote").textContent=t.fbNote||"";
+  q("fbNo").textContent=t.cancel||"إلغاء";
+  q("fbGo").textContent=t.send||"ابعت";
+  fillKinds();
+  q("fbSub").textContent=card?(T[type]||"الجزء")+": "+id:(t.whole||"");
+  const qEl=q("fbQuote");
+  if(quoted){qEl.textContent="«"+quoted+"»";qEl.hidden=false;}else qEl.hidden=true;
+  q("fbBody").value="";wrap.classList.add("on");setTimeout(()=>q("fbBody").focus(),60);
  }
  const closeFb=()=>{wrap.classList.remove("on");target=null;quoted="";};
- $("fbNo").onclick=closeFb;
+ q("fbNo").onclick=closeFb;
  wrap.addEventListener("click",e=>{if(e.target===wrap)closeFb();});
  document.addEventListener("keydown",e=>{
   if(e.key!=="Escape")return;
   if(wrap.classList.contains("on"))closeFb();
   if(typeof mw!=="undefined"&&mw.classList.contains("on"))closeMk();
  });
- $("fbGo").onclick=async()=>{
-  const body=$("fbBody").value.trim();
-  if(!picked){toast("اختار نوع الملاحظة");return;}
-  if(body.length<5){toast("اكتب الملاحظة — كلمتين يكفّوا");return;}
-  const btn=$("fbGo");btn.disabled=true;
+ q("fbGo").onclick=async()=>{
+  const body=q("fbBody").value.trim();
+  if(!picked){toast(L().pickKind||"اختار النوع");return;}
+  if(body.length<5){toast(L().tooShort||"اكتب الملاحظة");return;}
+  const btn=q("fbGo");btn.disabled=true;
   try{
    const r=await post("/feedback",{target_type:target?target.dataset.fbt:"home",
     target_id:target?target.dataset.fbi:"",kind:picked,body,quote:quoted,
     dialect:curDialect()});
-   closeFb();toast(r&&r.message?r.message:"وصلتنا، شكرًا");
-  }catch(e){toast((e&&e.message)||"مش راضي يتبعت، جرّب تاني");}
+   closeFb();toast(r&&r.message?r.message:(L().thanks||"وصلتنا"));
+  }catch(e){toast((e&&e.message)||L().failed||"جرّب تاني");}
   btn.disabled=false;
  };
 
@@ -1920,8 +1937,9 @@ async function load(dialect){
     if(nx&&nx.classList.contains("cardbar"))return;
    }else if(card.querySelector(":scope > .cardbar"))return;
    const b=document.createElement("div");b.className="cardbar";
-   b.innerHTML='<button type="button" data-act="share">شارك</button>'
-    +'<button type="button" data-act="fb">في حاجة مش مظبوطة؟</button>';
+   const t=L();
+   b.innerHTML='<button type="button" data-act="share">'+(t.share||"شارك")+'</button>'
+    +'<button type="button" data-act="fb">'+(t.fb||"في حاجة مش مظبوطة؟")+'</button>';
    if(card.matches("h2.sec")){b.dataset.for=card.dataset.fbi;card.after(b);}
    else card.appendChild(b);
   });
