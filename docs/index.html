@@ -601,7 +601,8 @@ $("home").innerHTML=`
  <p>${UI.home.why.p2}</p>
  <p class="pre">${UI.home.why.p3}</p>
  <div class="why3">${UI.home.why.points.map(([t,d],i)=>`<div style="--wc:var(--c${[1,4,6][i]||7})"><b>${t}</b><span>${fmt(d,VALUES.length)}</span></div>`).join("")}</div>
- <p>${UI.home.why.p4}</p>
+ <p>${fmt(UI.home.why.p4,MEALS.length,ACT.length)}</p>
+ <p>${UI.home.why.p5}</p>
 </div>
 
 ${[
