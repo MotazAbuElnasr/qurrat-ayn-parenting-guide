@@ -494,6 +494,8 @@ details.vx[data-k="evi"] summary{color:#2F6E86}
 .navbar .fchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .navbar .fchip button{flex:0 0 auto;font:inherit;font-size:14px;line-height:1;cursor:pointer;border:0;border-radius:50%;
  width:19px;height:19px;background:#C9A94E;color:#fff;display:grid;place-content:center;padding:0}
+/* put away by a pick from the index */
+.ixhide{display:none!important}
 .sheet{position:fixed;inset:0;z-index:60;display:none}
 .sheet.on{display:block}
 .sheet .bd{position:absolute;inset:0;background:rgba(20,32,28,.45)}
@@ -512,6 +514,7 @@ details.vx[data-k="evi"] summary{color:#2F6E86}
  border:1px solid var(--line);border-radius:11px;padding:11px 14px;margin-bottom:6px;color:var(--ink)}
 .sheet .it:hover{border-color:var(--ink)}
 .sheet .it[aria-current="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.sheet .it.ixall{background:#FBF6EA;border-color:#C9A94E;color:#7A5A18;font-weight:700}
 .sheet .it small{display:block;font-size:11.5px;opacity:.65;margin-top:2px}
 @media(min-width:760px){.sheet .pnl{inset-inline:0;margin-inline:auto;bottom:auto;top:11vh;width:min(560px,92vw);max-height:74vh;border-radius:16px}}
 h2.sec,article.sit,article.v{scroll-margin-top:calc(var(--toph,86px) + 62px)}
@@ -759,7 +762,13 @@ $("ref").innerHTML=B.prose.ref;
    if(!tag){tag=document.createElement("i");b.appendChild(tag);}
    tag.textContent=q?` ${vis}`:"";
    b.classList.toggle("nohit",!!q&&!vis);});};
- qs.oninput=apQ;apQ();
+ qs.oninput=()=>{apQ();if(window.navFilter)navFilter("sits",qs.value.trim());};apQ();
+ $("sits").clearFilter=()=>{qs.value="";apQ();if(window.navFilter)navFilter("sits","");};
+ /* picking a situation from the index leaves that one on the page by itself,
+    and the chip in the bar is the way back to all of them */
+ window.goSit=t=>{go("sits");qs.value=t;apQ();if(window.navFilter)navFilter("sits",t);
+  const a=[...box().querySelectorAll("article.sit")].find(y=>y.querySelector("h3").textContent===t);
+  if(a){window.__navLock=Date.now()+2000;scrollToEl(a);}};
  window.paintSitLikes=()=>{[...box().querySelectorAll('.likebtn[data-t="sit"]')].forEach(b=>{
   const n=(window.QA&&QA.sitLikes[b.dataset.i])||0;b.querySelector("b").textContent=n;
   b.classList.toggle("on",!!(window.QA&&QA.likes.has("sit:"+b.dataset.i)));});};
@@ -1338,17 +1347,25 @@ window.openSheetHTML=(title,html)=>{
  sheetBody.innerHTML=html;
  sheet.classList.add("on");document.body.style.overflow="hidden";window.__sheetAt=Date.now();
 };
-window.openSheet=(title,model)=>{
+/* opt.cur is what is narrowing the tab right now, opt.reset is the way out of it */
+window.openSheet=(title,model,opt)=>{
+ opt=opt||{};
  sheet.querySelector(".sr").style.display="";
  sheetTitle.textContent=title;sheetQ.value="";
  const draw=q=>{
   sheetBody.innerHTML="";let shown=0;
+  if(opt.cur&&opt.reset&&!q){
+   const r=el(`<button class="it ixall">${UI.nav.clearFilter}</button>`);
+   r.onclick=()=>{closeSheet();opt.reset();};
+   sheetBody.appendChild(r);
+  }
   model.forEach(grp=>{
    const hits=grp.items.filter(it=>!q||(it.label+" "+(it.sub||"")).toLowerCase().includes(q));
    if(!hits.length)return;
    if(grp.g)sheetBody.appendChild(el(`<div class="gp">${grp.g}</div>`));
    hits.forEach(it=>{
     const b=el(`<button class="it">${it.label}${it.sub?`<small>${it.sub}</small>`:""}</button>`);
+    if(opt.cur&&it.label===opt.cur)b.setAttribute("aria-current","true");
     b.onclick=()=>{closeSheet();it.run();};
     sheetBody.appendChild(b);shown++;});});
   if(!shown)sheetBody.appendChild(el(`<div class="none">${fmt(UI.nav.noResult,q)}</div>`));
@@ -1378,6 +1395,10 @@ window.scrollToEl=el=>{
  if(!el)return;
  const mine=++__jump;                      // a newer jump owns the scroll; this one lets go
  if(window.openSub)openSub(el);            // a target on a closed sub-page has no position
+ // a pick from the index may still be narrowing the tab, and a cross-link can
+ // point at one of the parts it put away — the pick gives way, same as the age filter
+ const hid=el.closest&&el.closest(".ixhide"),hv=hid&&el.closest("section.view");
+ if(hv&&window.ixReset)ixReset(hv.id.slice(2));
  // picking from the index names one thing. If the age filter is what's hiding it,
  // the reader lands on an empty list instead, so the filter gives way and says so.
  const amin=+(el.dataset||{}).amin,amax=+(el.dataset||{}).amax,sel=document.getElementById("ageSel");
@@ -1433,11 +1454,34 @@ window.scrollToEl=el=>{
  requestAnimationFrame(settle);
 };
 
+/* ===== one behaviour for the index, whatever tab it is opened in =====
+   Picking a name narrows the tab down to that one thing, and the pick sits in
+   the bar as a chip — taking the chip off brings the whole tab back. The values
+   tab always worked this way and everywhere else the same tap only scrolled, so
+   the reader who used the index in two tabs got two different things from it. */
+const ixLabel=h=>h.textContent.replace(/\(.*?\)/g,"").replace(/^[0-9]+ · /,"").trim();
+/* the frame of a tab — its title, its bar, its pages — is not part of what narrows */
+const ixFurniture=n=>n.tagName==="H1"||n.tagName==="FOOTER"||n.classList.contains("lede")
+ ||n.classList.contains("navbar")||n.classList.contains("subnav")||n.classList.contains("subpage");
+const ixOn=v=>!!v.querySelector(".ixhide");
+window.ixReset=id=>{const v=$(id);if(!v)return;
+ v.querySelectorAll(".ixhide").forEach(x=>x.classList.remove("ixhide"));
+ if(v.clearFilter)v.clearFilter();else if(window.navFilter)navFilter(id,"");};
+/* a tab written as sections narrows to one section: the heading and everything
+   under it up to the next heading stays, the rest is put away */
+window.ixSection=(id,h)=>{const v=$(id);if(!v||!h)return;
+ v.querySelectorAll(".ixhide").forEach(x=>x.classList.remove("ixhide"));
+ if(window.openSub)openSub(h);
+ const kids=[...h.parentNode.children],from=kids.indexOf(h);
+ let to=from+1;
+ while(to<kids.length&&!(kids[to].tagName==="H2"&&kids[to].classList.contains("sec")))to++;
+ kids.forEach((k,i)=>{if((i>=from&&i<to)||ixFurniture(k))return;k.classList.add("ixhide");});
+ if(window.navFilter)navFilter(id,ixLabel(h));
+ window.__navLock=Date.now()+2000;scrollToEl(h);};
+
 /* per-tab index model: groups of {label, sub, run()} */
 function indexFor(id){
  const v=$(id);
- const label=h=>h.textContent.replace(/\(.*?\)/g,"").replace(/^[0-9]+ · /,"").trim();
- const scrollTo=elm=>{window.__navLock=Date.now()+2000;scrollToEl(elm);};
  if(id==="values"){
   const LVNAME={1:"الأساس",2:"البناء",3:"التوسع",4:"العمق"};
   return [1,2,3,4].map(l=>({g:`المستوى ${l} — ${LVNAME[l]}`,
@@ -1448,18 +1492,17 @@ function indexFor(id){
  if(id==="sits"){
   const groups=[...new Set(SITS.map(x=>x.group))];
   return groups.map(g=>({g,items:SITS.filter(x=>x.group===g).map(x=>({
-   label:x.t,
-   run:()=>{const a=[...v.querySelectorAll("article.sit")].find(y=>y.querySelector("h3").textContent===x.t);if(a)scrollTo(a);}}))}));
+   label:x.t,run:()=>goSit(x.t)}))}));
  }
  const secs=[...v.querySelectorAll("h2.sec")];
  if(secs.length<3)return null;
  const cfg=TOC2[id];
  if(cfg){
   const groupOf=h=>{for(const gn of Object.keys(cfg))if(cfg[gn].some(x=>h.textContent.includes(x)))return gn;return Object.keys(cfg)[0];};
-  return Object.keys(cfg).map(gn=>({g:gn,items:secs.filter(h=>groupOf(h)===gn).map(h=>({label:label(h),run:()=>scrollTo(h)}))}))
+  return Object.keys(cfg).map(gn=>({g:gn,items:secs.filter(h=>groupOf(h)===gn).map(h=>({label:ixLabel(h),run:()=>ixSection(id,h)}))}))
    .filter(x=>x.items.length);
  }
- return [{g:"",items:secs.map(h=>({label:label(h),run:()=>scrollTo(h)}))}];
+ return [{g:"",items:secs.map(h=>({label:ixLabel(h),run:()=>ixSection(id,h)}))}];
 }
 
 /* build the sticky bar for each tab that has an index */
@@ -1474,40 +1517,28 @@ TABS.forEach(([id,tabLabel])=>{
   <span class="here"></span>
   <span class="fchip"><span></span><button aria-label="${UI.nav.clearFilter}">✕</button></span></div>`);
  const here=bar.querySelector(".here"),chip=bar.querySelector(".fchip"),chipTxt=chip.querySelector("span"),chipX=chip.querySelector("button");
- bar.querySelector(".ix").onclick=()=>openSheet(tabLabel,model);
- const _unused=()=>{
-  sheetTitle.textContent=tabLabel;
-  sheetQ.value="";
-  const draw=q=>{
-   sheetBody.innerHTML="";let shown=0;
-   model.forEach(grp=>{
-    const hits=grp.items.filter(it=>!q||(it.label+" "+(it.sub||"")).toLowerCase().includes(q));
-    if(!hits.length)return;
-    if(grp.g)sheetBody.appendChild(el(`<div class="gp">${grp.g}</div>`));
-    hits.forEach(it=>{
-     const b=el(`<button class="it">${it.label}${it.sub?`<small>${it.sub}</small>`:""}</button>`);
-     b.onclick=()=>{closeSheet();it.run();};
-     sheetBody.appendChild(b);shown++;});});
-   if(!shown)sheetBody.appendChild(el(`<div class="none">${fmt(UI.nav.noResult,q)}</div>`));
-  };
-  draw("");
-  sheetQ.oninput=()=>draw(sheetQ.value.trim().toLowerCase());
-  sheet.classList.add("on");document.body.style.overflow="hidden";window.__sheetAt=Date.now();
-  if(innerWidth>=760)setTimeout(()=>sheetQ.focus(),60);
- };
- chipX.onclick=()=>{if(v.clearFilter)v.clearFilter();};
+ /* the sheet shows the pick that is on and offers the way out of it */
+ bar.querySelector(".ix").onclick=()=>openSheet(tabLabel,model,{
+  cur:chip.classList.contains("on")?chipTxt.textContent:"",reset:()=>ixReset(id)});
+ chipX.onclick=()=>ixReset(id);
+ /* the search box and the filter chips are the tab's own way of narrowing —
+    one narrowing at a time, so reaching for those puts the index pick away */
+ v.addEventListener("input",e=>{if(e.target.matches("input[type=search]")&&ixOn(v))ixReset(id);});
+ v.addEventListener("click",e=>{if(e.target.closest(".filter button")&&ixOn(v))ixReset(id);});
  NAVS[id]={bar,here,chip,chipTxt};
  const lede=v.querySelector(".lede");if(lede)lede.after(bar);else v.prepend(bar);
 });
 /* shared API: show/hide the active-filter chip */
 window.navFilter=(tabId,text)=>{const n=NAVS[tabId];if(!n)return;
- if(text){n.chipTxt.textContent=text;n.chip.classList.add("on");}else n.chip.classList.remove("on");};
+ if(text){n.chipTxt.textContent=text;n.chip.classList.add("on");}else n.chip.classList.remove("on");
+ // the chip says where the reader is while it is on, so the two never say it twice
+ n.here.textContent=text?"":(n.last||"");};
 /* "you are here" label follows the scroll */
 TABS.forEach(([id])=>{const n=NAVS[id];if(!n)return;const v=$(id);
  const marks=[...v.querySelectorAll("h2.sec")];if(!marks.length)return;
  const obs=new IntersectionObserver(es=>{if(Date.now()<(window.__navLock||0))return;
-  es.forEach(e=>{if(!e.isIntersecting)return;
-   n.here.textContent=e.target.textContent.replace(/\(.*?\)/g,"").replace(/^[0-9]+ · /,"").trim();});},
+  es.forEach(e=>{if(!e.isIntersecting)return;n.last=ixLabel(e.target);});
+  n.here.textContent=n.chip.classList.contains("on")?"":(n.last||"");},
   {rootMargin:"-12% 0px -78% 0px"});
  marks.forEach(h=>obs.observe(h));});
 const tt=document.createElement("button");tt.id="totop";tt.textContent="↑";tt.title=UI.nav.backToTop;
@@ -1556,6 +1587,8 @@ Object.entries(SUBPAGES).forEach(([tab,pages])=>{
  // keep source order: nav, then page 1..n
  boxes.slice().reverse().forEach(b=>nav.after(b));
  nav.onclick=e=>{const b=e.target.closest("button");if(!b)return;
+  // a pick still on would hand the reader an empty page here
+  if(window.ixReset&&v.querySelector(".ixhide"))ixReset(tab);
   [...nav.children].forEach(x=>x.setAttribute("aria-pressed","false"));
   b.setAttribute("aria-pressed","true");
   boxes.forEach((x,i)=>x.classList.toggle("on",i===+b.dataset.i));
