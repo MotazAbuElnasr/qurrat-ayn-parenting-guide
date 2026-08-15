@@ -658,6 +658,7 @@ $("ref").innerHTML=B.prose.ref;
   `<article class="sit" data-g="${g}" data-t="${(x.t+" "+x.why).toLowerCase()}">
    <h3>${x.t}</h3>${x.evi?`<span class="evi evi-${x.evi.c}" style="margin-inline-start:8px">${UI.evi[x.evi.c]}</span>`:""}<p class="why">${x.why}</p>
    <div class="row"><b>${UI.sits.rowNow}</b><div>${x.now.map((n,i)=>`<div style="margin-bottom:8px"><b style="color:var(--c8)">${i+1}.</b> ${n.d}<div style="color:#2F5D50;font-weight:600;font-size:13.5px;margin-top:3px">${UI.common.sayLabel} «${n.say}»</div></div>`).join("")}</div></div>
+   ${x.fallback?`<div class="row"><b>${UI.sits.rowFallback}</b><div>${x.fallback}</div></div>`:""}
    <div class="row"><b>${UI.sits.rowAfter}</b><div>${x.after}</div></div>
    <div class="row"><b>${UI.sits.rowMistake}</b><div>${x.mistake}</div></div>
    <div class="row"><b>${UI.sits.rowPrevent}</b><div>${x.prevent}</div></div>
