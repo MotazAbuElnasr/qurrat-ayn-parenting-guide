@@ -100,7 +100,19 @@ for (const f of files.sort()) {
 /* Egyptian is the source every other dialect is written from, so the shapes
    must line up — a missing value in a translation is a hole, not a choice */
 const base = ok.includes('eg') && JSON.parse(fs.readFileSync(path.join(DIR, 'eg.json'), 'utf8'));
+
+/* every leaf of ui, as a path — the shell reads these by name */
+const uiKeys = (o, p = '', out = []) => {
+  for (const [k, v] of Object.entries(o || {})) {
+    const q = p ? `${p}.${k}` : k;
+    if (v && typeof v === 'object' && !Array.isArray(v)) uiKeys(v, q, out); else out.push(q);
+  }
+  return out;
+};
+
 if (base) {
+  const baseUI = uiKeys(base.ui);
+  const baseSecs = h => (String(h).match(/<h2 class="sec">/g) || []).length;
   for (const d of ok.filter(x => x !== 'eg')) {
     const b = JSON.parse(fs.readFileSync(path.join(DIR, d + '.json'), 'utf8'));
     for (const n of ARRAYS) {
@@ -108,6 +120,21 @@ if (base) {
         console.log(`✗ ${d}: ${n} فيها ${b.data[n].length} والمصري فيه ${base.data[n].length}`);
         bad++;
       }
+    }
+    /* A ui key the shell asks for and the bundle does not have is not a missing
+       word — the read throws and the whole bundle renders as nothing. Adding a
+       key to Egyptian without adding it everywhere took the site down once. */
+    const mine = new Set(uiKeys(b.ui));
+    const missing = baseUI.filter(k => !mine.has(k));
+    if (missing.length) {
+      console.log(`✗ ${d}: ${missing.length} مفتاح ui ناقص — ${missing.slice(0, 6).join(' · ')}`);
+      bad++;
+    }
+    /* sections live in prose, so nothing above would notice a dialect that kept
+       a section the Egyptian dropped */
+    for (const f of ['ref', 'food']) {
+      const [a, c] = [baseSecs(base.prose[f]), baseSecs(b.prose[f])];
+      if (a !== c) { console.log(`✗ ${d}: prose.${f} فيها ${c} قسم والمصري فيه ${a}`); bad++; }
     }
   }
 }
