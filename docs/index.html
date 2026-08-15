@@ -673,7 +673,7 @@ $("home").innerHTML=`
  <div class="why3">${UI.home.why.points.map(([t,d],i)=>`<div style="--wc:var(--c${[1,4,6][i]||7})"><b>${t}</b><span>${fmt(d,VALUES.length)}</span></div>`).join("")}</div>
  <p>${fmt(UI.home.why.p4,MEALS.length,ACT.length)}</p>
  <p>${UI.home.why.p5}</p>
- <p class="note" style="margin:14px 0 0">${UI.home.audit}</p>
+ <div class="warn" style="margin:16px 0 4px">${UI.home.audit}</div>
  <section class="helpus">
   <h3>${UI.home.help.t}</h3><p>${UI.home.help.d}</p>
   <button type="button" data-fbhome>${UI.home.help.b}</button></section>
