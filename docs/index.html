@@ -422,6 +422,51 @@ details.vx[data-k="evi"] summary{color:#2F6E86}
 .cpost h3{margin:0;font-size:17px}
 .cmeta{font-size:12px;color:var(--soft);margin:5px 0 9px}
 .cbody{font-size:14.5px;line-height:1.75;margin:0 0 9px;white-space:normal}
+.cardbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.cardbar button{font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;background:transparent;
+ border:1px solid var(--line);border-radius:999px;padding:0 13px;color:var(--soft);line-height:1.6;
+ min-height:44px;display:inline-flex;align-items:center}
+.cardbar button:hover,.cardbar button:focus-visible{color:var(--ink);border-color:var(--ink)}
+.cardbar button:disabled{opacity:.5;cursor:default}
+.fbwrap{position:fixed;inset:0;background:rgba(20,28,24,.45);display:none;z-index:60;
+ align-items:flex-end;justify-content:center}
+.fbwrap.on{display:flex}
+.fbbox{background:var(--card);border-radius:18px 18px 0 0;width:100%;max-width:560px;
+ padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
+@media(min-width:560px){.fbwrap{align-items:center}.fbbox{border-radius:18px}}
+.fbbox h4{margin:0 0 4px;font-size:17px}
+.fbbox .sub{margin:0 0 14px;font-size:13.5px;color:var(--soft);line-height:1.7}
+.fbkinds{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.fbkinds button{font:inherit;font-size:13px;cursor:pointer;background:var(--paper);
+ border:1px solid var(--line);border-radius:999px;padding:0 14px;color:var(--ink);
+ min-height:44px;display:inline-flex;align-items:center}
+.fbkinds button[aria-pressed=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.fbbox textarea{width:100%;box-sizing:border-box;font:inherit;font-size:15px;line-height:1.8;
+ border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--paper);
+ color:var(--ink);min-height:110px;resize:vertical}
+.fbrow{display:flex;gap:8px;margin-top:12px}
+.fbrow button{flex:1;font:inherit;font-size:15px;font-weight:700;cursor:pointer;border-radius:12px;
+ padding:11px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+.fbrow button.go{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.fbnote{margin:10px 0 0;font-size:13px;color:var(--soft);line-height:1.7}
+.fbquote{margin:0 0 12px;padding:8px 11px;border-inline-start:3px solid var(--line);
+ background:var(--paper);border-radius:0 8px 8px 0;font-size:13.5px;line-height:1.75;color:var(--soft)}
+.mkbar{position:fixed;inset-block-end:0;inset-inline:0;z-index:70;background:var(--ink);
+ color:var(--paper);display:none;gap:10px;align-items:center;justify-content:space-between;
+ padding:9px 14px calc(9px + env(safe-area-inset-bottom));font-size:13.5px;font-weight:600}
+.mkbar.on{display:flex}
+.mkbar button{font:inherit;font-size:13px;font-weight:700;cursor:pointer;border-radius:999px;
+ padding:0 13px;border:1px solid rgba(255,255,255,.35);background:transparent;color:var(--paper);
+ min-height:40px;display:inline-flex;align-items:center}
+.mkhit{background:#FFF3C4;box-shadow:0 0 0 2px #FFF3C4}
+.jumped{animation:jump 1.6s ease}
+@keyframes jump{0%,100%{background:transparent}18%{background:#FFF6D8}}
+.helpus{margin:18px 0 0;padding:15px 16px;border:1px solid var(--line);border-radius:14px;
+ background:var(--card)}
+.helpus h3{margin:0 0 6px;font-size:16px}
+.helpus p{margin:0 0 11px;font-size:14px;line-height:1.85;color:var(--soft)}
+.helpus button{font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;border-radius:11px;
+ padding:9px 16px;border:1px solid var(--ink);background:var(--ink);color:var(--paper)}
 .likebtn{font:inherit;font-size:13px;font-weight:700;cursor:pointer;background:var(--paper);border:1px solid var(--line);
  border-radius:999px;padding:5px 13px;color:var(--soft);margin-top:9px}
 .likebtn.on{background:#FBEEF0;border-color:var(--c8);color:var(--c8)}
@@ -588,6 +633,9 @@ window.go=function go(id){
  window.scrollTo(0,0);location.hash=id;
 };
 const $=id=>document.getElementById("v-"+id);
+/* titles go into attributes and into share text; they are ours, but content is
+   written every day and one stray quote would break a card silently */
+const att=t=>String(t==null?"":t).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
 
 /* home */
 $("home").innerHTML=`
@@ -641,6 +689,10 @@ ${[
 <div class="panel"><p style="margin:0 0 8px">${UI.home.ossP}</p>
 <p style="margin:0"><a class="chip" href="https://github.com/MotazAbuElnasr/qurrat-ayn-parenting-guide" target="_blank" rel="noopener">${UI.home.ossRepoChip} <i>${UI.home.ossRepoChipTag}</i></a>
 <a class="chip" href="https://github.com/MotazAbuElnasr/qurrat-ayn-parenting-guide/issues/new" target="_blank" rel="noopener">${UI.home.ossIssueChip} <i>Issue</i></a></p></div>`;
+/* the reader is the only one who knows a step did not work in their kitchen */
+$("home").insertAdjacentHTML("beforeend",`<section class="helpus">
+ <h3>${UI.home.help.t}</h3><p>${UI.home.help.d}</p>
+ <button type="button" data-fbhome>${UI.home.help.b}</button></section>`);
 
 /* ===== المرجع ===== */
 $("ref").innerHTML=B.prose.ref;
@@ -658,7 +710,7 @@ $("ref").innerHTML=B.prose.ref;
   if(!items.length)return;
   ql.appendChild(el(`<h2 class="sec" data-g="${g}" style="--a:${col}">${g} <span class="seccount" style="font-weight:400;font-size:14px">(${items.length} موقف)</span></h2>`));
   items.forEach(x=>ql.appendChild(el(
-  `<article class="sit" data-g="${g}" data-t="${(x.t+" "+x.why).toLowerCase()}">
+  `<article class="sit" data-g="${g}" data-fbt="sit" data-fbi="${att(x.t)}" data-t="${(x.t+" "+x.why).toLowerCase()}">
    <h3>${x.t}</h3>${x.evi?`<span class="evi evi-${x.evi.c}" style="margin-inline-start:8px">${UI.evi[x.evi.c]}</span>`:""}<p class="why">${x.why}</p>
    <div class="row"><b>${UI.sits.rowNow}</b><div>${x.now.map((n,i)=>`<div style="margin-bottom:8px"><b style="color:var(--c8)">${i+1}.</b> ${n.d}<div style="color:#2F5D50;font-weight:600;font-size:13.5px;margin-top:3px">${UI.common.sayLabel} «${n.say}»</div></div>`).join("")}</div></div>
    ${x.fallback?`<div class="row"><b>${UI.sits.rowFallback}</b><div>${x.fallback}</div></div>`:""}
@@ -720,7 +772,7 @@ $("ref").innerHTML=B.prose.ref;
   VALUES.filter(v=>v.lvl===lv).sort((a,b)=>a.ord-b.ord).forEach(v=>{
   const stF=ST.filter(s=>s[3]===v.tag&&s[4]).slice(0,3),stox=STX.filter(x=>x[3]===v.tag).slice(0,3),stP=ST.filter(s=>s[3]===v.tag&&!s[4]).slice(0,2);
   vl.appendChild(el(
-  `<article class="v" style="--vc:${C[v.cat]}" data-cat="${v.cat}" data-name="${v.name}" data-lvl="${v.lvl}" data-amin="${v.age[0]}" data-amax="${v.age[1]}" data-txt="${(v.name+" "+v.steps.map(x=>x.t).join(" ")+" "+v.acts.map(a=>a.t+" "+a.run).join(" ")+" "+v.say+" "+v.how).toLowerCase()}">
+  `<article class="v" style="--vc:${C[v.cat]}" data-fbt="val" data-fbi="${att(v.name)}" data-cat="${v.cat}" data-name="${v.name}" data-lvl="${v.lvl}" data-amin="${v.age[0]}" data-amax="${v.age[1]}" data-txt="${(v.name+" "+v.steps.map(x=>x.t).join(" ")+" "+v.acts.map(a=>a.t+" "+a.run).join(" ")+" "+v.say+" "+v.how).toLowerCase()}">
    <div class="v-head"><h3>${v.name}</h3><span class="cat">${v.cat}</span><span class="age">${v.age[0]}–${v.age[1]} ${UI.common.years}</span><span class="age">المستوى ${v.lvl} · ${v.ord}</span>${v.evi?`<span class="evi evi-${v.evi.c}" title="${UI.values.eviTitle}">${UI.evi[v.evi.c]}</span>`:""}</div>
 
    ${v.how?`<p class="vhow"><b>${UI.values.howLabel}</b> ${v.how}</p>`:""}
@@ -908,7 +960,7 @@ $("day").innerHTML=`<h1>${UI.day.h1}</h1>
    <li>${UI.acts.indoor3}</li>
    <li>${UI.acts.indoor4}</li></ul></div>`;
  const ac=document.getElementById("ac");
- ACT.forEach(([c,t,d,dur,prep,how,age])=>ac.appendChild(el(`<div class="card" style="--cc:${ACAT[c]}" data-cat="${c}" data-prep="${prep}" data-amin="${age[0]}" data-amax="${age[1]}">
+ ACT.forEach(([c,t,d,dur,prep,how,age])=>ac.appendChild(el(`<div class="card" style="--cc:${ACAT[c]}" data-fbt="act" data-fbi="${att(t)}" data-cat="${c}" data-prep="${prep}" data-amin="${age[0]}" data-amax="${age[1]}">
   <h4>${t}</h4><p>${d}</p><div class="meta"><span>${c}</span><span>${dur}</span><span>${prep}</span><span>${age[0]}–${age[1]} ${UI.common.years}</span></div>
   ${how?`<details style="margin-top:6px"><summary style="cursor:pointer;font-size:13.5px;font-weight:600;color:#2F5D50">${UI.acts.howSummary}</summary><p style="margin:6px 0 0;font-size:14px">${how}</p></details>`:""}</div>`)));
  const af=document.getElementById("af");
@@ -926,7 +978,7 @@ $("food").innerHTML=B.prose.food;
 {
  const MK=["فطار","سناك","غدا","عشا"];
  const MKC={"فطار":"var(--c6)","سناك":"var(--c5)","غدا":"var(--c3)","عشا":"var(--c4)"};
- const mealCard=m=>`<div class="meal" style="--mc2:${MKC[m.k]}">
+ const mealCard=m=>`<div class="meal" data-fbt="meal" data-fbi="${att(m.t)}" style="--mc2:${MKC[m.k]}">
   <div class="v-head"><h3>${m.t}</h3><span class="cat" style="background:${MKC[m.k]}">${m.k}</span>
    <span class="age">${m.p}</span><span class="age">${m.age[0]}–${m.age[1]} ${UI.common.years}</span>
    ${m.nu?`<span class="evi evi-strong">${UI.food.nurseryOk}</span>`:""}</div>
@@ -1601,6 +1653,240 @@ async function load(dialect){
   console.error("content load failed",e&&e.message);
  }
 })();
+
+/* ── share · feedback · marks ── */
+/* ── share · feedback · the author's marks ──────────────────────────────────
+   Cards are tagged with data-fbt (what kind) and data-fbi (which one, by its
+   own title — the key likes already use). Everything below hangs off those two
+   attributes, so a new card type only needs the attributes, never this code. */
+(function(){
+ /* the page had no way to say a short thing and get out of the way */
+ let tEl=null,tTimer=0;
+ function toast(msg){
+  if(!tEl){tEl=document.createElement("div");tEl.setAttribute("role","status");
+   tEl.style.cssText="position:fixed;inset-block-end:76px;inset-inline:16px;z-index:80;margin:auto;"
+    +"max-width:420px;background:var(--ink);color:var(--paper);border-radius:12px;padding:11px 14px;"
+    +"font-size:14px;line-height:1.6;text-align:center;opacity:0;transition:opacity .18s;pointer-events:none";
+   document.body.appendChild(tEl);}
+  tEl.textContent=msg;tEl.style.opacity="1";
+  clearTimeout(tTimer);tTimer=setTimeout(()=>{tEl.style.opacity="0";},2600);
+ }
+ const FB_KINDS=["مش واضح","مش شغال معايا","غلط","ناقص","اقتراح"];
+ const curDialect=()=>{try{return localStorage.getItem("dialect")||"";}catch(e){return "";}};
+ /* the same visitor id the board uses; it is a handle, never authentication */
+ const visitor=()=>{try{return localStorage.getItem("qaVisitor")||"";}catch(e){return "";}};
+ async function post(path,body){
+  const r=await fetch("/api"+path,{method:"POST",
+   headers:{"content-type":"application/json","x-visitor-id":visitor()},
+   body:JSON.stringify(body)});
+  const d=await r.json().catch(()=>({error:"رد غير مفهوم من السيرفر"}));
+  if(!r.ok)throw new Error(d.error||"حصل خطأ، جرّب تاني");
+  return d;
+ }
+ const T={sit:"الموقف",val:"القيمة",meal:"الوجبة",act:"النشاط",ref:"القسم",home:"الصفحة"};
+ const TAB={sit:"sits",val:"values",meal:"meals",act:"acts",ref:"ref"};
+
+ /* a reference section is a heading plus whatever follows it until the next one */
+ function sectionNodes(h){
+  const out=[];let n=h.nextElementSibling;
+  while(n&&!n.matches("h2.sec")){if(!n.classList.contains("cardbar"))out.push(n);n=n.nextElementSibling;}
+  return out;
+ }
+ /* the card's text as a person would paste it, not as the DOM holds it */
+ function cardText(card){
+  if(card.matches("h2.sec"))
+   return [card.innerText.trim()].concat(sectionNodes(card).map(n=>(n.innerText||"").trim()))
+    .filter(Boolean).join("\n").replace(/\n{3,}/g,"\n\n").slice(0,2500);
+  const out=[];
+  card.querySelectorAll("h3,h4,h5,.row,p,li,.act1,.wk").forEach(n=>{
+   if(n.closest(".cardbar"))return;
+   const t=(n.innerText||"").trim();
+   if(t&&!out.some(x=>x.includes(t)))out.push(t);
+  });
+  return out.join("\n").replace(/\n{3,}/g,"\n\n").slice(0,2500);
+ }
+ const linkTo=(type,id)=>location.origin+location.pathname+"#go="+type+":"+encodeURIComponent(id);
+
+ /* ── share ─────────────────────────────────────────────────────────────── */
+ async function share(card){
+  const type=card.dataset.fbt,id=card.dataset.fbi;
+  const body=cardText(card)+"\n\n"+linkTo(type,id);
+  if(navigator.share){try{await navigator.share({title:id,text:body});return;}catch(e){if(e&&e.name==="AbortError")return;}}
+  try{await navigator.clipboard.writeText(body);toast("اتنسخ — الصقه في أي مكان");}
+  catch(e){toast("مقدرناش ننسخ، اعمل تحديد ونسخ بإيدك");}
+ }
+
+ /* ── landing on a shared link ──────────────────────────────────────────── */
+ function jump(){
+  const m=/^#go=([a-z]+):(.+)$/.exec(location.hash||"");
+  if(!m)return;
+  const type=m[1],id=decodeURIComponent(m[2]);
+  if(TAB[type]&&typeof window.go==="function")window.go(TAB[type]);
+  setTimeout(()=>{
+   const card=[...document.querySelectorAll("[data-fbi]")]
+    .find(c=>c.dataset.fbt===type&&c.dataset.fbi===id);
+   if(!card)return;
+   const d=card.closest("details");if(d)d.open=true;
+   card.scrollIntoView({block:"center"});
+   card.classList.add("jumped");setTimeout(()=>card.classList.remove("jumped"),1800);
+  },260);
+ }
+
+ /* ── feedback ──────────────────────────────────────────────────────────── */
+ let picked="",target=null,quoted="";
+ const wrap=document.createElement("div");
+ wrap.className="fbwrap";wrap.setAttribute("role","dialog");wrap.setAttribute("aria-modal","true");
+ wrap.innerHTML='<div class="fbbox">'
+  +'<h4 id="fbTitle">قول لنا</h4>'
+  +'<p class="sub" id="fbSub"></p>'
+  +'<div class="fbquote" id="fbQuote" hidden></div>'
+  +'<div class="fbkinds" id="fbKinds"></div>'
+  +'<textarea id="fbBody" maxlength="1200" placeholder="اكتب اللي شفته. لو حاجة مش نافعة معاك، احكي اللي حصل بالظبط."></textarea>'
+  +'<p class="fbnote">مفيش اسم ولا إيميل. اللي بتكتبه بيتقرا وبيتغيّر على أساسه.</p>'
+  +'<div class="fbrow"><button type="button" id="fbNo">إلغاء</button>'
+  +'<button type="button" class="go" id="fbGo">ابعت</button></div></div>';
+ document.body.appendChild(wrap);
+ const $=id=>wrap.querySelector("#"+id);
+ FB_KINDS.forEach(k=>{
+  const b=document.createElement("button");b.type="button";b.textContent=k;
+  b.setAttribute("aria-pressed","false");
+  b.onclick=()=>{picked=k;[...$("fbKinds").children].forEach(x=>x.setAttribute("aria-pressed",String(x===b)));};
+  $("fbKinds").appendChild(b);
+ });
+ function openFb(card,quote){
+  target=card;quoted=quote||"";picked="";
+  const type=card?card.dataset.fbt:"home",id=card?card.dataset.fbi:"";
+  $("fbSub").textContent=card?(T[type]||"الجزء")+": "+id:"أي حاجة في الموقع كله.";
+  const q=$("fbQuote");
+  if(quoted){q.textContent="«"+quoted+"»";q.hidden=false;}else q.hidden=true;
+  [...$("fbKinds").children].forEach(x=>x.setAttribute("aria-pressed","false"));
+  $("fbBody").value="";wrap.classList.add("on");setTimeout(()=>$("fbBody").focus(),60);
+ }
+ const closeFb=()=>{wrap.classList.remove("on");target=null;quoted="";};
+ $("fbNo").onclick=closeFb;
+ wrap.addEventListener("click",e=>{if(e.target===wrap)closeFb();});
+ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&wrap.classList.contains("on"))closeFb();});
+ $("fbGo").onclick=async()=>{
+  const body=$("fbBody").value.trim();
+  if(!picked){toast("اختار نوع الملاحظة");return;}
+  if(body.length<5){toast("اكتب الملاحظة — كلمتين يكفّوا");return;}
+  const btn=$("fbGo");btn.disabled=true;
+  try{
+   const r=await post("/feedback",{target_type:target?target.dataset.fbt:"home",
+    target_id:target?target.dataset.fbi:"",kind:picked,body,quote:quoted,
+    dialect:curDialect()});
+   closeFb();toast(r&&r.message?r.message:"وصلتنا، شكرًا");
+  }catch(e){toast((e&&e.message)||"مش راضي يتبعت، جرّب تاني");}
+  btn.disabled=false;
+ };
+
+ /* ── the author's marks: off unless this browser turned them on ────────── */
+ const MK="qaMarks";
+ const marksOn=()=>{try{return localStorage.getItem("qaMark")==="1";}catch(e){return false;}};
+ const readMarks=()=>{try{return JSON.parse(localStorage.getItem(MK)||"[]");}catch(e){return [];}};
+ const writeMarks=a=>{try{localStorage.setItem(MK,JSON.stringify(a.slice(-500)));}catch(e){}};
+ const MK_KINDS=["تكرار","إعادة صياغة","أسلوب ركيك","أسلوب AI","مش واضح","غلط","ناقص","مايع"];
+
+ const bar=document.createElement("div");
+ bar.className="mkbar";
+ bar.innerHTML='<span id="mkN">0 علامة</span>'
+  +'<span><button type="button" id="mkCopy">انسخ الكل</button> '
+  +'<button type="button" id="mkClear">امسح</button> '
+  +'<button type="button" id="mkOff">اقفل</button></span>';
+ document.body.appendChild(bar);
+ const mkN=()=>{bar.querySelector("#mkN").textContent=readMarks().length+" علامة";};
+
+ function markSelection(){
+  const sel=window.getSelection();
+  const text=String(sel).trim();
+  if(text.length<3)return;
+  const node=sel.anchorNode&&(sel.anchorNode.nodeType===1?sel.anchorNode:sel.anchorNode.parentElement);
+  const card=node&&node.closest?node.closest("[data-fbi]"):null;
+  const kind=window.prompt("النوع؟\n"+MK_KINDS.join(" · "),MK_KINDS[0]);
+  if(kind===null)return;
+  const note=window.prompt("الملاحظة (اختياري)","");
+  if(note===null)return;
+  const marks=readMarks();
+  marks.push({t:Date.now(),kind:kind.trim()||"—",note:note.trim(),quote:text.slice(0,600),
+   type:card?card.dataset.fbt:"",id:card?card.dataset.fbi:"",
+   dialect:curDialect()});
+  writeMarks(marks);mkN();sel.removeAllRanges();
+  toast("اتسجلت — "+marks.length);
+ }
+ bar.querySelector("#mkCopy").onclick=async()=>{
+  const marks=readMarks();
+  if(!marks.length){toast("مفيش علامات");return;}
+  const out=marks.map((m,i)=>[
+   (i+1)+" · "+m.kind+(m.id?"  ["+(T[m.type]||m.type)+": "+m.id+"]":""),
+   "  النص: "+m.quote,
+   m.note?"  الملاحظة: "+m.note:""
+  ].filter(Boolean).join("\n")).join("\n\n");
+  const head=marks.length+" علامة · "+curDialect()+"\n\n";
+  try{await navigator.clipboard.writeText(head+out);toast("اتنسخوا كلهم");}
+  catch(e){window.prompt("انسخ من هنا:",head+out);}
+ };
+ bar.querySelector("#mkClear").onclick=()=>{
+  if(!readMarks().length)return;
+  if(window.confirm("تمسح كل العلامات؟")){writeMarks([]);mkN();}
+ };
+ bar.querySelector("#mkOff").onclick=()=>{
+  try{localStorage.setItem("qaMark","0");}catch(e){}
+  bar.classList.remove("on");toast("وضع التعليم اتقفل");
+ };
+
+ /* ── wiring ────────────────────────────────────────────────────────────── */
+ function bars(){
+  /* the reference is prose, so its headings become the anchors */
+  document.querySelectorAll("#v-ref h2.sec:not([data-fbi])").forEach(h=>{
+   h.dataset.fbt="ref";h.dataset.fbi=h.textContent.trim();
+  });
+  document.querySelectorAll("[data-fbi]").forEach(card=>{
+   if(card.matches("h2.sec")){
+    const nx=card.nextElementSibling;
+    if(nx&&nx.classList.contains("cardbar"))return;
+   }else if(card.querySelector(":scope > .cardbar"))return;
+   const b=document.createElement("div");b.className="cardbar";
+   b.innerHTML='<button type="button" data-act="share">شارك</button>'
+    +'<button type="button" data-act="fb">في حاجة مش مظبوطة؟</button>';
+   if(card.matches("h2.sec")){b.dataset.for=card.dataset.fbi;card.after(b);}
+   else card.appendChild(b);
+  });
+ }
+ document.addEventListener("click",e=>{
+  const b=e.target.closest(".cardbar button");
+  if(b){const own=b.parentElement.dataset.for;
+   const card=own?b.parentElement.previousElementSibling:b.closest("[data-fbi]");
+   if(!card)return;
+   if(b.dataset.act==="share")share(card);else openFb(card,"");
+   return;}
+  const h=e.target.closest("[data-fbhome]");
+  if(h){e.preventDefault();openFb(null,"");}
+ });
+ document.addEventListener("keydown",e=>{
+  if(!marksOn())return;
+  // one key, because the hand is already on the text
+  if((e.key==="m"||e.key==="M"||e.key==="ء")&&!/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName))
+   {e.preventDefault();markSelection();}
+ });
+
+ let pending=0;
+ const sweep=()=>{clearTimeout(pending);pending=setTimeout(bars,60);};
+ function boot(){
+  bars();
+  if(marksOn()){bar.classList.add("on");mkN();}
+  // the content bundle arrives after this runs, and filters re-render on every
+  // keystroke, so the only reliable signal is the DOM itself
+  new MutationObserver(sweep).observe(document.body,{childList:true,subtree:true});
+  jump();
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);
+ else boot();
+ window.addEventListener("hashchange",jump);
+ window.QAmark={on(){try{localStorage.setItem("qaMark","1");}catch(e){}bar.classList.add("on");mkN();},
+  off(){try{localStorage.setItem("qaMark","0");}catch(e){}bar.classList.remove("on");},
+  all(){return readMarks();}};
+})();
+
 </script>
 </body>
 </html>
