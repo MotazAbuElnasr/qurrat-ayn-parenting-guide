@@ -599,10 +599,9 @@ $("home").innerHTML=`
 <div class="why">
  <p class="op">${UI.home.why.p1}</p>
  <p>${UI.home.why.p2}</p>
- <p class="pre">${fmt(UI.home.why.p3,VALUES.length)}</p>
- <div class="why3">${UI.home.why.points.map(([t,d],i)=>`<div style="--wc:var(--c${[1,4,6][i]||7})"><b>${t}</b><span>${d}</span></div>`).join("")}</div>
+ <p class="pre">${UI.home.why.p3}</p>
+ <div class="why3">${UI.home.why.points.map(([t,d],i)=>`<div style="--wc:var(--c${[1,4,6][i]||7})"><b>${t}</b><span>${fmt(d,VALUES.length)}</span></div>`).join("")}</div>
  <p>${UI.home.why.p4}</p>
- <p>${UI.home.why.p5}</p>
 </div>
 
 ${[
