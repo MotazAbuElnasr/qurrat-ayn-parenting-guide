@@ -11,8 +11,19 @@
 import { moderate } from './moderation.js';
 
 const KINDS = ['موقف', 'قصة', 'قيمة', 'وجبة'];
-const LIMITS = { name: 40, title: 120, body: 4000, tag: 30 };
+const LIMITS = { name: 40, title: 120, body: 4000, tag: 30, feedback: 1200, quote: 400 };
 const MAX_TAGS = 5;
+
+// A reader can leave more notes than posts in a day: a note costs them a
+// sentence and costs us a row, and the whole point is to hear the ones who
+// would never write a post.
+const FEEDBACK_PER_DAY = 20;
+const FEEDBACK_PER_IP_DAY = 60;
+
+// What a note can hang on, and why it was written. Both lists are closed so a
+// row in the queue is always something that can be grouped and acted on.
+const FB_TARGETS = ['sit', 'val', 'meal', 'act', 'ref', 'home'];
+const FB_KINDS = ['مش واضح', 'مش شغال معايا', 'غلط', 'ناقص', 'اقتراح'];
 const PAGE = 20;
 
 /** Tags are stored pipe-wrapped ('|a|b|') so LIKE '%|a|%' can never match half a tag. */
@@ -239,6 +250,62 @@ async function createPost(env, me, body, ip) {
   return json({ ok: true, id: res.meta.last_row_id, status, message: verdict.message });
 }
 
+/**
+ * POST /api/feedback — a reader says something about one piece of the reference.
+ *
+ * Deliberately lighter than a post: no name, no tags, no age. The barrier a
+ * post needs is what stops a reader from saying «الخطوة دي مش شغالة معايا»,
+ * and that sentence is worth more than any post on the board.
+ */
+async function createFeedback(env, me, body, ip) {
+  const type = str(body?.target_type, 8);
+  const id = str(body?.target_id, LIMITS.title);
+  const kind = str(body?.kind, 20);
+  const text = str(body?.body, LIMITS.feedback);
+  const quote = str(body?.quote, LIMITS.quote);
+  const dialect = str(body?.dialect, 8);
+
+  if (!FB_TARGETS.includes(type)) return bad('نوع المحتوى مش معروف');
+  if (!FB_KINDS.includes(kind)) return bad('اختار نوع الملاحظة');
+  if (text.length < 5) return bad('اكتب الملاحظة — كلمتين يكفّوا');
+
+  const since = Date.now() - DAY;
+  const { count } = await env.DB.prepare(
+    `SELECT COUNT(*) AS count FROM feedback WHERE visitor_id = ? AND created_at > ?`
+  ).bind(me, since).first();
+  if (count >= FEEDBACK_PER_DAY) return bad('وصلت للحد اليومي للملاحظات — بكرة تقدر تكمل', 429);
+
+  if (ip) {
+    const { n } = await env.DB.prepare(
+      `SELECT COUNT(*) AS n FROM feedback WHERE ip_hash = ? AND created_at > ?`
+    ).bind(ip, since).first();
+    if (n >= FEEDBACK_PER_IP_DAY) return bad('وصلنا للحد اليومي من الشبكة دي — جرّب بكرة', 429);
+  }
+
+  // the same filter the board uses; a rejected note is not stored at all
+  const verdict = moderate({ title: id, body: text, teaches: '', name: '' });
+  if (verdict.action === 'reject') return bad(verdict.message, 422);
+
+  await env.DB.prepare(
+    `INSERT INTO feedback (visitor_id, target_type, target_id, kind, body, quote, dialect, status, flags, ip_hash, created_at)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?)`
+  ).bind(me, type, id, kind, text, quote, dialect,
+    verdict.action === 'review' ? 'flagged' : 'new', verdict.reasons.join(','), ip, Date.now()).run();
+
+  return json({ ok: true, message: 'وصلتنا. شكرًا — ده بيتقرا فعلًا.' });
+}
+
+/** GET /api/feedback?status=new — the queue, for whoever holds the admin key. */
+async function feedbackQueue(env, req, url) {
+  if (!isAdmin(env, req)) return bad('غير مصرّح', 403);
+  const status = str(url.searchParams.get('status'), 10) || 'new';
+  const { results } = await env.DB.prepare(
+    `SELECT id, target_type, target_id, kind, body, quote, dialect, status, flags, created_at
+       FROM feedback WHERE status = ? ORDER BY created_at ASC LIMIT 200`
+  ).bind(status).all();
+  return json({ feedback: results });
+}
+
 /** POST /api/like — toggle a like on a post or a built-in situation. */
 async function toggleLike(env, me, body) {
   const type = str(body?.target_type, 8);
@@ -366,6 +433,7 @@ export default {
     try {
       if (request.method === 'GET' && route === 'feed') return await feed(env, me, url, ctx);
       if (request.method === 'GET' && route === 'queue') return await queue(env, request);
+      if (request.method === 'GET' && route === 'feedback') return await feedbackQueue(env, request, url);
       if (request.method === 'POST') {
         // writes must come from this site, not from a page someone else hosts
         const origin = request.headers.get('origin');
@@ -376,6 +444,7 @@ export default {
         if (route === 'name') return await setName(env, me, body);
         if (route === 'post') return await createPost(env, me, body, clientIp(request));
         if (route === 'like') return await toggleLike(env, me, body);
+        if (route === 'feedback') return await createFeedback(env, me, body, clientIp(request));
         if (route === 'moderate') return await moderatePost(env, request, body);
       }
       return bad('مش موجود', 404);
