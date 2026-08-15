@@ -131,7 +131,6 @@ td.k{white-space:nowrap;font-size:12.5px;color:var(--soft)}
 .why3 div{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--wc);border-radius:12px;padding:11px 13px}
 .why3 b{display:block;font-family:"Aref Ruqaa",serif;font-size:18px;color:var(--wc);margin-bottom:3px}
 .why3 span{display:block;font-size:13.5px;color:var(--soft);line-height:1.72}
-.whysig{margin:16px 0 0;padding-top:12px;border-top:1px dashed var(--line);font-size:13.5px;color:var(--soft)}
 @media(max-width:620px){.why{padding:18px 16px 15px;border-radius:14px}.why p{font-size:14.8px}.why p.op{font-size:15.8px}}
 .stats{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
 .stat{cursor:pointer;font:inherit;text-align:inherit;transition:border-color .12s,background .12s}
@@ -604,7 +603,6 @@ $("home").innerHTML=`
  <div class="why3">${UI.home.why.points.map(([t,d],i)=>`<div style="--wc:var(--c${[1,4,6][i]||7})"><b>${t}</b><span>${d}</span></div>`).join("")}</div>
  <p>${UI.home.why.p4}</p>
  <p>${UI.home.why.p5}</p>
- <p class="whysig">${UI.home.why.sig}</p>
 </div>
 
 ${[
