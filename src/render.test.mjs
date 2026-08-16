@@ -7,7 +7,7 @@
    is covered the day it is added instead of the day someone remembers. */
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert';
-import { slug, bundle, itemHTML, itemMD, sitemap, llmsTxt, PAGES, PREFIX } from './render.js';
+import { slug, bundle, itemHTML, itemMD, sitemap, llmsTxt, PAGES, PREFIX, TAB_PATHS, tabMeta } from './render.js';
 
 const ORIGIN = 'https://qurrat-ain.aro.day';
 const env = {
@@ -120,17 +120,37 @@ ok('markdown carries the content, not just the heading', () => {
   }
 });
 
-ok('sitemap lists the home page and every item exactly once, and nothing else', () => {
+ok('every tab has a heading and lede of its own to build a head from', () => {
+  for (const tab of TAB_PATHS) {
+    const meta = tabMeta(pack, tab);
+    assert(meta, tab + ' has no h1/lede — it would fall back to the home head');
+    assert(meta.title.length > 2 && !meta.title.includes('{0}'), tab + ' title: ' + meta.title);
+    assert(meta.desc.length > 40 && !meta.desc.includes('{0}'), tab + ' desc: ' + meta.desc);
+    assert(!/[<>]/.test(meta.title + meta.desc), tab + ' has markup left in it');
+  }
+});
+
+ok('every tab path is in run_worker_first, or its head silently stays the home one', () => {
+  const raw = readFileSync('wrangler.jsonc', 'utf8').replace(/^\s*\/\/.*$/gm, '');
+  const first = JSON.parse(raw).assets.run_worker_first;
+  for (const tab of TAB_PATHS) {
+    assert(first.includes('/' + tab), '/' + tab + ' missing from run_worker_first');
+  }
+  for (const [prefix] of Object.entries(PREFIX)) {
+    assert(first.includes('/' + prefix + '/*'), '/' + prefix + '/* missing from run_worker_first');
+  }
+});
+
+ok('sitemap lists home, every tab and every item exactly once, and nothing else', () => {
   const locs = [...sitemap(data, ORIGIN).matchAll(/<loc>(.*?)<\/loc>/g)].map(m => m[1]);
   assert.equal(new Set(locs).size, locs.length, 'duplicate <loc>');
-  let expected = 1;
+  let expected = 1 + TAB_PATHS.length;
   for (const [, p] of TYPES) {
     assert.equal(locs.filter(u => u.startsWith(ORIGIN + p.dir)).length, p.list(data).length, p.dir);
     expected += p.list(data).length;
   }
   assert(locs.includes(ORIGIN + '/'), 'home in sitemap');
-  // the tab paths self-canonical to / — listing them would ask for an index of
-  // a page that disclaims itself
+  for (const tab of TAB_PATHS) assert(locs.includes(ORIGIN + '/' + tab), tab + ' in sitemap');
   assert.equal(locs.length, expected, 'unexpected extra URLs in sitemap');
 });
 

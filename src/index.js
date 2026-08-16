@@ -9,7 +9,10 @@
  */
 
 import { moderate } from './moderation.js';
-import { bundle, itemHTML, itemMD, sitemap, llmsTxt, slug, PREFIX, CANONICAL_ORIGIN } from './render.js';
+import {
+  bundle, itemHTML, itemMD, sitemap, llmsTxt, slug, PREFIX,
+  TAB_PATHS, tabMeta, CANONICAL_ORIGIN,
+} from './render.js';
 
 const ITEM_PATH = new RegExp('^/(' + Object.keys(PREFIX).join('|') + ')/(.+?)(\\.md)?$');
 
@@ -103,14 +106,48 @@ function dialectFor(request, url) {
    Returns null for anything that is not one of these, so the caller falls
    through to the asset layer untouched. An unknown slug is a real 404 and not
    the app shell — a soft 404 would get the whole directory indexed as dupes. */
+/* A cold load of /values used to get the home page's <head> — same title, same
+   description, and a canonical pointing at /, which tells Google the URL it just
+   crawled is a copy of somewhere else. The app is untouched: it still boots and
+   opens the tab exactly as before, and only the head is rewritten, streamed so
+   the 140KB shell is never held in memory. */
+async function tabShell(env, url, pack, tab) {
+  const meta = tabMeta(pack, tab);
+  if (!meta) return null;
+  const shell = await env.ASSETS.fetch(new Request(new URL('/index.html', url).toString()));
+  if (!shell.ok) return null;
+
+  const canonical = CANONICAL_ORIGIN + '/' + tab;
+  const title = meta.title + ' | قُرّة عين';
+  const set = (attr, val) => ({ element: e => e.setAttribute(attr, val) });
+
+  return new HTMLRewriter()
+    .on('title', { element: e => e.setInnerContent(title) })
+    .on('link[rel="canonical"]', set('href', canonical))
+    .on('meta[name="description"]', set('content', meta.desc))
+    .on('meta[property="og:title"]', set('content', title))
+    .on('meta[property="og:description"]', set('content', meta.desc))
+    .on('meta[property="og:url"]', set('content', canonical))
+    .on('meta[name="twitter:title"]', set('content', title))
+    .on('meta[name="twitter:description"]', set('content', meta.desc))
+    .transform(new Response(shell.body, {
+      headers: {
+        'content-type': 'text/html; charset=utf-8',
+        'cache-control': 'public, max-age=3600',
+        ...SAFE_HEADERS,
+      },
+    }));
+}
+
 async function crawlRoute(request, env, url) {
   let p;
   try { p = decodeURIComponent(url.pathname); } catch { return null; }
 
   const isSitemap = p === '/sitemap.xml';
   const isLlms = p === '/llms.txt';
+  const tab = p.length > 1 && TAB_PATHS.includes(p.slice(1)) ? p.slice(1) : null;
   const m = ITEM_PATH.exec(p);
-  if (!m && !isSitemap && !isLlms) return null;
+  if (!m && !isSitemap && !isLlms && !tab) return null;
 
   // two different origins on purpose: the bundle is fetched from whoever is
   // actually serving, the pages are written against the one public hostname
@@ -124,6 +161,7 @@ async function crawlRoute(request, env, url) {
 
   if (isSitemap) return send(sitemap(pack.data, CANONICAL_ORIGIN), 'application/xml; charset=utf-8', 86400);
   if (isLlms) return send(llmsTxt(pack.data, CANONICAL_ORIGIN), 'text/plain; charset=utf-8', 86400);
+  if (tab) return tabShell(env, url, pack, tab);
 
   const kind = PREFIX[m[1]];
   const key = slug(m[2]);

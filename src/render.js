@@ -64,7 +64,8 @@ export async function bundle(env, origin, dialect) {
   if (CACHED && CACHED.dialect === dialect) return CACHED;
   const res = await env.ASSETS.fetch(new Request(new URL('/content/' + dialect + '.json', origin)));
   if (!res.ok) return null;
-  const data = (await res.json()).data;
+  const json = await res.json();
+  const data = json.data;
   // ACT ships as tuples to keep the bundle small. Naming the columns once here
   // means nothing downstream has to remember that dur is index 3.
   data.ACTS = data.ACT.map(([c, t, d, dur, prep, how, age]) => ({ c, t, d, dur, prep, how, age }));
@@ -73,8 +74,48 @@ export async function bundle(env, origin, dialect) {
   for (const x of data.SITS) index.sit.set(slug(x.t), x);
   for (const m of data.MEALS) index.meal.set(slug(m.t), m);
   for (const a of data.ACTS) index.act.set(slug(a.t), a);
-  CACHED = { dialect, data, index };
+  CACHED = { dialect, data, index, ui: json.ui || {}, prose: json.prose || {} };
   return CACHED;
+}
+
+/* The tab paths are real URLs the app pushes, but every one of them served the
+   same <head> with a canonical pointing at / — so they were duplicates of the
+   home page rather than the category pages they look like. The heading and lede
+   each tab already shows are reused verbatim: most live in ui.<tab>, and ref
+   and food carry theirs inside their prose block.
+
+   No entry for stories: it is 604 links out to another site, and it is the only
+   tab with no lede to describe itself — the same fact stated twice. It keeps the
+   home head and folds into / rather than being indexed as a link directory. */
+export const TAB_PATHS =
+  ['values', 'sits', 'ref', 'vids', 'day', 'acts', 'food', 'comm', 'partners', 'res'];
+
+const TAB_COUNT = {
+  values: d => d.VALUES.length,
+  sits: d => d.SITS.length,
+  stories: d => d.ST.length + d.STX.length,
+  vids: d => d.VID.length,
+  acts: d => d.ACT.length,
+  food: d => d.MEALS.length,
+};
+
+const grab = (html, rx) => { const m = rx.exec(html || ''); return m ? plain(m[1]).trim() : ''; };
+
+export function tabMeta(pack, tab) {
+  const u = pack.ui[tab] || {};
+  const prose = pack.prose[tab];
+  const title = u.h1 || grab(prose, /<h1>(.*?)<\/h1>/s);
+  let lede = u.lede || grab(prose, /<p class="lede">(.*?)<\/p>/s);
+  // a lede can be a one-line hook ("الحيرة مش في المكونات، هي في القرار") which
+  // reads well above the fold and is half a search snippet. The line the page
+  // puts right under it finishes the thought, in the site's own words.
+  if (lede && lede.length < 80 && prose) {
+    const next = grab(prose, /<p class="big">(.*?)<\/p>/s);
+    if (next) lede += ' ' + next;
+  }
+  if (!title || !lede) return null;
+  const count = TAB_COUNT[tab] ? TAB_COUNT[tab](pack.data) : '';
+  return { title: plain(title).replace('{0}', count), desc: trunc(plain(lede).replace('{0}', count)) };
 }
 
 /* ── extractors ───────────────────────────────────────────────────────────
@@ -463,11 +504,9 @@ const loc = (origin, path, pri) =>
   '  <url><loc>' + origin + path + '</loc><changefreq>monthly</changefreq><priority>' + pri + '</priority></url>';
 
 export function sitemap(data, origin) {
-  // the tab paths are left out on purpose: they all serve the same shell with a
-  // canonical pointing at /, so listing them would ask for an index of a page
-  // that disclaims itself. They belong here the day they get their own head.
   const rows = [
     '  <url><loc>' + origin + '/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>',
+    ...TAB_PATHS.map(t => loc(origin, '/' + t, '0.8')),
     ...Object.values(PAGES).flatMap(p => p.list(data).map(
       it => loc(origin, p.dir + encodeURIComponent(slug(it[p.key])), '0.9'))),
   ];
