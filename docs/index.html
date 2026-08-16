@@ -846,7 +846,12 @@ $("ref").innerHTML=B.prose.ref;
   vl.appendChild(el(`<h2 class="sec lvlhead" data-lvl="${lv}" style="--a:${lcol}">المستوى ${lv} — ${lnm} <span class="seccount" style="font-weight:400;font-size:14px">(${VALUES.filter(v=>v.lvl===lv).length} قيمة)</span></h2>`));
   vl.appendChild(el(`<p class="note lvldesc" data-lvl="${lv}">${LVDESC[lv]}</p>`));
   VALUES.filter(v=>v.lvl===lv).sort((a,b)=>a.ord-b.ord).forEach(v=>{
-  const stF=ST.filter(s=>s[3]===v.tag&&s[4]).slice(0,3),stox=STX.filter(x=>x[3]===v.tag).slice(0,3),stP=ST.filter(s=>s[3]===v.tag&&!s[4]).slice(0,2);
+  // A curated v.src link and an auto-matched story can be the same book, which
+  // printed it twice on 54 of the values. Drop from the auto lists anything the
+  // curated sources already link to.
+  const srcU=new Set((v.src||[]).map(([,,u])=>String(u||"").split("?")[0]));
+  const nd=u=>!srcU.has(String(u||"").split("?")[0]);
+  const stF=ST.filter(s=>s[3]===v.tag&&s[4]&&nd(S(s[1],s[2]))).slice(0,3),stox=STX.filter(x=>x[3]===v.tag&&nd(x[2])).slice(0,3),stP=ST.filter(s=>s[3]===v.tag&&!s[4]&&nd(S(s[1],s[2]))).slice(0,2);
   vl.appendChild(el(
   `<article class="v" style="--vc:${C[v.cat]}" data-fbt="val" data-fbi="${att(v.name)}" data-cat="${v.cat}" data-name="${v.name}" data-lvl="${v.lvl}" data-amin="${v.age[0]}" data-amax="${v.age[1]}" data-txt="${(v.name+" "+v.steps.map(x=>x.t).join(" ")+" "+v.acts.map(a=>a.t+" "+a.run).join(" ")+" "+v.say+" "+v.how).toLowerCase()}">
    <div class="v-head"><h3>${v.name}</h3><span class="cat">${v.cat}</span><span class="age">${v.age[0]}–${v.age[1]} ${UI.common.years}</span><span class="age">المستوى ${v.lvl} · ${v.ord}</span>${v.evi?`<span class="evi evi-${v.evi.c}" title="${UI.values.eviTitle}">${UI.evi[v.evi.c]}</span>`:""}</div>
