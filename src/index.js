@@ -67,7 +67,7 @@ const bad = (msg, status = 400, extra) => json({ error: msg }, status, extra);
 // what a reader could want, and what has actually been written and reviewed.
 // Sending someone to a bundle that does not exist costs them a failed request.
 const DIALECTS = ['msa', 'eg', 'sham', 'gulf', 'maghreb'];
-const AVAILABLE = ["msa","eg","sham"]; /* build:dialects */
+const AVAILABLE = ["eg"]; /* build:dialects */
 const BY_COUNTRY = {
   EG: 'eg',
   SY: 'sham', LB: 'sham', JO: 'sham', PS: 'sham',

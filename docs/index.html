@@ -1678,7 +1678,7 @@ addEventListener("hashchange",()=>{const id=location.hash.replace("#","");if(TAB
 
 const DIALECT_NAMES={msa:"العربية الفصحى",eg:"مصري",sham:"شامي",gulf:"خليجي",maghreb:"مغربي"};
 const CONTENT_V=1;
-const DIALECTS_AVAILABLE=["msa","eg","sham"]; /* build:dialects */
+const DIALECTS_AVAILABLE=["eg"]; /* build:dialects */
 function shellMsg(html){
  const el=document.getElementById("shellState");
  if(el)el.innerHTML=html;
@@ -1697,13 +1697,17 @@ function paintDialects(current){
  };
 }
 async function pickDialect(){
+ /* الاختيار المحفوظ والـworker الاتنين ممكن يقولوا لهجة اتحجزت — الفلتر
+    على DIALECTS_AVAILABLE مش على قايمة الأسامي، وإلا الزائر القديم يفضل
+    شايف حزمة مش منشورة. */
+ const has=d=>DIALECTS_AVAILABLE.includes(d);
  const saved=localStorage.getItem("dialect");
- if(saved&&DIALECT_NAMES[saved])return saved;
+ if(saved&&has(saved))return saved;
  try{
   const r=await fetch("/api/dialect",{headers:{accept:"application/json"}});
-  if(r.ok){const j=await r.json();if(DIALECT_NAMES[j.dialect])return j.dialect;}
+  if(r.ok){const j=await r.json();if(has(j.dialect))return j.dialect;}
  }catch(e){}
- return "msa";
+ return DIALECTS_AVAILABLE[0]||"eg";
 }
 async function load(dialect){
  shellMsg("<p>بنحمّل المحتوى…</p>");

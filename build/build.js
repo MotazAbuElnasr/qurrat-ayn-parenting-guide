@@ -11,6 +11,11 @@ const ROOT = path.join(__dirname, '..');
 const DIR = path.join(ROOT, 'docs', 'content');
 const SHELL = path.join(ROOT, 'docs', 'index.html');
 const ORDER = ['msa', 'eg', 'sham', 'gulf', 'maghreb'];
+
+/* اللهجات اللي بتتفحص غير اللي بتتنشر. البناء بيتحقق من كل حزمة موجودة
+   عشان الدرف يبان، بس القارئ بيتعرضله اللي في PUBLISHED بس. المصري تحت
+   المراجعة دلوقتي والباقي لسه على التركيب القديم — فمفيش سويتشر. */
+const PUBLISHED = ['eg'];
 const NAMES = { msa: 'العربية الفصحى', eg: 'مصري', sham: 'شامي', gulf: 'خليجي', maghreb: 'مغربي' };
 
 const ARRAYS = ['VALUES', 'SITS', 'MEALS', 'ACT', 'DAY', 'BOX', 'SCHOOLS', 'RES', 'YTC', 'VID', 'ST', 'STX'];
@@ -141,7 +146,9 @@ if (base) {
 
 if (bad) { console.error(`\n${bad} مشكلة — مفيش ختم`); process.exit(1); }
 
-const list = ORDER.filter(d => ok.includes(d));
+const list = ORDER.filter(d => ok.includes(d) && PUBLISHED.includes(d));
+if (!list.length) { console.error('مفيش لهجة منشورة'); process.exit(1); }
+const held = ORDER.filter(d => ok.includes(d) && !PUBLISHED.includes(d));
 
 /* Two places have to agree on which bundles exist: the shell, so the selector
    only offers real ones, and the worker, so it never sends a reader to a file
@@ -158,3 +165,4 @@ for (const [file, rx, make] of STAMPS) {
   fs.writeFileSync(file, txt.replace(rx, make(JSON.stringify(list))));
 }
 console.log(`\nاتختم في القشرة والـworker: ${list.map(d => NAMES[d]).join(' · ')}`);
+if (held.length) console.log(`متحجوزة (اتفحصت ومش منشورة): ${held.map(d => NAMES[d]).join(' · ')}`);
