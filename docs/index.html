@@ -696,10 +696,13 @@ window.go=function go(id){
  window.scrollTo(0,0);
  /* the tab is the URL, so each one counts as its own page view. the guard is what
     keeps that honest: no push when we are already there (the resize rebuild and the
-    first paint both re-call go), and none for a #go= deep link, whose hash jump()
-    still needs to read */
+    first paint both re-call go), and none for the one call a #go= deep link makes —
+    the push carries the path alone, so it drops the hash jump() still has to read.
+    the flag, not the hash itself: the hash stays in the URL after we land, and
+    reading it here would silence every tab the reader presses afterwards */
  const u=id==="home"?"/":"/"+id;
- if(location.pathname!==u&&TABS.some(t=>t[0]===id))history.pushState(null,"",u);
+ if(location.pathname!==u&&TABS.some(t=>t[0]===id)&&!window.__deepLink)
+  history.pushState(null,"",u);
 };
 const $=id=>document.getElementById("v-"+id);
 /* titles go into attributes and into share text; they are ours, but content is
@@ -1700,8 +1703,11 @@ Object.entries(SUBPAGES).forEach(([tab,pages])=>{
 /* the reference is HTML, not an array, so its count is read back from the DOM */
 {const n=$("ref").querySelectorAll("h2.sec").length;
  document.querySelectorAll("[data-refn]").forEach(el=>{el.textContent=n;});}
-{const p=location.pathname.slice(1);
- go(TABS.some(t=>t[0]===p)?p:(location.hash.replace("#","")||"home"));}
+/* the old #values links are a tab name, but a #go= deep link is not — handing the
+   whole hash to go() as an id turned every tab off and left a blank page. both
+   listeners below already ask TABS first; this one is the way in, so it asks too */
+{const p=location.pathname.slice(1),h=location.hash.replace("#","");
+ go(TABS.some(t=>t[0]===p)?p:(TABS.some(t=>t[0]===h)?h:"home"));}
 /* age selector */
 {
  const sel=document.getElementById("ageSel");
@@ -1726,6 +1732,9 @@ Object.entries(SUBPAGES).forEach(([tab,pages])=>{
 addEventListener("popstate",()=>{const p=location.pathname.slice(1)||"home";if(TABS.some(t=>t[0]===p))go(p);});
 /* links shared before the tabs had their own paths still arrive as #values */
 addEventListener("hashchange",()=>{const id=location.hash.replace("#","");if(TABS.some(t=>t[0]===id))go(id);});
+/* the share block is built while the bundle is still in flight, so its own first
+   jump() finds no go() and no cards and gives up. the tabs exist now — ask again */
+if(window.QAjump)QAjump();
 
 }
 
@@ -1821,7 +1830,7 @@ async function load(dialect){
   return d;
  }
  const T={sit:"الموقف",val:"القيمة",meal:"الوجبة",act:"النشاط",ref:"القسم",home:"الصفحة"};
- const TAB={sit:"sits",val:"values",meal:"meals",act:"acts",ref:"ref"};
+ const TAB={sit:"sits",val:"values",meal:"food",act:"acts",ref:"ref"};
 
  /* a reference section is a heading plus whatever follows it until the next one */
  function sectionNodes(h){
@@ -1858,16 +1867,24 @@ async function load(dialect){
   const m=/^#go=([a-z]+):(.+)$/.exec(location.hash||"");
   if(!m)return;
   const type=m[1],id=decodeURIComponent(m[2]);
-  if(TAB[type]&&typeof window.go==="function")window.go(TAB[type]);
+  // the first call happens while the bundle is still loading — no go(), no cards
+  // to look for. giving up here is safe: boot() calls back once the tabs are built
+  if(!TAB[type]||typeof window.go!=="function")return;
+  // this one tab change is the link landing, not a page the reader asked for, and
+  // its push would take the hash with it — see the guard in go()
+  window.__deepLink=1;window.go(TAB[type]);window.__deepLink=0;
   setTimeout(()=>{
    const card=[...document.querySelectorAll("[data-fbi]")]
     .find(c=>c.dataset.fbt===type&&c.dataset.fbi===id);
    if(!card)return;
    const d=card.closest("details");if(d)d.open=true;
-   card.scrollIntoView({block:"center"});
+   // cards are content-visibility:auto, so aiming once lands on a page that is not
+   // laid out yet — scrollToEl re-aims until the target holds still
+   if(window.scrollToEl)scrollToEl(card);else card.scrollIntoView({block:"center"});
    card.classList.add("jumped");setTimeout(()=>card.classList.remove("jumped"),1800);
   },260);
  }
+ window.QAjump=jump;
 
  /* ── feedback ──────────────────────────────────────────────────────────── */
  let picked="",target=null,quoted="";
