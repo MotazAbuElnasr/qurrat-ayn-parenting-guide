@@ -77,7 +77,7 @@ grep -o 'm\.nu[^;]\{0,80\}' docs/index.html
 
 ```js
 {name, cat, age:[min,max], how, steps:[{t,d,say}],  // 3-6 حسب القيمة
- mastery, mistakes:[{m,fix}], adapt:[{kid,how}],
+ mastery, mistakes:[{m,fix}], adapt:[{kid,how}],   // steps[i].org اختياري: 'west' | 'arab'
  acts:[{t,mat,prep,run}], say, deen:[title,how], skill,
  lvl, ord, tag, src, evi:{c,why,schools,src,cav},
  sunnah:{hadith,src,grade,sharh,sharhSrc,lesson}}   // اختياري
