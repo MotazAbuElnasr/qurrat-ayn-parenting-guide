@@ -472,7 +472,9 @@ details.vx[data-k="evi"] summary{color:#2F6E86}
 .mkdone{margin:0 0 12px;font-size:13px;color:var(--soft);line-height:1.7}
 .jumped{animation:jump 1.6s ease}
 @keyframes jump{0%,100%{background:transparent}18%{background:#FFF6D8}}
-.helpus{margin:16px 0 2px;padding:14px 16px;border:1px dashed var(--line);border-radius:14px}
+.helpus{margin:16px 0 2px;padding:14px 16px;border:1px solid var(--line);
+ border-inline-start:3px solid var(--c8);background:#FDF7F7;border-radius:0 14px 14px 0}
+.huwarn{margin:0 0 10px;font-size:14px;line-height:1.8;color:var(--ink);font-weight:600}
 .helpus h3{margin:0 0 6px;font-size:16px}
 .helpus p{margin:0 0 11px;font-size:14px;line-height:1.85;color:var(--soft)}
 .helpus button{font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;border-radius:11px;
@@ -676,8 +678,8 @@ $("home").innerHTML=`
  <div class="why3">${UI.home.why.points.map(([t,d],i)=>`<div style="--wc:var(--c${[1,4,6][i]||7})"><b>${t}</b><span>${fmt(d,VALUES.length)}</span></div>`).join("")}</div>
  <p>${fmt(UI.home.why.p4,MEALS.length,ACT.length)}</p>
  <p>${UI.home.why.p5}</p>
- <div class="warn" style="margin:16px 0 4px">${UI.home.audit}</div>
  <section class="helpus">
+  <p class="huwarn">${UI.home.audit}</p>
   <h3>${UI.home.help.t}</h3><p>${UI.home.help.d}</p>
   <button type="button" data-fbhome>${UI.home.help.b}</button></section>
 </div>
@@ -1843,7 +1845,10 @@ async function load(dialect){
   q("fbNote").textContent=t.fbNote||"";
   q("fbNo").textContent=t.cancel||"إلغاء";
   q("fbGo").textContent=t.send||"ابعت";
-  fillKinds();
+  // رأي في الموقع كله مالوش نوع: «مش واضح» و«مش شغال معايا» بيوصفوا حاجة
+  // بعينها. الأنواع بتتخفي، والباك إند بياخد idea.
+  const kbox=q("fbKinds");
+  if(card){kbox.hidden=false;fillKinds();}else{kbox.hidden=true;kbox.textContent="";picked="idea";}
   q("fbSub").textContent=card?(T[type]||"الجزء")+": "+id:(t.whole||"");
   const qEl=q("fbQuote");
   if(quoted){qEl.textContent="«"+quoted+"»";qEl.hidden=false;}else qEl.hidden=true;
