@@ -50,7 +50,8 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);
  font-family:"IBM Plex Sans Arabic",system-ui,"Segoe UI",Tahoma,sans-serif;font-size:16px;line-height:1.72}
-.wrap{max-width:1420px;margin:0 auto;padding:0 16px 90px}
+/* narrower than the header on purpose: the tab bar needs the room, the reading column does not */
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px 90px}
 a{color:var(--a)}
 .top{position:sticky;top:0;z-index:30;background:rgba(233,237,231,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
 .top .inner{max-width:1420px;margin:0 auto;padding:10px 16px}
