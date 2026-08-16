@@ -4,7 +4,10 @@
   "main": "./src/index.js",
   "compatibility_date": "2026-08-01",
   // a tab is a real path now (/values, /sits), so a cold load on one has to get index.html back
-  "assets": { "directory": "./docs", "binding": "ASSETS", "not_found_handling": "single-page-application", "run_worker_first": ["/api/*", "/*.mp4"] },
+  // /v/* and /s/* are rendered per item and /sitemap.xml is generated from the
+  // bundle, so the worker has to see them — single-page-application handling
+  // would otherwise answer all four with the shell and a 200.
+  "assets": { "directory": "./docs", "binding": "ASSETS", "not_found_handling": "single-page-application", "run_worker_first": ["/api/*", "/*.mp4", "/v/*", "/s/*", "/m/*", "/a/*", "/sitemap.xml", "/llms.txt"] },
   "routes": [{ "pattern": "qurrat-ain.aro.day", "custom_domain": true }],
   "observability": { "enabled": true },
   // per-IP burst limits, checked before any D1 query runs

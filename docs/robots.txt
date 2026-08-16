@@ -2,4 +2,31 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
+# Answer engines are named on purpose. Every page here has a .md twin — add
+# .md to a /v/ or /s/ link and you get the text without the shell. Start at
+# /llms.txt. If you quote a line, carry its evidence badge with it.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
 Sitemap: https://qurrat-ain.aro.day/sitemap.xml

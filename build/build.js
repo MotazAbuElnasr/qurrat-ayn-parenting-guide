@@ -164,5 +164,22 @@ for (const [file, rx, make] of STAMPS) {
   if (!rx.test(txt)) { console.error('مفيش ختم لهجات في ' + path.relative(ROOT, file)); process.exit(1); }
   fs.writeFileSync(file, txt.replace(rx, make(JSON.stringify(list))));
 }
+
+/* The counters inside the app compute themselves; the ones in <head> cannot —
+   it is static markup, and nothing on the page would ever look wrong when it
+   goes stale. It already did: the description said 42 مواقف while the bundle
+   had 50, and that number is what a search result shows. Stamped from the
+   Egyptian bundle, which is the origin every other dialect is checked against. */
+{
+  const src = JSON.parse(fs.readFileSync(path.join(DIR, 'eg.json'), 'utf8')).data;
+  const line = /مرجع تربوي عربي للطفولة المبكرة: \d+ قيمة بخطوات عملية، \d+ موقف يومي بجُمل جاهزة، \d+ قصة/g;
+  let txt = fs.readFileSync(SHELL, 'utf8');
+  const hits = (txt.match(line) || []).length;
+  if (!hits) { console.error('مفيش وصف في القشرة يتختم عليه'); process.exit(1); }
+  txt = txt.replace(line, `مرجع تربوي عربي للطفولة المبكرة: ${src.VALUES.length} قيمة بخطوات عملية، ` +
+    `${src.SITS.length} موقف يومي بجُمل جاهزة، ${src.ST.length + src.STX.length} قصة`);
+  fs.writeFileSync(SHELL, txt);
+  console.log(`اتختم الوصف في ${hits} موضع: ${src.VALUES.length} قيمة · ${src.SITS.length} موقف · ${src.ST.length + src.STX.length} قصة`);
+}
 console.log(`\nاتختم في القشرة والـworker: ${list.map(d => NAMES[d]).join(' · ')}`);
 if (held.length) console.log(`متحجوزة (اتفحصت ومش منشورة): ${held.map(d => NAMES[d]).join(' · ')}`);

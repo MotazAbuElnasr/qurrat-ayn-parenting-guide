@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>قُرّة عين — مرجع التربية في الطفولة المبكرة</title>
-<meta name="description" content="مرجع تربوي عربي للطفولة المبكرة: 72 قيمة بخطوات عملية، 42 موقف يومي بجُمل جاهزة، 604 قصة، وأنشطة ووجبات — كل نصيحة مكتوب جنبها مصدرها وقوة أدلتها.">
+<meta name="description" content="مرجع تربوي عربي للطفولة المبكرة: 72 قيمة بخطوات عملية، 50 موقف يومي بجُمل جاهزة، 604 قصة، وأنشطة ووجبات — كل نصيحة مكتوب جنبها مصدرها وقوة أدلتها.">
 <link rel="canonical" href="https://qurrat-ain.aro.day/">
 <meta name="robots" content="index,follow,max-image-preview:large">
 
@@ -13,7 +13,7 @@
 <meta property="og:locale" content="ar_EG">
 <meta property="og:url" content="https://qurrat-ain.aro.day/">
 <meta property="og:title" content="قُرّة عين — مرجع التربية في الطفولة المبكرة">
-<meta property="og:description" content="مرجع تربوي عربي للطفولة المبكرة: 72 قيمة بخطوات عملية، 42 موقف يومي بجُمل جاهزة، 604 قصة، وأنشطة ووجبات — كل نصيحة مكتوب جنبها مصدرها وقوة أدلتها.">
+<meta property="og:description" content="مرجع تربوي عربي للطفولة المبكرة: 72 قيمة بخطوات عملية، 50 موقف يومي بجُمل جاهزة، 604 قصة، وأنشطة ووجبات — كل نصيحة مكتوب جنبها مصدرها وقوة أدلتها.">
 <meta property="og:image" content="https://qurrat-ain.aro.day/og.jpg">
 <meta property="og:image:secure_url" content="https://qurrat-ain.aro.day/og.jpg">
 <meta property="og:image:type" content="image/jpeg">
@@ -23,14 +23,14 @@
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="قُرّة عين — مرجع التربية في الطفولة المبكرة">
-<meta name="twitter:description" content="مرجع تربوي عربي للطفولة المبكرة: 72 قيمة بخطوات عملية، 42 موقف يومي بجُمل جاهزة، 604 قصة، وأنشطة ووجبات — كل نصيحة مكتوب جنبها مصدرها وقوة أدلتها.">
+<meta name="twitter:description" content="مرجع تربوي عربي للطفولة المبكرة: 72 قيمة بخطوات عملية، 50 موقف يومي بجُمل جاهزة، 604 قصة، وأنشطة ووجبات — كل نصيحة مكتوب جنبها مصدرها وقوة أدلتها.">
 <meta name="twitter:image" content="https://qurrat-ain.aro.day/og.jpg">
 <meta name="twitter:image:alt" content="قُرّة عين — مرجع التربية في الطفولة المبكرة">
 
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"قُرّة عين",
  "alternateName":"Qurrat Ain","url":"https://qurrat-ain.aro.day/","inLanguage":"ar",
- "description":"مرجع تربوي عربي للطفولة المبكرة: 72 قيمة بخطوات عملية، 42 موقف يومي بجُمل جاهزة، 604 قصة، وأنشطة ووجبات — كل نصيحة مكتوب جنبها مصدرها وقوة أدلتها.",
+ "description":"مرجع تربوي عربي للطفولة المبكرة: 72 قيمة بخطوات عملية، 50 موقف يومي بجُمل جاهزة، 604 قصة، وأنشطة ووجبات — كل نصيحة مكتوب جنبها مصدرها وقوة أدلتها.",
  "audience":{"@type":"ParentAudience","name":"أهالي أطفال الطفولة المبكرة"},
  "license":"https://github.com/MotazAbuElnasr/qurrat-ayn-parenting-guide"}
 </script>
@@ -483,6 +483,8 @@ details.vx[data-k="evi"] summary{color:#2F6E86}
 .likebtn{font:inherit;font-size:13px;font-weight:700;cursor:pointer;background:var(--paper);border:1px solid var(--line);
  border-radius:999px;padding:5px 13px;color:var(--soft);margin-top:9px}
 .likebtn.on{background:#FBEEF0;border-color:var(--c8);color:var(--c8)}
+.permalink{font-size:12.5px;font-weight:600;text-decoration:none;color:var(--soft);border:1px solid var(--line);border-radius:8px;padding:4px 10px;margin-inline-end:8px;display:inline-block;background:var(--paper)}
+.permalink:hover{color:var(--a);border-color:var(--a)}
 .likebtn:disabled{opacity:.6}
 .tabs .moretab i{background:var(--soft)}
 .tabs .moretab{border-style:dashed}
@@ -798,6 +800,7 @@ $("ref").innerHTML=B.prose.ref;
    </details>`:""}
    ${sitStories(x)}
    <div class="chips">${x.vals.map(v=>VL(v)).join("")}</div>
+   <a class="permalink" href="/s/${encodeURIComponent(x.t)}">افتح صفحة الموقف</a>
    <button class="likebtn" data-t="sit" data-i="${x.t}">♥ <b>0</b></button>
   </article>`)));});
  const qs=document.getElementById("qs"),qc=document.getElementById("qc");
@@ -897,6 +900,7 @@ $("ref").innerHTML=B.prose.ref;
 
    <details class="vx" data-k="src"><summary>${UI.values.srcSummary} (${v.src.length+stF.length+stox.length+stP.length+VID.filter(x=>x[5].includes(v.name)).slice(0,4).length})</summary>
     <div class="chips">${v.src.map(([k,t,u])=>`<a class="chip" href="${u}" target="_blank" rel="noopener">${t} <i>${k}</i></a>`).join("")}${stF.map(x=>`<a class="chip" href="${S(x[1],x[2])}" target="_blank" rel="noopener">${x[0]} <i>${UI.values.chipStoryFree}</i></a>`).join("")}${stox.map(x=>`<a class="chip" href="${x[2]}" target="_blank" rel="noopener">${x[1]} <i>${fmt(UI.values.chipStoryPlatform,x[0])}</i></a>`).join("")}${stP.map(x=>`<a class="chip" href="${S(x[1],x[2])}" target="_blank" rel="noopener">${x[0]} <i>${UI.values.chipStoryPremium}</i></a>`).join("")}${VID.filter(x=>x[5].includes(v.name)).slice(0,4).map(x=>`<a class="chip" href="${x[4]}" target="_blank" rel="noopener">${x[3]} <i>${x[1]==="playlist"?UI.common.playlist:UI.common.video}</i></a>`).join("")}</div></details>
+   <a class="permalink" href="/v/${encodeURIComponent(v.name)}">افتح صفحة القيمة</a>
   </article>`));});;});
  const vf=document.getElementById("vf"),vs=document.getElementById("vs"),vc=document.getElementById("vc");
  let cur="الكل";
@@ -1048,7 +1052,8 @@ $("day").innerHTML=`<h1>${UI.day.h1}</h1>
  const ac=document.getElementById("ac");
  ACT.forEach(([c,t,d,dur,prep,how,age])=>ac.appendChild(el(`<div class="card" style="--cc:${ACAT[c]}" data-fbt="act" data-fbi="${att(t)}" data-cat="${c}" data-prep="${prep}" data-amin="${age[0]}" data-amax="${age[1]}">
   <h4>${t}</h4><p>${d}</p><div class="meta"><span>${c}</span><span>${dur}</span><span>${prep}</span><span>${age[0]}–${age[1]} ${UI.common.years}</span></div>
-  ${how?`<details style="margin-top:6px"><summary style="cursor:pointer;font-size:13.5px;font-weight:600;color:#2F5D50">${UI.acts.howSummary}</summary><p style="margin:6px 0 0;font-size:14px">${how}</p></details>`:""}</div>`)));
+  ${how?`<details style="margin-top:6px"><summary style="cursor:pointer;font-size:13.5px;font-weight:600;color:#2F5D50">${UI.acts.howSummary}</summary><p style="margin:6px 0 0;font-size:14px">${how}</p></details>`:""}
+  <a class="permalink" href="/a/${encodeURIComponent(t)}">افتح صفحة النشاط</a></div>`)));
  const af=document.getElementById("af");
  ["الكل",...Object.keys(ACAT),"بدون تجهيز"].forEach((g,i)=>{const b=document.createElement("button");b.textContent=g;
   b.setAttribute("aria-pressed",i===0?"true":"false");
@@ -1073,6 +1078,7 @@ $("food").innerHTML=B.prose.food;
   ${m.kj?`<p class="mkid"><b>${UI.food.kidPartLabel}</b> ${m.kj}</p>`:""}
   ${m.sf?`<p class="msafe"><b>${UI.food.watchLabel}</b> ${m.sf}</p>`:""}
   ${m.tg.length?`<div class="chips">${m.tg.map(t=>`<span class="chip mtag" data-t="${t}">${t}</span>`).join("")}</div>`:""}
+  <a class="permalink" href="/m/${encodeURIComponent(m.t)}">افتح صفحة الوجبة</a>
  </div>`;
 
  const host=el(`<div>

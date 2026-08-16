@@ -19,6 +19,11 @@ jobs:
       - name: Moderation checks
         run: node src/moderation.test.mjs
 
+      # a slug collision or an empty anchor would ship across 292 pages at once,
+      # and nothing on the site would look wrong
+      - name: Render checks
+        run: node src/render.test.mjs
+
       - name: Deploy worker + assets
         uses: cloudflare/wrangler-action@v3
         with:

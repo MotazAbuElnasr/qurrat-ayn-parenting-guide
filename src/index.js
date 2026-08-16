@@ -9,6 +9,9 @@
  */
 
 import { moderate } from './moderation.js';
+import { bundle, itemHTML, itemMD, sitemap, llmsTxt, slug, PREFIX, CANONICAL_ORIGIN } from './render.js';
+
+const ITEM_PATH = new RegExp('^/(' + Object.keys(PREFIX).join('|') + ')/(.+?)(\\.md)?$');
 
 const KINDS = ['موقف', 'قصة', 'قيمة', 'وجبة'];
 const LIMITS = { name: 40, title: 120, body: 4000, tag: 30, feedback: 1200, quote: 400 };
@@ -86,6 +89,52 @@ function dialectFor(request, url) {
     from: asked ? 'query' : (BY_COUNTRY[country] ? 'country' : 'default'),
     country,
   };
+}
+
+/* /v/<slug> · /s/<slug> · either one with .md for agents · /sitemap.xml · /llms.txt
+   Returns null for anything that is not one of these, so the caller falls
+   through to the asset layer untouched. An unknown slug is a real 404 and not
+   the app shell — a soft 404 would get the whole directory indexed as dupes. */
+async function crawlRoute(request, env, url) {
+  let p;
+  try { p = decodeURIComponent(url.pathname); } catch { return null; }
+
+  const isSitemap = p === '/sitemap.xml';
+  const isLlms = p === '/llms.txt';
+  const m = ITEM_PATH.exec(p);
+  if (!m && !isSitemap && !isLlms) return null;
+
+  // two different origins on purpose: the bundle is fetched from whoever is
+  // actually serving, the pages are written against the one public hostname
+  const origin = url.origin;
+  const pack = await bundle(env, origin, dialectFor(request, url).dialect);
+  if (!pack) return null;
+
+  const send = (body, type, maxAge) => new Response(body, {
+    headers: { 'content-type': type, 'cache-control': 'public, max-age=' + maxAge },
+  });
+
+  if (isSitemap) return send(sitemap(pack.data, CANONICAL_ORIGIN), 'application/xml; charset=utf-8', 86400);
+  if (isLlms) return send(llmsTxt(pack.data, CANONICAL_ORIGIN), 'text/plain; charset=utf-8', 86400);
+
+  const kind = PREFIX[m[1]];
+  const key = slug(m[2]);
+  const item = pack.index[kind].get(key);
+  if (!item) {
+    return new Response('الصفحة دي مش موجودة.\n', {
+      status: 404, headers: { 'content-type': 'text/plain; charset=utf-8' },
+    });
+  }
+  // The cards link with the raw name so the page keeps the only copy of the slug
+  // rule. Anything that is not already the canonical spelling redirects to it —
+  // two URLs serving one item is the duplicate this whole change exists to undo.
+  if (m[2] !== key) {
+    return Response.redirect(
+      origin + '/' + m[1] + '/' + encodeURIComponent(key) + (m[3] || ''), 301);
+  }
+  return m[3]
+    ? send(itemMD(kind, item, CANONICAL_ORIGIN), 'text/markdown; charset=utf-8', 3600)
+    : send(itemHTML(kind, item, CANONICAL_ORIGIN), 'text/html; charset=utf-8', 3600);
 }
 
 async function overLimit(binding, key) {
@@ -401,6 +450,13 @@ export default {
         },
       });
     }
+
+    // A reader moves between tabs without a request, which is right for a reader
+    // and leaves a crawler with one URL for the whole bank. These paths read the
+    // same bundle a second way and hand back documents. Falls through to the
+    // asset layer for everything else, including a bundle that failed to load.
+    const page = await crawlRoute(request, env, url);
+    if (page) return page;
 
     if (!url.pathname.startsWith('/api/')) return env.ASSETS.fetch(request);
 
