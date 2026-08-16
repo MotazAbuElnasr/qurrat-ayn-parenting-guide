@@ -1,0 +1,13 @@
+# Applied by the Cloudflare assets layer to everything it serves. The worker
+# sets the same three on the pages it renders itself (/v/ /s/ /m/ /a/), which
+# never pass through here.
+#
+# Not set: Strict-Transport-Security, because browsers cache it for its whole
+# max-age and it cannot be called back. The http→https redirect belongs in the
+# dashboard toggle anyway, which is one click and reversible.
+# Not set: Content-Security-Policy — the page is one inline <script>, so any
+# policy loose enough to run it would allow what it is meant to stop.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN

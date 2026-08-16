@@ -13,6 +13,14 @@ import { bundle, itemHTML, itemMD, sitemap, llmsTxt, slug, PREFIX, CANONICAL_ORI
 
 const ITEM_PATH = new RegExp('^/(' + Object.keys(PREFIX).join('|') + ')/(.+?)(\\.md)?$');
 
+/* docs/_headers covers the assets layer; these paths are rendered here and never
+   touch it, so the same three are set again rather than left off one half. */
+const SAFE_HEADERS = {
+  'x-content-type-options': 'nosniff',
+  'referrer-policy': 'strict-origin-when-cross-origin',
+  'x-frame-options': 'SAMEORIGIN',
+};
+
 const KINDS = ['موقف', 'قصة', 'قيمة', 'وجبة'];
 const LIMITS = { name: 40, title: 120, body: 4000, tag: 30, feedback: 1200, quote: 400 };
 const MAX_TAGS = 5;
@@ -111,7 +119,7 @@ async function crawlRoute(request, env, url) {
   if (!pack) return null;
 
   const send = (body, type, maxAge) => new Response(body, {
-    headers: { 'content-type': type, 'cache-control': 'public, max-age=' + maxAge },
+    headers: { 'content-type': type, 'cache-control': 'public, max-age=' + maxAge, ...SAFE_HEADERS },
   });
 
   if (isSitemap) return send(sitemap(pack.data, CANONICAL_ORIGIN), 'application/xml; charset=utf-8', 86400);
@@ -122,7 +130,7 @@ async function crawlRoute(request, env, url) {
   const item = pack.index[kind].get(key);
   if (!item) {
     return new Response('الصفحة دي مش موجودة.\n', {
-      status: 404, headers: { 'content-type': 'text/plain; charset=utf-8' },
+      status: 404, headers: { 'content-type': 'text/plain; charset=utf-8', ...SAFE_HEADERS },
     });
   }
   // The cards link with the raw name so the page keeps the only copy of the slug
