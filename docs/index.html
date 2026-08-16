@@ -95,7 +95,11 @@ table{width:100%;border-collapse:collapse;background:var(--card);border:1px soli
 th,td{padding:9px 11px;text-align:right;font-size:14px;border-bottom:1px solid #EFF1ED;vertical-align:top}
 th{background:#DFE4DB;font-size:12.5px;font-weight:700}
 tr:last-child td{border-bottom:0}
-td.k{white-space:nowrap;font-size:12.5px;color:var(--soft)}
+/* .k هي الخانة الصغيرة الرمادية — والملاحظة الطويلة بتاخدها كمان، فالسطر الواحد
+   بتاعها كان بيمدّ الجدول لضعف عرض الموبايل. اللف هو الأصل، والمنع بـ.nw على
+   الخانات القصيرة اللي فعلًا مش المفروض تتقطع */
+td.k{font-size:12.5px;color:var(--soft)}
+td.nw{white-space:nowrap}
 .chips{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
 .chip{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:#EFF2ED;color:var(--ink);
  border:1px solid var(--line);border-radius:999px;padding:3px 11px;font-size:12.5px;font-weight:500;cursor:pointer}
@@ -281,6 +285,11 @@ footer b{color:var(--ink)}
  .layer{grid-template-columns:44px 1fr;gap:4px 10px}
  .slot .t{border-inline-end:0;border-bottom:4px solid var(--sc);display:flex;gap:8px;align-items:baseline}
  th.hide,td.hide{display:none}
+ /* بعد ما عمود النوع بيتخفي بيفضل اتنين، والقسمة التلقائية بتدي اسم المصدر
+    الطويل معظم العرض وتسيب الملاحظة تلات كلمات في السطر. نصّين متساويين تقريبًا */
+ .restab{table-layout:fixed}
+ .restab th:first-child,.restab td:first-child{width:46%}
+ .restab td{overflow-wrap:anywhere}
 }
 h2.sec{scroll-margin-top:calc(var(--toph,86px) + 56px)}
 article.sit{scroll-margin-top:calc(var(--toph,86px) + 68px)}
@@ -1025,7 +1034,7 @@ $("day").innerHTML=`<h1>${UI.day.h1}</h1>
   <h2 class="sec">${UI.acts.planH2}</h2>
   <table><thead><tr><th>${UI.acts.thDay}</th><th>${UI.acts.thW1}</th><th>${UI.acts.thW2}</th><th class="hide">${UI.acts.thW3}</th><th class="hide">${UI.acts.thW4}</th></tr></thead>
   <tbody>${THEMES.map(([day,cat])=>{const l=ACT.filter(a=>a[0]===cat);
-   return `<tr><td class="k"><b>${day}</b><br><span style="color:${ACAT[cat]}">${cat}</span></td>
+   return `<tr><td class="k nw"><b>${day}</b><br><span style="color:${ACAT[cat]}">${cat}</span></td>
    ${[0,1,2,3].map(i=>`<td class="${i>1?'hide':''}">${l[i%l.length][1]}</td>`).join("")}</tr>`}).join("")}</tbody></table>
   <h2 class="sec">${UI.acts.bankH2}</h2><div class="filter" id="af"></div><div class="cards" id="ac"></div>
   <h2 class="sec">${UI.acts.indoorH2}</h2>
@@ -1369,10 +1378,10 @@ $("partners").innerHTML=`<h1>${UI.partners.h1}</h1>
   <div class="warn">${UI.res.warnPre} <b>${UI.res.warnBold}</b> ${UI.res.warnPost}</div>
   <div class="warn" id="twNote" style="display:none"><b>${UI.res.twinklLabel}</b> ${UI.res.twinklText}</div>
   <div class="filter" id="rf"></div>
-  <table><thead><tr><th>${UI.res.thSource}</th><th class="hide">${UI.res.thKind}</th><th>${UI.res.thNote}</th></tr></thead><tbody id="rt"></tbody></table>`;
+  <table class="restab"><thead><tr><th>${UI.res.thSource}</th><th class="hide">${UI.res.thKind}</th><th>${UI.res.thNote}</th></tr></thead><tbody id="rt"></tbody></table>`;
  const rt=document.getElementById("rt");
- YTC.forEach(([n,cat,d,u])=>rt.appendChild(el(`<tr data-k="قنوات · ${cat}"><td><a href="${u}" target="_blank" rel="noopener">${n}</a></td><td class="k hide">${fmt(UI.res.channelCell,cat)}</td><td class="k">${d}</td></tr>`)));
- RES.forEach(([k,n,u,p])=>rt.appendChild(el(`<tr data-k="${k}"><td><a href="${u}" target="_blank" rel="noopener">${n}</a></td><td class="k hide">${k}</td><td class="k">${p}</td></tr>`)));
+ YTC.forEach(([n,cat,d,u])=>rt.appendChild(el(`<tr data-k="قنوات · ${cat}"><td><a href="${u}" target="_blank" rel="noopener">${n}</a></td><td class="k hide nw">${fmt(UI.res.channelCell,cat)}</td><td class="k">${d}</td></tr>`)));
+ RES.forEach(([k,n,u,p])=>rt.appendChild(el(`<tr data-k="${k}"><td><a href="${u}" target="_blank" rel="noopener">${n}</a></td><td class="k hide nw">${k}</td><td class="k">${p}</td></tr>`)));
  const rf=document.getElementById("rf");
  ["الكل",...K].forEach((g,i)=>{const b=document.createElement("button");b.textContent=g;
   b.setAttribute("aria-pressed",i===0?"true":"false");
