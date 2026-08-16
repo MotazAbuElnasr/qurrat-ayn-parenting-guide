@@ -16,6 +16,9 @@ const SITE = 'قُرّة عين';
    Google it is the original — and in `wrangler dev` the worker sees the routed
    hostname over plain http, so the arriving origin is not even right locally. */
 export const CANONICAL_ORIGIN = 'https://qurrat-ain.aro.day';
+
+const FONTS = 'https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700' +
+  '&family=IBM+Plex+Sans+Arabic:wght@300;400;600;700&display=swap';
 /* spelled with escapes on purpose: an Arabic character class is unreadable as
    literals and one stray mark inside it silently changes every slug on the site */
 const DIACRITICS = /[ً-ْـٰ]/g;
@@ -404,7 +407,10 @@ export function itemHTML(kind, item, origin) {
 <meta name="theme-color" content="#1D6A6A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;600;700&display=swap" rel="stylesheet">
+<!-- media=print parks the request off the critical path, onload promotes it. The
+     URL already says display=swap, so fallback-then-swap is what happened anyway. -->
+<link rel="stylesheet" href="${FONTS}" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="${FONTS}"></noscript>
 <style>
 :root{--ink:#14201C;--soft:#54615B;--paper:#E9EDE7;--card:#fff;--line:#D4DACF;--a:#1D6A6A}
 *{box-sizing:border-box}

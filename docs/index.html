@@ -40,7 +40,11 @@
 <meta name="theme-color" content="#1D6A6A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- media=print parks the request off the critical path, onload promotes it.
+     display=swap is already in the URL, so the fallback-then-swap is what the
+     page did anyway — this just stops it blocking first paint for 348ms. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap"></noscript>
 <style>
 :root{
  --ink:#14201C;--soft:#54615B;--paper:#E9EDE7;--card:#fff;--line:#D4DACF;
