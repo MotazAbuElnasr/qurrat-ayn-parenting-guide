@@ -814,9 +814,10 @@ $("ref").innerHTML=B.prose.ref;
    <p class="vsay">${UI.values.sayLine} <b>«${v.say}»</b></p>
 
    ${v.sunnah?`<details class="vx" data-k="sun"><summary>${UI.values.sunnahSummary}</summary>
-    <div class="mx"><p class="mm">${v.sunnah.story}</p><p class="mf"><b>${UI.values.sunnahLesson}</b> ${v.sunnah.lesson}</p></div>
     <p class="hdth">${v.sunnah.hadith}</p>
     <p class="hsrc">${v.sunnah.src} · <b>${v.sunnah.grade}</b></p>
+    ${v.sunnah.sharh?`<p class="mm" style="margin-top:9px">${v.sunnah.sharh}${v.sunnah.sharhSrc?` <span class="k">${v.sunnah.sharhSrc}</span>`:""}</p>`:""}
+    <div class="mx">${v.sunnah.story?`<p class="mm">${v.sunnah.story}</p>`:""}<p class="mf"><b>${UI.values.sunnahLesson}</b> ${v.sunnah.lesson}</p></div>
    </details>`:""}
 
    <details class="vx" data-k="act"><summary>${UI.values.actsSummary} (${v.acts.length})</summary>
