@@ -543,6 +543,7 @@ h2.sec,article.sit,article.v{scroll-margin-top:calc(var(--toph,86px) + 62px)}
 #totop{position:fixed;bottom:18px;inset-inline-start:18px;z-index:40;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--ink);color:#fff;font-size:18px;display:none;cursor:pointer}
 @media print{.top{position:static}section.view{display:block!important}.toc,#totop{display:none!important}}
 </style>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "daa715f7ecb447e68213ef6a66d527a6", "spa": true}'></script>
 </head>
 <body>
 <div class="top"><div class="inner">
@@ -602,12 +603,12 @@ const BOX=B.data.BOX;
 /* ====== المرجع التربوي ====== */
 const SCHOOLS=B.data.SCHOOLS;
 const SITS=B.data.SITS;
-// a situation already names its values, and a value already carries the story
-// tag — so situation→stories needs no new data, just the hop through VMAP.
-const VMAP=new Map(VALUES.map(v=>[v.name,v]));
 const sitStories=x=>{
- // tags in `vals` order so the situation's primary value leads
- const tg=[...new Set((x.vals||[]).map(n=>VMAP.get(n)).filter(v=>v&&v.tag).map(v=>v.tag))];
+ // `st` is curated per situation. Deriving it through vals→value.tag was tried
+ // and is wrong: the tag describes the VALUE, so «بيرد بلأ» (defiance) inherited
+ // «الروتين والاستقلال» from the independence value and served potty-training
+ // stories. The situation's own topic is not derivable from its values.
+ const tg=x.st||[];
  if(!tg.length)return"";
  // A tag is coarse (23 topics over 400 stories), so rank inside the bucket by
  // word overlap with the situation's own wording — that is what surfaces «كتاب
@@ -692,7 +693,13 @@ window.go=function go(id){
  }else if(typeof extraTab!=="undefined")extraTab.style.display="none";
  [...tabs.children].forEach(b=>b.setAttribute("aria-selected",b.dataset.id===id?"true":"false"));
  [...app.children].forEach(s=>s.classList.toggle("on",s.id==="v-"+id));
- window.scrollTo(0,0);location.hash=id;
+ window.scrollTo(0,0);
+ /* the tab is the URL, so each one counts as its own page view. the guard is what
+    keeps that honest: no push when we are already there (the resize rebuild and the
+    first paint both re-call go), and none for a #go= deep link, whose hash jump()
+    still needs to read */
+ const u=id==="home"?"/":"/"+id;
+ if(location.pathname!==u&&TABS.some(t=>t[0]===id))history.pushState(null,"",u);
 };
 const $=id=>document.getElementById("v-"+id);
 /* titles go into attributes and into share text; they are ours, but content is
@@ -1688,7 +1695,8 @@ Object.entries(SUBPAGES).forEach(([tab,pages])=>{
 /* the reference is HTML, not an array, so its count is read back from the DOM */
 {const n=$("ref").querySelectorAll("h2.sec").length;
  document.querySelectorAll("[data-refn]").forEach(el=>{el.textContent=n;});}
-go(location.hash.replace("#","")||"home");
+{const p=location.pathname.slice(1);
+ go(TABS.some(t=>t[0]===p)?p:(location.hash.replace("#","")||"home"));}
 /* age selector */
 {
  const sel=document.getElementById("ageSel");
@@ -1710,6 +1718,8 @@ go(location.hash.replace("#","")||"home");
  sel.onchange=()=>{window.AGE=+sel.value||null;localStorage.setItem("guideAge",sel.value);applyAge();};
  applyAge();
 }
+addEventListener("popstate",()=>{const p=location.pathname.slice(1)||"home";if(TABS.some(t=>t[0]===p))go(p);});
+/* links shared before the tabs had their own paths still arrive as #values */
 addEventListener("hashchange",()=>{const id=location.hash.replace("#","");if(TABS.some(t=>t[0]===id))go(id);});
 
 }
