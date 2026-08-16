@@ -610,46 +610,20 @@ const BOX=B.data.BOX;
 const SCHOOLS=B.data.SCHOOLS;
 const SITS=B.data.SITS;
 const sitStories=x=>{
- // `st` is curated per situation. Deriving it through vals→value.tag was tried
- // and is wrong: the tag describes the VALUE, so «بيرد بلأ» (defiance) inherited
- // «الروتين والاستقلال» from the independence value and served potty-training
- // stories. The situation's own topic is not derivable from its values.
- const tg=x.st||[];
- if(!tg.length)return"";
- // A tag is coarse (23 topics over 400 stories), so rank inside the bucket by
- // word overlap with the situation's own wording — that is what surfaces «كتاب
- // الوحش المخيف» under the monsters card. Rotation only breaks ties, so two
- // situations sharing a tag still differ instead of printing the same three.
- // strip the leading conjunction/article before comparing — «والوحوش» and
- // «الوحش» must meet. Broken plurals still miss; that is the ceiling here.
- // The cards are written in Egyptian and the story titles mostly in MSA, so a
- // few everyday pairs never meet on a string compare. Only equivalents, no
- // near-meanings — «دكتور» is «طبيب», and that is what puts the dentist story
- // on the injection card.
- const SYN={"دكتور":"طبيب","عيادة":"طبيب","حقنة":"إبرة","حضانة":"روضة","لبس":"ثياب","هدوم":"ثياب","عيال":"أطفال","طفلك":"طفل"};
- const wrds=s=>String(s).replace(/[«»؟،.!:ـً-ْ]/g," ").split(/\s+/)
-   .map(w=>w.replace(/^(و|ف|ب|ك|ل)?(ال)?/,"")).filter(w=>w.length>2)
-   .flatMap(w=>SYN[w]?[w,SYN[w]]:[w]);
- const kw=new Set(wrds(x.t+" "+(x.why||"")));
- const off=Math.max(0,SITS.indexOf(x));
- const pick=(pool,n,ttl)=>{
-  const out=[];
-  tg.forEach((t,ti)=>{
-   const bucket=pool.filter(s=>s[3]===t);
-   if(!bucket.length)return;
-   const ranked=bucket.map((s,i)=>({s,hit:wrds(s[ttl]).filter(w=>kw.has(w)).length,i}))
-     .sort((a,b)=>b.hit-a.hit||((a.i+off)%bucket.length)-((b.i+off)%bucket.length));
-   ranked.slice(0,n).forEach(r=>out.push(r.s));
-  });
-  return [...new Set(out)].slice(0,n);
- };
- const f=pick(ST.filter(s=>s[4]),3,0),o=pick(STX,3,1),p=pick(ST.filter(s=>!s[4]),2,0);
- if(!f.length&&!o.length&&!p.length)return"";
- return `<details class="vx" data-k="st"><summary>${UI.sits.storiesSummary} (${f.length+o.length+p.length})</summary><div class="chips">`
-  +f.map(s=>`<a class="chip" href="${S(s[1],s[2])}" target="_blank" rel="noopener">${s[0]} <i>${UI.values.chipStoryFree}</i></a>`).join("")
-  +o.map(s=>`<a class="chip" href="${s[2]}" target="_blank" rel="noopener">${s[1]} <i>${fmt(UI.values.chipStoryPlatform,s[0])}</i></a>`).join("")
-  +p.map(s=>`<a class="chip" href="${S(s[1],s[2])}" target="_blank" rel="noopener">${s[0]} <i>${UI.values.chipStoryPremium}</i></a>`).join("")
-  +`</div></details>`;
+ // `st` names the stories themselves, each picked by reading its published
+ // description. Topic matching was tried twice and both times produced
+ // plausible-looking but wrong pairings: a topic describes a VALUE, not a
+ // behaviour, so the biting card drew anger stories and the jealousy card drew
+ // generic family ones. A situation with no story about it simply has no `st`.
+ const out=(x.st||[]).map(t=>{
+  const a=ST.find(s=>s[0]===t);
+  if(a)return `<a class="chip" href="${S(a[1],a[2])}" target="_blank" rel="noopener">${a[0]} <i>${a[4]?UI.values.chipStoryFree:UI.values.chipStoryPremium}</i></a>`;
+  const b=STX.find(s=>s[1]===t);
+  if(b)return `<a class="chip" href="${b[2]}" target="_blank" rel="noopener">${b[1]} <i>${fmt(UI.values.chipStoryPlatform,b[0])}</i></a>`;
+  return "";
+ }).filter(Boolean);
+ if(!out.length)return"";
+ return `<details class="vx" data-k="st"><summary>${UI.sits.storiesSummary} (${out.length})</summary><div class="chips">${out.join("")}</div></details>`;
 };
 
 /* ====== TABS ====== */
