@@ -602,6 +602,42 @@ const BOX=B.data.BOX;
 /* ====== المرجع التربوي ====== */
 const SCHOOLS=B.data.SCHOOLS;
 const SITS=B.data.SITS;
+// a situation already names its values, and a value already carries the story
+// tag — so situation→stories needs no new data, just the hop through VMAP.
+const VMAP=new Map(VALUES.map(v=>[v.name,v]));
+const sitStories=x=>{
+ // tags in `vals` order so the situation's primary value leads
+ const tg=[...new Set((x.vals||[]).map(n=>VMAP.get(n)).filter(v=>v&&v.tag).map(v=>v.tag))];
+ if(!tg.length)return"";
+ // A tag is coarse (23 topics over 400 stories), so rank inside the bucket by
+ // word overlap with the situation's own wording — that is what surfaces «كتاب
+ // الوحش المخيف» under the monsters card. Rotation only breaks ties, so two
+ // situations sharing a tag still differ instead of printing the same three.
+ // strip the leading conjunction/article before comparing — «والوحوش» and
+ // «الوحش» must meet. Broken plurals still miss; that is the ceiling here.
+ const wrds=s=>String(s).replace(/[«»؟،.!:ـً-ْ]/g," ").split(/\s+/)
+   .map(w=>w.replace(/^(و|ف|ب|ك|ل)?(ال)?/,"")).filter(w=>w.length>2);
+ const kw=new Set(wrds(x.t+" "+(x.why||"")));
+ const off=Math.max(0,SITS.indexOf(x));
+ const pick=(pool,n,ttl)=>{
+  const out=[];
+  tg.forEach((t,ti)=>{
+   const bucket=pool.filter(s=>s[3]===t);
+   if(!bucket.length)return;
+   const ranked=bucket.map((s,i)=>({s,hit:wrds(s[ttl]).filter(w=>kw.has(w)).length,i}))
+     .sort((a,b)=>b.hit-a.hit||((a.i+off)%bucket.length)-((b.i+off)%bucket.length));
+   ranked.slice(0,n).forEach(r=>out.push(r.s));
+  });
+  return [...new Set(out)].slice(0,n);
+ };
+ const f=pick(ST.filter(s=>s[4]),3,0),o=pick(STX,3,1),p=pick(ST.filter(s=>!s[4]),2,0);
+ if(!f.length&&!o.length&&!p.length)return"";
+ return `<details class="vx" data-k="st"><summary>${UI.sits.storiesSummary} (${f.length+o.length+p.length})</summary><div class="chips">`
+  +f.map(s=>`<a class="chip" href="${S(s[1],s[2])}" target="_blank" rel="noopener">${s[0]} <i>${UI.values.chipStoryFree}</i></a>`).join("")
+  +o.map(s=>`<a class="chip" href="${s[2]}" target="_blank" rel="noopener">${s[1]} <i>${fmt(UI.values.chipStoryPlatform,s[0])}</i></a>`).join("")
+  +p.map(s=>`<a class="chip" href="${S(s[1],s[2])}" target="_blank" rel="noopener">${s[0]} <i>${UI.values.chipStoryPremium}</i></a>`).join("")
+  +`</div></details>`;
+};
 
 /* ====== TABS ====== */
 
@@ -750,6 +786,7 @@ $("ref").innerHTML=B.prose.ref;
     ${x.evi.schools.length?`<p style="margin:7px 0 0;font-size:13px;color:#54615B"><b>${UI.common.schoolsLabel}</b> ${x.evi.schools.join(" · ")}</p>`:""}
     ${x.evi.src.length?`<ul class="evisrc">${x.evi.src.map(y=>`<li>${y.k?`<span class="k">${y.k}</span>`:""}${y.u?`<a href="${y.u}" target="_blank" rel="noopener">${y.t}</a>`:y.t}</li>`).join("")}</ul>`:""}
    </details>`:""}
+   ${sitStories(x)}
    <div class="chips">${x.vals.map(v=>VL(v)).join("")}</div>
    <button class="likebtn" data-t="sit" data-i="${x.t}">♥ <b>0</b></button>
   </article>`)));});
