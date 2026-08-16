@@ -618,8 +618,14 @@ const sitStories=x=>{
  // situations sharing a tag still differ instead of printing the same three.
  // strip the leading conjunction/article before comparing — «والوحوش» and
  // «الوحش» must meet. Broken plurals still miss; that is the ceiling here.
+ // The cards are written in Egyptian and the story titles mostly in MSA, so a
+ // few everyday pairs never meet on a string compare. Only equivalents, no
+ // near-meanings — «دكتور» is «طبيب», and that is what puts the dentist story
+ // on the injection card.
+ const SYN={"دكتور":"طبيب","عيادة":"طبيب","حقنة":"إبرة","حضانة":"روضة","لبس":"ثياب","هدوم":"ثياب","عيال":"أطفال","طفلك":"طفل"};
  const wrds=s=>String(s).replace(/[«»؟،.!:ـً-ْ]/g," ").split(/\s+/)
-   .map(w=>w.replace(/^(و|ف|ب|ك|ل)?(ال)?/,"")).filter(w=>w.length>2);
+   .map(w=>w.replace(/^(و|ف|ب|ك|ل)?(ال)?/,"")).filter(w=>w.length>2)
+   .flatMap(w=>SYN[w]?[w,SYN[w]]:[w]);
  const kw=new Set(wrds(x.t+" "+(x.why||"")));
  const off=Math.max(0,SITS.indexOf(x));
  const pick=(pool,n,ttl)=>{
