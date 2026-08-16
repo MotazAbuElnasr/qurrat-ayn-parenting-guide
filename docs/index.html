@@ -383,6 +383,9 @@ html.nocv :is(.v,.sit,.cpost,.card,.meal,.school,.panel,.layer,.m,table){content
 .evi-strong{background:#E7F1E9;color:#2C6E49;border:1px solid #9FC7AC}
 .evi-moderate{background:#FBF6EA;color:#8A6A2C;border:1px solid #DCC98C}
 .evi-practice{background:#F1F3EF;color:#54615B;border:1px solid var(--line)}
+.org{font-size:11px;font-weight:700;border-radius:6px;padding:1px 7px;white-space:nowrap;margin-inline-start:6px;vertical-align:1px}
+.org-west{background:#EEF2F6;color:#2F6E86;border:1px solid #CBDCE6}
+.org-arab{background:#F1F7F3;color:#3F7A46;border:1px solid #CBE0D2}
 details.vx[data-k="evi"] summary{color:#2F6E86}
 .evisrc{margin:8px 0 0;padding:0;list-style:none}
 .evisrc li{font-size:13px;line-height:1.65;padding:5px 0;border-bottom:1px solid #F0F2EE}
@@ -804,7 +807,7 @@ $("ref").innerHTML=B.prose.ref;
    ${v.how?`<p class="vhow"><b>${UI.values.howLabel}</b> ${v.how}</p>`:""}
 
    <div class="vsec"><h4 class="vlab">${UI.values.stepsH4}</h4>
-    ${v.steps.map((x,i)=>`<div class="wk" style="--mc:${C[v.cat]}"><b>${i+1}</b><div><b class="stept">${x.t}.</b> ${x.d}<div class="stepsay">${UI.common.sayLabel} «${x.say}»</div></div></div>`).join("")}</div>
+    ${v.steps.map((x,i)=>`<div class="wk" style="--mc:${C[v.cat]}"><b>${i+1}</b><div><b class="stept">${x.t}.</b>${x.org?`<span class="org org-${x.org}">${UI.values.org[x.org]}</span>`:""} ${x.d}<div class="stepsay">${UI.common.sayLabel} «${x.say}»</div></div></div>`).join("")}</div>
 
    <p class="vmastery"><b>${UI.values.masteryLabel}</b> ${v.mastery} <span>${UI.values.masteryHint}</span></p>
 
