@@ -1560,7 +1560,9 @@ function indexFor(id){
     run:()=>goVal(x.name)}))}));
  }
  if(id==="sits"){
-  const groups=[...new Set(SITS.map(x=>x.group))];
+  /* the page orders its sections by a curated list — read the order off the
+     rendered headings so the index never disagrees with the filter bar */
+  const groups=[...v.querySelectorAll("h2.sec")].map(h=>h.dataset.g).filter(Boolean);
   return groups.map(g=>({g,items:SITS.filter(x=>x.group===g).map(x=>({
    label:x.t,run:()=>goSit(x.t)}))}));
  }
