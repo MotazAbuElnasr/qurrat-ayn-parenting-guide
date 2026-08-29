@@ -88,7 +88,7 @@ export async function bundle(env, origin, dialect) {
    tab with no lede to describe itself — the same fact stated twice. It keeps the
    home head and folds into / rather than being indexed as a link directory. */
 export const TAB_PATHS =
-  ['values', 'sits', 'ref', 'vids', 'day', 'acts', 'food', 'comm', 'partners', 'res'];
+  ['values', 'sits', 'ref', 'vids', 'acts', 'food', 'comm', 'partners', 'res'];
 
 const TAB_COUNT = {
   values: d => d.VALUES.length,

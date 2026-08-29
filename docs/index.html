@@ -530,21 +530,32 @@ details.vx[data-k="evi"] summary{color:#2F6E86}
 .sheet .pnl{position:absolute;inset-inline:0;bottom:0;max-height:78vh;display:flex;flex-direction:column;
  background:var(--paper);border-radius:18px 18px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,.25);animation:up .18s ease-out}
 @keyframes up{from{transform:translateY(14px);opacity:.6}to{transform:none;opacity:1}}
-.sheet .hd{display:flex;align-items:center;gap:10px;padding:14px 18px 10px}
-.sheet .hd h3{margin:0;font-size:16px;flex:1}
+.ixside .hd,.sheet .hd{display:flex;align-items:center;gap:10px;padding:14px 18px 10px}
+.ixside .hd h3,.sheet .hd h3{margin:0;font-size:16px;flex:1}
 .sheet .hd button{font:inherit;font-size:19px;line-height:1;cursor:pointer;background:transparent;border:0;color:var(--soft);padding:2px 6px}
-.sheet .sr{padding:0 16px 11px;border-bottom:1px solid var(--line)}
-.sheet .sr input{margin:0}
-.sheet .none{padding:22px 10px;text-align:center;color:var(--soft);font-size:14px}
-.sheet .bdy{overflow-y:auto;padding:8px 12px 26px;-webkit-overflow-scrolling:touch}
-.sheet .gp{font-size:12px;font-weight:800;color:var(--soft);padding:12px 8px 5px;position:sticky;top:0;background:var(--paper)}
-.sheet .it{display:block;width:100%;text-align:start;font:inherit;font-size:14.5px;cursor:pointer;background:var(--card);
+.ixside .sr,.sheet .sr{padding:0 16px 11px;border-bottom:1px solid var(--line)}
+.ixside .sr input,.sheet .sr input{margin:0}
+.ixside .none,.sheet .none{padding:22px 10px;text-align:center;color:var(--soft);font-size:14px}
+.ixside .bdy,.sheet .bdy{overflow-y:auto;padding:8px 12px 26px;-webkit-overflow-scrolling:touch}
+.ixside .gp,.sheet .gp{font-size:12px;font-weight:800;color:var(--soft);padding:12px 8px 5px;position:sticky;top:0;background:var(--paper)}
+.ixside .it,.sheet .it{display:block;width:100%;text-align:start;font:inherit;font-size:14.5px;cursor:pointer;background:var(--card);
  border:1px solid var(--line);border-radius:11px;padding:11px 14px;margin-bottom:6px;color:var(--ink)}
-.sheet .it:hover{border-color:var(--ink)}
-.sheet .it[aria-current="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
-.sheet .it.ixall{background:#FBF6EA;border-color:#C9A94E;color:#7A5A18;font-weight:700}
-.sheet .it small{display:block;font-size:11.5px;opacity:.65;margin-top:2px}
+.ixside .it:hover,.sheet .it:hover{border-color:var(--ink)}
+.ixside .it[aria-current="true"],.sheet .it[aria-current="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.ixside .it.ixall,.sheet .it.ixall{background:#FBF6EA;border-color:#C9A94E;color:#7A5A18;font-weight:700}
+.ixside .it small,.sheet .it small{display:block;font-size:11.5px;opacity:.65;margin-top:2px}
 @media(min-width:760px){.sheet .pnl{inset-inline:0;margin-inline:auto;bottom:auto;top:11vh;width:min(560px,92vw);max-height:74vh;border-radius:16px}}
+/* the same index, docked at the inline-start when the screen has room */
+.ixside{display:none}
+@media(min-width:1280px){
+ body.ixdock{padding-inline-start:322px}
+ body.ixdock .top{margin-inline-start:-322px}
+ body.ixdock .ixside{display:flex;flex-direction:column;position:fixed;z-index:30;
+  inset-block:calc(var(--toph,86px) + 14px) 14px;inset-inline-start:16px;width:290px;
+  background:var(--paper);border:1px solid var(--line);border-radius:16px}
+ body.ixdock .navbar .ix{display:none}
+ body.ixdock #totop{inset-inline-start:336px}
+}
 h2.sec,article.sit,article.v{scroll-margin-top:calc(var(--toph,86px) + 62px)}
 @media(max-width:620px){
  .top .inner{padding-top:7px;padding-bottom:7px}
@@ -556,7 +567,7 @@ h2.sec,article.sit,article.v{scroll-margin-top:calc(var(--toph,86px) + 62px)}
  .navbar .here{font-size:11.5px}
 }
 #totop{position:fixed;bottom:18px;inset-inline-start:18px;z-index:40;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--ink);color:#fff;font-size:18px;display:none;cursor:pointer}
-@media print{.top{position:static}section.view{display:block!important}.toc,#totop{display:none!important}}
+@media print{.top{position:static}section.view{display:block!important}.toc,.ixside,#totop{display:none!important}body.ixdock{padding-inline-start:0}}
 </style>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "daa715f7ecb447e68213ef6a66d527a6", "spa": true}'></script>
 </head>
@@ -608,8 +619,6 @@ const VALUES=B.data.VALUES;
 const ST=B.data.ST;
 const STX=B.data.STX;
 
-const BAR=[[UI.day.bar.freePlay,3.5,"#3F7A46"],[UI.day.bar.outdoor,2,"#2F6E86"],[UI.day.bar.meals,2.5,"#B5731E"],[UI.day.bar.nap,2,"#6B4A86"],[UI.day.bar.readScreen,1.3,"#7C837B"],[UI.day.bar.guided,0.35,"#A9552F"]];
-const DAY=B.data.DAY;
 const ACAT={"فن":"#A34A6B","مطبخ":"#B5731E","علوم":"#2E6E8C","حركة":"#3F7A46","بناء وحسّي":"#8A6A2C","تمثيل ولغة":"#B3452F","خروجة":"#1F6E68"};
 const ACT=B.data.ACT;
 const THEMES=[["السبت","خروجة"],["الأحد","مطبخ"],["الاثنين","فن"],["الثلاثاء","علوم"],["الأربعاء","حركة"],["الخميس","بناء وحسّي"],["الجمعة","تمثيل ولغة"]];
@@ -641,13 +650,13 @@ const MEALS=B.data.MEALS;
 const VID=B.data.VID;
 const TABS=[
 ["home",UI.tabs.home,"var(--c7)"],["values",UI.tabs.values,"var(--c2)"],["ref",UI.tabs.ref,"var(--c8)"],["sits",UI.tabs.sits,"var(--c8)"],
-["stories",UI.tabs.stories,"var(--c2)"],["vids",UI.tabs.vids,"var(--c8)"],["day",UI.tabs.day,"var(--c4)"],
+["stories",UI.tabs.stories,"var(--c2)"],["vids",UI.tabs.vids,"var(--c8)"],
 ["acts",UI.tabs.acts,"var(--c5)"],["food",UI.tabs.food,"var(--c6)"],["comm",UI.tabs.comm,"var(--c5)"],["partners",UI.tabs.partners,"var(--c4)"],["res",UI.tabs.res,"var(--c7)"]
 ];
 const app=document.getElementById("app"),tabs=document.getElementById("tabs");
 /* most-reached-for first: whatever does not fit falls under «المزيد» */
-const TABORDER=["home","values","sits","ref","comm","stories","acts","food","day","vids","res","partners"];
-const GROUPS={"محتوى لطفلك":["stories","vids","acts"],"اليوم بيومه":["day","food"],"مراجع":["res","partners"]};
+const TABORDER=["home","values","sits","ref","comm","stories","acts","food","vids","res","partners"];
+const GROUPS={"محتوى لطفلك":["stories","vids","acts"],"اليوم بيومه":["food"],"مراجع":["res","partners"]};
 let PRIMARY=[];
 TABS.forEach(([id,,col])=>{
  const sec=document.createElement("section");sec.className="view";sec.id="v-"+id;sec.style.setProperty("--a",col);app.appendChild(sec);
@@ -688,6 +697,7 @@ window.go=function go(id){
  }else if(typeof extraTab!=="undefined")extraTab.style.display="none";
  [...tabs.children].forEach(b=>b.setAttribute("aria-selected",b.dataset.id===id?"true":"false"));
  [...app.children].forEach(s=>s.classList.toggle("on",s.id==="v-"+id));
+ if(window.sideDraw)sideDraw();
  window.scrollTo(0,0);
  /* the tab is the URL, so each one counts as its own page view. the guard is what
     keeps that honest: no push when we are already there (the resize rebuild and the
@@ -737,7 +747,6 @@ ${[
   ["vids",UI.home.cards.vids.t,UI.home.cards.vids.d,`${VID.length} ${UI.home.cards.vids.n}`,"var(--c4)"],
   ["acts",UI.home.cards.acts.t,UI.home.cards.acts.d,`${ACT.length} نشاط`,"var(--c5)"]]],
  [UI.home.groups.daily.t,UI.home.groups.daily.d,[
-  ["day",UI.home.cards.day.t,UI.home.cards.day.d,UI.home.cards.day.n,"var(--c4)"],
   ["food",UI.home.cards.food.t,UI.home.cards.food.d,`${MEALS.length} وجبة`,"var(--c6)"]]],
  [UI.home.groups.share.t,UI.home.groups.share.d,[
   ["comm",UI.home.cards.comm.t,UI.home.cards.comm.d,UI.home.cards.comm.n,"var(--c5)"]]],
@@ -1006,26 +1015,6 @@ $("ref").innerHTML=B.prose.ref;
   b.onclick=()=>{[...df.children].forEach(x=>x.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true");curD=g;apD();};df.appendChild(b);});
  ds.oninput=apD;apD();
 }
-/* day */
-$("day").innerHTML=`<h1>${UI.day.h1}</h1>
- <p class="lede">${UI.day.lede}</p>
- <div class="bar">${BAR.map(([n,h,c])=>`<div style="flex:${h};background:${c}">${h>=1.3?n:""}</div>`).join("")}</div>
- <div class="legend">${BAR.map(([n,h,c])=>`<span><i class="dot" style="background:${c}"></i>${n} · ${h>=1?h+" ساعة":"20 دقيقة"}</span>`).join("")}</div>
- <div class="panel"><p class="big">${UI.day.big}</p><ul>
-  <li><b>${UI.day.pt1B}</b> ${UI.day.pt1T}</li>
-  <li><b>${UI.day.pt2B}</b></li><li><b>${UI.day.pt3B}</b> ${UI.day.pt3T}</li></ul></div>
- <h2 class="sec">${UI.day.hourH2}</h2>
- ${DAY.map(([a,b,t,c,p,r])=>`<article class="slot" style="--sc:${c}"><div class="t"><b>${a}</b>${b}</div>
-  <div class="c"><h3>${t}</h3><p>${p}</p><p class="role">${r}</p></div></article>`).join("")}
- <h2 class="sec">${UI.day.nurseryH2}</h2>
- <div class="panel"><ul>
-  <li><b>${UI.day.nur1B}</b> ${UI.day.nur1T}</li>
-  <li>${UI.day.nur2}</li>
-  <li>${UI.day.nur3}</li></ul></div>
- <h2 class="sec">${UI.day.aloneH2}</h2>
- <div class="panel"><ol><li>${UI.day.alone1}</li>
-  <li>${UI.day.alone2}</li><li>${UI.day.alone3}</li>
-  <li><b>${UI.day.alone4B}</b> ${UI.day.alone4T}</li></ol></div>`;
 /* acts */
 {
  $("acts").innerHTML=`<h1>${UI.acts.h1}</h1><p class="lede">${fmt(UI.acts.lede,ACT.length)}</p>
@@ -1425,29 +1414,32 @@ window.openSheetHTML=(title,html)=>{
  sheetBody.innerHTML=html;
  sheet.classList.add("on");document.body.style.overflow="hidden";window.__sheetAt=Date.now();
 };
+/* one renderer for the index list — the sheet and the docked side both draw with it.
+   pick() is what a tap does besides run(): the sheet closes, the side stays. */
+function ixRender(box,model,opt,q,pick){
+ box.innerHTML="";let shown=0;
+ if(opt.cur&&opt.reset&&!q){
+  const r=el(`<button class="it ixall">${UI.nav.clearFilter}</button>`);
+  r.onclick=()=>{pick();opt.reset();};
+  box.appendChild(r);
+ }
+ model.forEach(grp=>{
+  const hits=grp.items.filter(it=>!q||(it.label+" "+(it.sub||"")).toLowerCase().includes(q));
+  if(!hits.length)return;
+  if(grp.g)box.appendChild(el(`<div class="gp">${grp.g}</div>`));
+  hits.forEach(it=>{
+   const b=el(`<button class="it">${it.label}${it.sub?`<small>${it.sub}</small>`:""}</button>`);
+   if(opt.cur&&it.label===opt.cur)b.setAttribute("aria-current","true");
+   b.onclick=()=>{pick();it.run();};
+   box.appendChild(b);shown++;});});
+ if(!shown)box.appendChild(el(`<div class="none">${fmt(UI.nav.noResult,q)}</div>`));
+}
 /* opt.cur is what is narrowing the tab right now, opt.reset is the way out of it */
 window.openSheet=(title,model,opt)=>{
  opt=opt||{};
  sheet.querySelector(".sr").style.display="";
  sheetTitle.textContent=title;sheetQ.value="";
- const draw=q=>{
-  sheetBody.innerHTML="";let shown=0;
-  if(opt.cur&&opt.reset&&!q){
-   const r=el(`<button class="it ixall">${UI.nav.clearFilter}</button>`);
-   r.onclick=()=>{closeSheet();opt.reset();};
-   sheetBody.appendChild(r);
-  }
-  model.forEach(grp=>{
-   const hits=grp.items.filter(it=>!q||(it.label+" "+(it.sub||"")).toLowerCase().includes(q));
-   if(!hits.length)return;
-   if(grp.g)sheetBody.appendChild(el(`<div class="gp">${grp.g}</div>`));
-   hits.forEach(it=>{
-    const b=el(`<button class="it">${it.label}${it.sub?`<small>${it.sub}</small>`:""}</button>`);
-    if(opt.cur&&it.label===opt.cur)b.setAttribute("aria-current","true");
-    b.onclick=()=>{closeSheet();it.run();};
-    sheetBody.appendChild(b);shown++;});});
-  if(!shown)sheetBody.appendChild(el(`<div class="none">${fmt(UI.nav.noResult,q)}</div>`));
- };
+ const draw=q=>ixRender(sheetBody,model,opt,q,closeSheet);
  draw("");
  sheetQ.oninput=()=>draw(sheetQ.value.trim().toLowerCase());
  sheet.classList.add("on");document.body.style.overflow="hidden";window.__sheetAt=Date.now();
@@ -1607,9 +1599,28 @@ TABS.forEach(([id,tabLabel])=>{
     one narrowing at a time, so reaching for those puts the index pick away */
  v.addEventListener("input",e=>{if(e.target.matches("input[type=search]")&&ixOn(v))ixReset(id);});
  v.addEventListener("click",e=>{if(e.target.closest(".filter button")&&ixOn(v))ixReset(id);});
- NAVS[id]={bar,here,chip,chipTxt};
+ NAVS[id]={bar,here,chip,chipTxt,label:tabLabel,model};
  const lede=v.querySelector(".lede");if(lede)lede.after(bar);else v.prepend(bar);
 });
+/* ===== the same index, parked at the side when the screen has room ===== */
+const side=el(`<aside class="ixside" aria-label="${UI.nav.index}">
+ <div class="hd"><h3></h3></div>
+ <div class="sr"><input type="search" placeholder="${UI.nav.searchPlaceholder}"></div>
+ <div class="bdy"></div></aside>`);
+document.body.appendChild(side);
+const sideBody=side.querySelector(".bdy"),sideTitle=side.querySelector(".hd h3"),sideQ=side.querySelector("input");
+window.sideDraw=()=>{
+ const v=[...app.children].find(s=>s.classList.contains("on"));
+ const n=v&&NAVS[v.id.slice(2)];
+ document.body.classList.toggle("ixdock",!!n);
+ if(!n)return;
+ if(sideTitle.textContent!==n.label){sideTitle.textContent=n.label;sideQ.value="";}
+ ixRender(sideBody,n.model,
+  {cur:n.chip.classList.contains("on")?n.chipTxt.textContent:"",reset:()=>ixReset(v.id.slice(2))},
+  sideQ.value.trim().toLowerCase(),()=>{});
+};
+sideQ.oninput=()=>sideDraw();
+sideDraw();
 /* shared API: show/hide the active-filter chip */
 window.navFilter=(tabId,text)=>{const n=NAVS[tabId];if(!n)return;
  if(text){n.chipTxt.textContent=text;n.chip.classList.add("on");
@@ -1617,7 +1628,8 @@ window.navFilter=(tabId,text)=>{const n=NAVS[tabId];if(!n)return;
   n.chip.setAttribute("aria-label",UI.nav.clearFilter+": "+text);
  }else n.chip.classList.remove("on");
  // the chip says where the reader is while it is on, so the two never say it twice
- n.here.textContent=text?"":(n.last||"");};
+ n.here.textContent=text?"":(n.last||"");
+ if(window.sideDraw)sideDraw();};
 /* "you are here" label follows the scroll */
 TABS.forEach(([id])=>{const n=NAVS[id];if(!n)return;const v=$(id);
  const marks=[...v.querySelectorAll("h2.sec")];if(!marks.length)return;
