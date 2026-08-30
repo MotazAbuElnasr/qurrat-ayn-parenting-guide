@@ -563,6 +563,9 @@ details.vx[data-k="evi"] summary{color:#2F6E86}
 @media(min-width:1280px){
  body.ixdock{padding-inline-start:322px}
  body.ixdock .top{margin-inline-start:-322px}
+ /* the content hugs the docked index instead of floating mid-remainder —
+    on wide screens the empty channel between them read as a broken layout */
+ body.ixdock .wrap{margin-inline:0 auto}
  body.ixdock .ixside{display:flex;flex-direction:column;position:fixed;z-index:30;
   inset-block:calc(var(--toph,86px) + 14px) 14px;inset-inline-start:16px;width:290px;
   background:var(--paper);border:1px solid var(--line);border-radius:16px}
