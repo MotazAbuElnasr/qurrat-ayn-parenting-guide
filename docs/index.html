@@ -248,6 +248,7 @@ ul.brk li{position:relative;padding-inline-start:15px;margin:0 0 7px}
 ul.brk li:last-child{margin-bottom:0}
 ul.brk li::before{content:"";position:absolute;inset-inline-start:0;top:.66em;width:6px;height:6px;border-radius:2px;background:var(--a,var(--c8));opacity:.45}
 .wk ul.brk li::before{background:var(--mc)}
+.evnote{margin:6px 0 0;padding-inline-start:15px;font-size:12.5px;color:var(--soft)}
 .sayq{color:#2F5D50;font-weight:600}
 .nstep{display:grid;grid-template-columns:auto 1fr;gap:0 7px;margin-bottom:11px}
 .nstep>b{color:var(--c8)}
@@ -729,7 +730,7 @@ const att=t=>String(t==null?"":t).replace(/&/g,"&amp;").replace(/"/g,"&quot;").r
    marker so the eye has somewhere to land. presentation only: the words are
    untouched. splits never happen inside «...», and a field with unbalanced
    quotes just stays whole. */
-const chunks=t=>{
+const cutAt=(t,min)=>{
  t=String(t);const out=[];let cur="",q=0;
  const end=i=>i+1===t.length||t[i+1]===" ";
  for(let i=0;i<t.length;i++){
@@ -738,18 +739,29 @@ const chunks=t=>{
   else if(c==="»"){q&&q--;
    /* «قول: «...جملة.»» — the sentence ends inside its quote, so the cut
       lands right after the quote closes, not never */
-   if(!q&&/[.؟!]/.test(t[i-1]||"")&&cur.trim().length>=90&&end(i)){out.push(cur.trim());cur="";}}
-  else if((c==="."||c==="؟"||c==="!")&&!q&&cur.trim().length>=90&&end(i)){out.push(cur.trim());cur="";}
+   if(!q&&/[.؟!]/.test(t[i-1]||"")&&cur.trim().length>=min&&end(i)){out.push(cur.trim());cur="";}}
+  else if((c==="."||c==="؟"||c==="!")&&!q&&cur.trim().length>=min&&end(i)){out.push(cur.trim());cur="";}
  }
  if(cur.trim())out.push(cur.trim());
  return out;
 };
+const chunks=t=>cutAt(t,90);
 /* «...» is the sayable line — give it the say color wherever it appears */
 const mark=t=>String(t).replace(/«[^»]*»/g,m=>`<span class="sayq">${m}</span>`);
+/* the evidence-status tail («دي ممارسة شائعة مش دليل») is a footnote on the
+   field, not a step — it leaves the bullet list and sits under it, smaller */
+const EVN=/ممارسة شائعة|مش دليل|مفيش دراسة|مفيش دليل|توصية طبية/;
 const brk=t=>{
- const cs=chunks(t);
- if(cs.length<2)return mark(t);
- return `<ul class="brk">${cs.map(c=>`<li>${mark(c)}</li>`).join("")}</ul>`;
+ /* the tail is peeled sentence by sentence, so an action sentence fused in
+    the same chunk as the note stays up in the list where it belongs */
+ const ss=cutAt(t,1);
+ let note="";
+ while(ss.length>1&&ss[ss.length-1].length<130&&EVN.test(ss[ss.length-1]))
+  note=ss.pop()+(note?" "+note:"");
+ const rest=ss.join(" ");
+ const cs=chunks(rest);
+ const body=cs.length<2?mark(rest):`<ul class="brk">${cs.map(c=>`<li>${mark(c)}</li>`).join("")}</ul>`;
+ return body+(note?`<div class="evnote">${mark(note)}</div>`:"");
 };
 
 /* home */
