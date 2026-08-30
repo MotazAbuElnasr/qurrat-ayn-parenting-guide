@@ -18,7 +18,7 @@ const ORDER = ['msa', 'eg', 'sham', 'gulf', 'maghreb'];
 const PUBLISHED = ['eg'];
 const NAMES = { msa: 'العربية الفصحى', eg: 'مصري', sham: 'شامي', gulf: 'خليجي', maghreb: 'مغربي' };
 
-const ARRAYS = ['VALUES', 'SITS', 'MEALS', 'ACT', 'DAY', 'BOX', 'SCHOOLS', 'RES', 'YTC', 'VID', 'ST', 'STX'];
+const ARRAYS = ['VALUES', 'SITS', 'MEALS', 'ACT', 'DAY', 'BOX', 'SCHOOLS', 'RES', 'YTC', 'VID', 'PVID', 'ST', 'STX'];
 
 /* what the site's rules say, as a check rather than a hope */
 const LOCATOR = /(?<!\p{L})(?:ال)?(?:إمارات|امارات|أبوظبي|دبي|شارقة|مصر|إسكندرية|درهم|جنيه|ريال)(?!\p{L})/gu;

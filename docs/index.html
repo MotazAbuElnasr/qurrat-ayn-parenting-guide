@@ -664,6 +664,7 @@ const sitStories=x=>{
 
 const MEALS=B.data.MEALS;
 const VID=B.data.VID;
+const PVID=B.data.PVID;
 const TABS=[
 ["home",UI.tabs.home,"var(--c7)"],["values",UI.tabs.values,"var(--c2)"],["ref",UI.tabs.ref,"var(--c8)"],["sits",UI.tabs.sits,"var(--c8)"],
 ["stories",UI.tabs.stories,"var(--c2)"],["vids",UI.tabs.vids,"var(--c8)"],
@@ -782,8 +783,8 @@ $("home").innerHTML=`
  <p class="pre">${UI.home.why.p3}</p>
  <div class="why3">${UI.home.why.points.map(([t,d],i)=>`<div style="--wc:var(--c${[1,4,6][i]||7})"><b>${t}</b><span>${fmt(d,VALUES.length)}</span></div>`).join("")}</div>
  <p>${fmt(UI.home.why.p4,MEALS.length,ACT.length)}</p>
- <p>${UI.home.why.p5}</p>
  <section class="helpus">
+  <p>${UI.home.why.p5}</p>
   <p class="huwarn">${UI.home.audit}</p>
   <h3>${UI.home.help.t}</h3><p>${UI.home.help.d}</p>
   <button type="button" data-fbhome>${UI.home.help.b}</button></section>
@@ -1051,8 +1052,18 @@ $("ref").innerHTML=B.prose.ref;
   <p class="lede">${UI.vids.lede}</p>
   <div class="warn">${UI.vids.warn}</div>
   <div class="filter" id="df"></div><input type="search" id="ds" placeholder="${UI.vids.searchPlaceholder}">
-  <div class="count" id="dc"></div><div class="cards" id="dl"></div>`;
+  <div class="count" id="dc"></div><div class="cards" id="dl"></div>
+  <h2 class="sec" style="--a:var(--c6)">${fmt(UI.pvids.h2,PVID.length)}</h2>
+  <p class="lede">${UI.pvids.lede}</p>
+  <div class="warn">${UI.pvids.warn}</div>
+  <div class="cards" id="pvl"></div>`;
  const dl=document.getElementById("dl");
+ const pvl=document.getElementById("pvl");
+ PVID.forEach(([nm,kind,topic,url,desc])=>pvl.appendChild(el(
+  `<div class="card" style="--cc:var(--c6)">
+   <h4><a href="${url}" target="_blank" rel="noopener">${nm}</a></h4>
+   <div class="meta"><span>${kind}</span><span>${topic}</span></div>
+   <p style="margin-top:8px">${desc}</p></div>`)));
  VID.forEach(([ch,kind,type,title,url,vals])=>dl.appendChild(el(
   `<div class="card" style="--cc:${TC[type]||"#54615B"}" data-type="${type}" data-t="${(title+" "+ch+" "+vals.join(" ")).toLowerCase()}">
    <h4><a href="${url}" target="_blank" rel="noopener">${title}</a></h4>
