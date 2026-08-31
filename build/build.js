@@ -183,11 +183,11 @@ for (const [file, rx, make] of STAMPS) {
    Egyptian bundle, which is the origin every other dialect is checked against. */
 {
   const src = JSON.parse(fs.readFileSync(path.join(DIR, 'eg.json'), 'utf8')).data;
-  const line = /مرجع تربوي عربي للطفولة المبكرة: \d+ قيمة بخطوات عملية، \d+ موقف يومي بجُمل جاهزة، \d+ قصة/g;
+  const line = /مرجع تربوي عربي للطفولة المبكرة: \d+ قيمة وسلوك بخطوات عملية، \d+ موقف يومي بجُمل جاهزة، \d+ قصة/g;
   let txt = fs.readFileSync(SHELL, 'utf8');
   const hits = (txt.match(line) || []).length;
   if (!hits) { console.error('مفيش وصف في القشرة يتختم عليه'); process.exit(1); }
-  txt = txt.replace(line, `مرجع تربوي عربي للطفولة المبكرة: ${src.VALUES.length} قيمة بخطوات عملية، ` +
+  txt = txt.replace(line, `مرجع تربوي عربي للطفولة المبكرة: ${src.VALUES.length} قيمة وسلوك بخطوات عملية، ` +
     `${src.SITS.length} موقف يومي بجُمل جاهزة، ${src.ST.length + src.STX.length} قصة`);
   fs.writeFileSync(SHELL, txt);
   console.log(`اتختم الوصف في ${hits} موضع: ${src.VALUES.length} قيمة · ${src.SITS.length} موقف · ${src.ST.length + src.STX.length} قصة`);
