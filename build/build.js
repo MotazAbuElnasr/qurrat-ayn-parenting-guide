@@ -65,6 +65,7 @@ function check(file) {
       for (const t of (Array.isArray(p[3]) ? p[3] : [])) if (!sitT.has(t)) dead.add(`PVEP «${p[0]}» → موقف ${t}`);
       for (const n of (Array.isArray(p[4]) ? p[4] : [])) if (!names.has(n)) dead.add(`PVEP «${p[0]}» → ${n}`);
     }
+    for (const v of b.data.VID || []) for (const t of (Array.isArray(v[7]) ? v[7] : [])) if (!sitT.has(t)) dead.add(`VID «${v[3]}» → موقف ${t}`);
     for (const m of (b.prose?.ref || '').matchAll(/goVal\('([^']+)'\)/g)) if (!names.has(m[1])) dead.add(`prose.ref → ${m[1]}`);
     for (const m of (b.prose?.food || '').matchAll(/goVal\('([^']+)'\)/g)) if (!names.has(m[1])) dead.add(`prose.food → ${m[1]}`);
     for (const x of [...dead].slice(0, 10)) problems.push('وصلة ميتة لقيمة: ' + x);
