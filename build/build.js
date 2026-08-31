@@ -55,6 +55,12 @@ function check(file) {
     const dead = new Set();
     for (const s of b.data.SITS || []) for (const v of s.vals || []) if (!names.has(v)) dead.add(`SITS «${s.t}» → ${v}`);
     for (const v of b.data.VID || []) for (const n of (Array.isArray(v[5]) ? v[5] : [])) if (!names.has(n)) dead.add(`VID → ${n}`);
+    /* the for-you chips point at situations by title and values by name */
+    const sitT = new Set((b.data.SITS || []).map(s => s.t));
+    for (const p of b.data.PVID || []) {
+      for (const t of (Array.isArray(p[5]) ? p[5] : [])) if (!sitT.has(t)) dead.add(`PVID «${p[0]}» → موقف ${t}`);
+      for (const n of (Array.isArray(p[6]) ? p[6] : [])) if (!names.has(n)) dead.add(`PVID «${p[0]}» → ${n}`);
+    }
     for (const m of (b.prose?.ref || '').matchAll(/goVal\('([^']+)'\)/g)) if (!names.has(m[1])) dead.add(`prose.ref → ${m[1]}`);
     for (const m of (b.prose?.food || '').matchAll(/goVal\('([^']+)'\)/g)) if (!names.has(m[1])) dead.add(`prose.food → ${m[1]}`);
     for (const x of [...dead].slice(0, 10)) problems.push('وصلة ميتة لقيمة: ' + x);

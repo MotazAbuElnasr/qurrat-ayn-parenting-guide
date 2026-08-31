@@ -665,6 +665,14 @@ const sitStories=x=>{
 const MEALS=B.data.MEALS;
 const VID=B.data.VID;
 const PVID=B.data.PVID;
+/* «ليك انت» — parent-facing sources hand-mapped onto situations (p[5]) and
+   values (p[6]); topic matching produced wrong pairings twice, so the mapping
+   is names, not inference */
+const pvBlock=(key,idx)=>{
+ const hits=PVID.filter(p=>(p[idx]||[]).includes(key));
+ if(!hits.length)return"";
+ return `<details class="vx" data-k="pv"><summary>${UI.pvids.forYou} (${hits.length})</summary><div class="chips">${hits.map(p=>`<a class="chip" href="${p[3]}" target="_blank" rel="noopener">${p[0]} <i>${p[1]}</i></a>`).join("")}</div></details>`;
+};
 const TABS=[
 ["home",UI.tabs.home,"var(--c7)"],["values",UI.tabs.values,"var(--c2)"],["ref",UI.tabs.ref,"var(--c8)"],["sits",UI.tabs.sits,"var(--c8)"],
 ["stories",UI.tabs.stories,"var(--c2)"],["vids",UI.tabs.vids,"var(--c8)"],
@@ -855,6 +863,7 @@ $("ref").innerHTML=B.prose.ref;
     ${x.evi.src.length?`<ul class="evisrc">${x.evi.src.map(y=>`<li>${y.k?`<span class="k">${y.k}</span>`:""}${y.u?`<a href="${y.u}" target="_blank" rel="noopener">${y.t}</a>`:y.t}</li>`).join("")}</ul>`:""}
    </details>`:""}
    ${sitStories(x)}
+   ${pvBlock(x.t,5)}
    <div class="chips">${x.vals.map(v=>VL(v)).join("")}</div>
    <a class="permalink" href="/s/${encodeURIComponent(x.t)}">افتح صفحة الموقف</a>
    <button class="likebtn" data-t="sit" data-i="${x.t}">♥ <b>0</b></button>
@@ -956,6 +965,7 @@ $("ref").innerHTML=B.prose.ref;
 
    <details class="vx" data-k="src"><summary>${UI.values.srcSummary} (${v.src.length+stF.length+stox.length+stP.length+VID.filter(x=>x[5].includes(v.name)).slice(0,4).length})</summary>
     <div class="chips">${v.src.map(([k,t,u])=>`<a class="chip" href="${u}" target="_blank" rel="noopener">${t} <i>${k}</i></a>`).join("")}${stF.map(x=>`<a class="chip" href="${S(x[1],x[2])}" target="_blank" rel="noopener">${x[0]} <i>${UI.values.chipStoryFree}</i></a>`).join("")}${stox.map(x=>`<a class="chip" href="${x[2]}" target="_blank" rel="noopener">${x[1]} <i>${fmt(UI.values.chipStoryPlatform,x[0])}</i></a>`).join("")}${stP.map(x=>`<a class="chip" href="${S(x[1],x[2])}" target="_blank" rel="noopener">${x[0]} <i>${UI.values.chipStoryPremium}</i></a>`).join("")}${VID.filter(x=>x[5].includes(v.name)).slice(0,4).map(x=>`<a class="chip" href="${x[4]}" target="_blank" rel="noopener">${x[3]} <i>${x[1]==="playlist"?UI.common.playlist:UI.common.video}</i></a>`).join("")}</div></details>
+   ${pvBlock(v.name,6)}
    <a class="permalink" href="/v/${encodeURIComponent(v.name)}">افتح صفحة القيمة</a>
   </article>`));});;});
  const vf=document.getElementById("vf"),vs=document.getElementById("vs"),vc=document.getElementById("vc");
