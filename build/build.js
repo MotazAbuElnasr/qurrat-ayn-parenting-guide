@@ -18,7 +18,7 @@ const ORDER = ['msa', 'eg', 'sham', 'gulf', 'maghreb'];
 const PUBLISHED = ['eg'];
 const NAMES = { msa: 'العربية الفصحى', eg: 'مصري', sham: 'شامي', gulf: 'خليجي', maghreb: 'مغربي' };
 
-const ARRAYS = ['VALUES', 'SITS', 'MEALS', 'ACT', 'DAY', 'BOX', 'SCHOOLS', 'RES', 'YTC', 'VID', 'PVID', 'ST', 'STX'];
+const ARRAYS = ['VALUES', 'SITS', 'MEALS', 'ACT', 'DAY', 'BOX', 'SCHOOLS', 'RES', 'YTC', 'VID', 'PVID', 'PVEP', 'ST', 'STX'];
 
 /* what the site's rules say, as a check rather than a hope */
 const LOCATOR = /(?<!\p{L})(?:ال)?(?:إمارات|امارات|أبوظبي|دبي|شارقة|مصر|إسكندرية|درهم|جنيه|ريال)(?!\p{L})/gu;
@@ -60,6 +60,10 @@ function check(file) {
     for (const p of b.data.PVID || []) {
       for (const t of (Array.isArray(p[5]) ? p[5] : [])) if (!sitT.has(t)) dead.add(`PVID «${p[0]}» → موقف ${t}`);
       for (const n of (Array.isArray(p[6]) ? p[6] : [])) if (!names.has(n)) dead.add(`PVID «${p[0]}» → ${n}`);
+    }
+    for (const p of b.data.PVEP || []) {
+      for (const t of (Array.isArray(p[3]) ? p[3] : [])) if (!sitT.has(t)) dead.add(`PVEP «${p[0]}» → موقف ${t}`);
+      for (const n of (Array.isArray(p[4]) ? p[4] : [])) if (!names.has(n)) dead.add(`PVEP «${p[0]}» → ${n}`);
     }
     for (const m of (b.prose?.ref || '').matchAll(/goVal\('([^']+)'\)/g)) if (!names.has(m[1])) dead.add(`prose.ref → ${m[1]}`);
     for (const m of (b.prose?.food || '').matchAll(/goVal\('([^']+)'\)/g)) if (!names.has(m[1])) dead.add(`prose.food → ${m[1]}`);

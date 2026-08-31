@@ -595,7 +595,7 @@ h2.sec,article.sit,article.v{scroll-margin-top:calc(var(--toph,86px) + 62px)}
  <div id="shellState" style="padding:26px 16px;text-align:center;color:#54615B;font-size:15px"><p>بنحمّل المحتوى…</p></div>
 <div class="tabs" id="tabs" role="tablist"></div>
 </div></div>
-<div class="wrap" style="padding-bottom:0"><div id="agenote" class="warn" style="display:none"><b>ملاحظة عن السن المختار:</b> القيم المعروضة لسه صالحة للسن ده، بس الخطوات والأنشطة هنا مكتوبة بعمق 3-5 سنين — خدها أساس وصعّبها على قد سن طفلك.</div></div>
+<div class="wrap" style="padding-bottom:0"><div id="agenote" class="warn" style="display:none"><b>ملاحظة عن السن المختار:</b> القيم المعروضة لسه صالحة للسن ده، بس التطبيق والأنشطة هنا مكتوبين بعمق 3-5 سنين — خدهم أساس وصعّبهم على قد سن طفلك.</div></div>
 <div class="wrap" id="app"></div>
 
 <script>
@@ -668,10 +668,14 @@ const PVID=B.data.PVID;
 /* «ليك انت» — parent-facing sources hand-mapped onto situations (p[5]) and
    values (p[6]); topic matching produced wrong pairings twice, so the mapping
    is names, not inference */
-const pvBlock=(key,idx)=>{
- const hits=PVID.filter(p=>(p[idx]||[]).includes(key));
- if(!hits.length)return"";
- return `<details class="vx" data-k="pv"><summary>${UI.pvids.forYou} (${hits.length})</summary><div class="chips">${hits.map(p=>`<a class="chip" href="${p[3]}" target="_blank" rel="noopener">${p[0]} <i>${p[1]}</i></a>`).join("")}</div></details>`;
+const PVEP=B.data.PVEP;
+const pvBlock=(key,type)=>{
+ const si=type==="sit";
+ // the exact episode answers first, the source library after it
+ const eps=PVEP.filter(p=>(p[si?3:4]||[]).includes(key));
+ const src=PVID.filter(p=>(p[si?5:6]||[]).includes(key));
+ if(!eps.length&&!src.length)return"";
+ return `<details class="vx" data-k="pv"><summary>${UI.pvids.forYou} (${eps.length+src.length})</summary><div class="chips">${eps.map(p=>`<a class="chip" href="${p[1]}" target="_blank" rel="noopener">${p[0]} <i>${p[2]}</i></a>`).join("")}${src.map(p=>`<a class="chip" href="${p[3]}" target="_blank" rel="noopener">${p[0]} <i>${p[1]}</i></a>`).join("")}</div></details>`;
 };
 const TABS=[
 ["home",UI.tabs.home,"var(--c7)"],["values",UI.tabs.values,"var(--c2)"],["ref",UI.tabs.ref,"var(--c8)"],["sits",UI.tabs.sits,"var(--c8)"],
@@ -863,7 +867,7 @@ $("ref").innerHTML=B.prose.ref;
     ${x.evi.src.length?`<ul class="evisrc">${x.evi.src.map(y=>`<li>${y.k?`<span class="k">${y.k}</span>`:""}${y.u?`<a href="${y.u}" target="_blank" rel="noopener">${y.t}</a>`:y.t}</li>`).join("")}</ul>`:""}
    </details>`:""}
    ${sitStories(x)}
-   ${pvBlock(x.t,5)}
+   ${pvBlock(x.t,"sit")}
    <div class="chips">${x.vals.map(v=>VL(v)).join("")}</div>
    <a class="permalink" href="/s/${encodeURIComponent(x.t)}">افتح صفحة الموقف</a>
    <button class="likebtn" data-t="sit" data-i="${x.t}">♥ <b>0</b></button>
@@ -965,7 +969,7 @@ $("ref").innerHTML=B.prose.ref;
 
    <details class="vx" data-k="src"><summary>${UI.values.srcSummary} (${v.src.length+stF.length+stox.length+stP.length+VID.filter(x=>x[5].includes(v.name)).slice(0,4).length})</summary>
     <div class="chips">${v.src.map(([k,t,u])=>`<a class="chip" href="${u}" target="_blank" rel="noopener">${t} <i>${k}</i></a>`).join("")}${stF.map(x=>`<a class="chip" href="${S(x[1],x[2])}" target="_blank" rel="noopener">${x[0]} <i>${UI.values.chipStoryFree}</i></a>`).join("")}${stox.map(x=>`<a class="chip" href="${x[2]}" target="_blank" rel="noopener">${x[1]} <i>${fmt(UI.values.chipStoryPlatform,x[0])}</i></a>`).join("")}${stP.map(x=>`<a class="chip" href="${S(x[1],x[2])}" target="_blank" rel="noopener">${x[0]} <i>${UI.values.chipStoryPremium}</i></a>`).join("")}${VID.filter(x=>x[5].includes(v.name)).slice(0,4).map(x=>`<a class="chip" href="${x[4]}" target="_blank" rel="noopener">${x[3]} <i>${x[1]==="playlist"?UI.common.playlist:UI.common.video}</i></a>`).join("")}</div></details>
-   ${pvBlock(v.name,6)}
+   ${pvBlock(v.name,"val")}
    <a class="permalink" href="/v/${encodeURIComponent(v.name)}">افتح صفحة القيمة</a>
   </article>`));});;});
  const vf=document.getElementById("vf"),vs=document.getElementById("vs"),vc=document.getElementById("vc");
