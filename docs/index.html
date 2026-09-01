@@ -681,13 +681,13 @@ const pvBlock=(key,type)=>{
 };
 const TABS=[
 ["home",UI.tabs.home,"var(--c7)"],["values",UI.tabs.values,"var(--c2)"],["ref",UI.tabs.ref,"var(--c8)"],["sits",UI.tabs.sits,"var(--c8)"],
-["stories",UI.tabs.stories,"var(--c2)"],["vids",UI.tabs.vids,"var(--c8)"],
+["stories",UI.tabs.stories,"var(--c2)"],["vids",UI.tabs.vids,"var(--c8)"],["pvids",UI.tabs.pvids,"var(--c6)"],
 ["acts",UI.tabs.acts,"var(--c5)"],["food",UI.tabs.food,"var(--c6)"],["comm",UI.tabs.comm,"var(--c5)"],["partners",UI.tabs.partners,"var(--c4)"],["res",UI.tabs.res,"var(--c7)"]
 ];
 const app=document.getElementById("app"),tabs=document.getElementById("tabs");
 /* most-reached-for first: whatever does not fit falls under «المزيد» */
-const TABORDER=["home","values","sits","ref","comm","stories","acts","food","vids","res","partners"];
-const GROUPS={"محتوى لطفلك":["stories","vids","acts"],"اليوم بيومه":["food"],"مراجع":["res","partners"]};
+const TABORDER=["home","values","sits","ref","pvids","comm","stories","acts","food","vids","res","partners"];
+const GROUPS={"للأب والأم":["pvids","comm"],"محتوى لطفلك":["stories","vids","acts"],"اليوم بيومه":["food"],"مراجع":["res","partners"]};
 let PRIMARY=[];
 TABS.forEach(([id,,col])=>{
  const sec=document.createElement("section");sec.className="view";sec.id="v-"+id;sec.style.setProperty("--a",col);app.appendChild(sec);
@@ -809,7 +809,8 @@ ${[
   ["values",UI.home.cards.values.t,UI.home.cards.values.d,`${VALUES.length} قيمة`,"var(--c2)"]]],
  [UI.home.groups.trouble.t,UI.home.groups.trouble.d,[
   ["sits",UI.home.cards.sits.t,UI.home.cards.sits.d,`${SITS.length} موقف`,"var(--c8)"],
-  ["ref",UI.home.cards.ref.t,UI.home.cards.ref.d,"<span data-refn>34</span> قسم","var(--c8)"]]],
+  ["ref",UI.home.cards.ref.t,UI.home.cards.ref.d,"<span data-refn>34</span> قسم","var(--c8)"],
+  ["pvids",UI.home.cards.pvids.t,UI.home.cards.pvids.d,`${PVID.length} مصدر · ${PVEP.length} حلقة`,"var(--c6)"]]],
  [UI.home.groups.forKid.t,UI.home.groups.forKid.d,[
   ["stories",UI.home.cards.stories.t,UI.home.cards.stories.d,`${ST.length+STX.length} قصة`,"var(--c2)"],
   ["vids",UI.home.cards.vids.t,UI.home.cards.vids.d,`${VID.length} ${UI.home.cards.vids.n}`,"var(--c4)"],
@@ -1061,6 +1062,28 @@ $("ref").innerHTML=B.prose.ref;
   b.onclick=()=>{[...sf.children].forEach(x=>x.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true");curT=g;apS();};sf.appendChild(b);});
  ss.oninput=apS;apS();
 }
+/* pvids — للأب والأم */
+{
+ $("pvids").innerHTML=`<h1>${fmt(UI.pvids.h2,PVID.length)}</h1>
+  <p class="lede">${UI.pvids.lede}</p>
+  <div class="warn">${UI.pvids.warn}</div>
+  <h2 class="sec" style="--a:var(--c6)">${fmt(UI.pvids.srcH2,PVID.length)}</h2>
+  <div class="cards" id="pvl"></div>`;
+ const pvl=document.getElementById("pvl");
+ PVID.forEach(([nm,kind,topic,url,desc])=>pvl.appendChild(el(
+  `<div class="card" style="--cc:var(--c6)">
+   <h4><a href="${url}" target="_blank" rel="noopener">${nm}</a></h4>
+   <div class="meta"><span>${kind}</span><span>${topic}</span></div>
+   <p style="margin-top:8px">${desc}</p></div>`)));
+ /* الحلقات مجمعة بالمصدر — كل مجموعة h2.sec فبتدخل فهرس التبويب لوحدها */
+ const host=$("pvids"),bySrc={};
+ PVEP.forEach(p=>{(bySrc[p[2]]=bySrc[p[2]]||[]).push(p);});
+ Object.entries(bySrc).forEach(([sn,eps])=>{
+  host.appendChild(el(`<h2 class="sec" style="--a:var(--c6)">${fmt(UI.pvids.epsH2,sn,eps.length)}</h2>`));
+  host.appendChild(el(`<div class="chips" style="margin-bottom:10px">${eps.map(p=>{const ctx=(p[3]||[]).concat(p[4]||[]).slice(0,2).join(" · ");
+   return `<a class="chip" href="${p[1]}" target="_blank" rel="noopener">${p[0]}${ctx?` <i>${ctx}</i>`:""}</a>`;}).join("")}</div>`));
+ });
+}
 /* vids */
 {
  const TC={"قصص":"#6B4A86","آداب وقيم":"#2C6E49","قرآن":"#2F6E86","تعليمي":"#B5731E","مواقف":"#8C2F39"};
@@ -1069,17 +1092,8 @@ $("ref").innerHTML=B.prose.ref;
   <div class="warn">${UI.vids.warn}</div>
   <div class="filter" id="df"></div><input type="search" id="ds" placeholder="${UI.vids.searchPlaceholder}">
   <div class="count" id="dc"></div><div class="cards" id="dl"></div>
-  <h2 class="sec" style="--a:var(--c6)">${fmt(UI.pvids.h2,PVID.length)}</h2>
-  <p class="lede">${UI.pvids.lede}</p>
-  <div class="warn">${UI.pvids.warn}</div>
-  <div class="cards" id="pvl"></div>`;
+  <div class="cards" style="margin-top:14px"><div class="card" style="--cc:var(--c6);cursor:pointer" onclick="go('pvids')"><h4>${UI.pvids.forYou} ←</h4><div class="meta"><span>${PVID.length} مصدر</span><span>${PVEP.length} حلقة</span></div></div></div>`;
  const dl=document.getElementById("dl");
- const pvl=document.getElementById("pvl");
- PVID.forEach(([nm,kind,topic,url,desc])=>pvl.appendChild(el(
-  `<div class="card" style="--cc:var(--c6)">
-   <h4><a href="${url}" target="_blank" rel="noopener">${nm}</a></h4>
-   <div class="meta"><span>${kind}</span><span>${topic}</span></div>
-   <p style="margin-top:8px">${desc}</p></div>`)));
  VID.forEach(([ch,kind,type,title,url,vals])=>dl.appendChild(el(
   `<div class="card" style="--cc:${TC[type]||"#54615B"}" data-type="${type}" data-t="${(title+" "+ch+" "+vals.join(" ")).toLowerCase()}">
    <h4><a href="${url}" target="_blank" rel="noopener">${title}</a></h4>
