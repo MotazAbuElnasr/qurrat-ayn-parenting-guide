@@ -105,6 +105,11 @@ td.nw{white-space:nowrap}
  border:1px solid var(--line);border-radius:999px;padding:3px 11px;font-size:12.5px;font-weight:500;cursor:pointer}
 .chip:hover,.chip:focus-visible{background:var(--ink);color:#fff;border-color:var(--ink);outline:none}
 .chip i{font-style:normal;font-size:10.5px;opacity:.6}
+.eplist{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:8px 0 4px;overflow:hidden}
+.eplist a{display:flex;align-items:baseline;justify-content:space-between;gap:4px 14px;flex-wrap:wrap;padding:9px 14px;text-decoration:none;color:var(--ink);font-size:14px;line-height:1.65}
+.eplist a+a{border-top:1px solid var(--line)}
+.eplist a:hover{background:#F4F6F1}
+.eplist i{font-style:normal;font-size:11.5px;color:var(--soft);background:#EFF2ED;border:1px solid var(--line);border-radius:999px;padding:1px 9px;white-space:nowrap}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;border-top:4px solid var(--cc)}
 .card h4{margin:0 0 4px;font-size:15px}
@@ -1080,8 +1085,8 @@ $("ref").innerHTML=B.prose.ref;
  PVEP.forEach(p=>{(bySrc[p[2]]=bySrc[p[2]]||[]).push(p);});
  Object.entries(bySrc).forEach(([sn,eps])=>{
   host.appendChild(el(`<h2 class="sec" style="--a:var(--c6)">${fmt(UI.pvids.epsH2,sn,eps.length)}</h2>`));
-  host.appendChild(el(`<div class="chips" style="margin-bottom:10px">${eps.map(p=>{const ctx=(p[3]||[]).concat(p[4]||[]).slice(0,2).join(" · ");
-   return `<a class="chip" href="${p[1]}" target="_blank" rel="noopener">${p[0]}${ctx?` <i>${ctx}</i>`:""}</a>`;}).join("")}</div>`));
+  host.appendChild(el(`<div class="eplist">${eps.map(p=>{const ctx=(p[3]||[]).concat(p[4]||[]).slice(0,2).join(" · ");
+   return `<a href="${p[1]}" target="_blank" rel="noopener"><span>${p[0]}</span>${ctx?`<i>${ctx}</i>`:""}</a>`;}).join("")}</div>`));
  });
 }
 /* vids */
