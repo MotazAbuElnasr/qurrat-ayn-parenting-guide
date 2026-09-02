@@ -192,5 +192,20 @@ for (const [file, rx, make] of STAMPS) {
   fs.writeFileSync(SHELL, txt);
   console.log(`اتختم الوصف في ${hits} موضع: ${src.VALUES.length} قيمة · ${src.SITS.length} موقف · ${src.ST.length + src.STX.length} قصة`);
 }
+/* The bundle URL carries ?v= so a new publish busts the old copy out of every
+   browser cache. The value was a hand-set constant — it never changed, so
+   busting silently depended on origin headers alone. Hash the published
+   bundles so the URL moves exactly when the content does. */
+{
+  const crypto = require('crypto');
+  const h = crypto.createHash('md5');
+  for (const d of list) h.update(fs.readFileSync(path.join(DIR, d + '.json')));
+  const v = h.digest('hex').slice(0, 10);
+  const rx = /const CONTENT_V=(?:"[^"]*"|\d+);/;
+  let txt = fs.readFileSync(SHELL, 'utf8');
+  if (!rx.test(txt)) { console.error('مفيش ختم CONTENT_V في القشرة'); process.exit(1); }
+  fs.writeFileSync(SHELL, txt.replace(rx, `const CONTENT_V="${v}";`));
+  console.log(`اتختم إصدار المحتوى: v=${v}`);
+}
 console.log(`\nاتختم في القشرة والـworker: ${list.map(d => NAMES[d]).join(' · ')}`);
 if (held.length) console.log(`متحجوزة (اتفحصت ومش منشورة): ${held.map(d => NAMES[d]).join(' · ')}`);
