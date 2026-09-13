@@ -2,3 +2,4 @@
 node_modules/
 .dev.vars
 .DS_Store
+.claude/launch.json

@@ -13,12 +13,11 @@ const SHELL = path.join(ROOT, 'docs', 'index.html');
 const ORDER = ['msa', 'eg', 'sham', 'gulf', 'maghreb'];
 
 /* اللهجات اللي بتتفحص غير اللي بتتنشر. البناء بيتحقق من كل حزمة موجودة
-   عشان الدرف يبان، بس القارئ بيتعرضله اللي في PUBLISHED بس. المصري تحت
-   المراجعة دلوقتي والباقي لسه على التركيب القديم — فمفيش سويتشر. */
-const PUBLISHED = ['eg'];
+   عشان الدرف يبان، بس القارئ بيتعرضله اللي في PUBLISHED بس. */
+const PUBLISHED = ['msa', 'eg', 'sham'];
 const NAMES = { msa: 'العربية الفصحى', eg: 'مصري', sham: 'شامي', gulf: 'خليجي', maghreb: 'مغربي' };
 
-const ARRAYS = ['VALUES', 'SITS', 'MEALS', 'ACT', 'DAY', 'BOX', 'SCHOOLS', 'RES', 'YTC', 'VID', 'PVID', 'PVEP', 'ST', 'STX'];
+const ARRAYS = ['VALUES', 'SITS', 'MEALS', 'ACT', 'RES', 'YTC', 'VID', 'PVID', 'PVEP', 'ST', 'STX'];
 
 /* what the site's rules say, as a check rather than a hope */
 const LOCATOR = /(?<!\p{L})(?:ال)?(?:إمارات|امارات|أبوظبي|دبي|شارقة|مصر|إسكندرية|درهم|جنيه|ريال)(?!\p{L})/gu;
@@ -68,6 +67,14 @@ function check(file) {
     for (const v of b.data.VID || []) for (const t of (Array.isArray(v[7]) ? v[7] : [])) if (!sitT.has(t)) dead.add(`VID «${v[3]}» → موقف ${t}`);
     for (const m of (b.prose?.ref || '').matchAll(/goVal\('([^']+)'\)/g)) if (!names.has(m[1])) dead.add(`prose.ref → ${m[1]}`);
     for (const m of (b.prose?.food || '').matchAll(/goVal\('([^']+)'\)/g)) if (!names.has(m[1])) dead.add(`prose.food → ${m[1]}`);
+    /* زرار بأقواس عربية جوه onclick = SyntaxError وقت الكليك. اتكسر ١٣٥ زرار كده
+       ومروا من فحص الوصلات الميتة لأنه بيطابق الأقواس المستقيمة بس. */
+    for (const key of ['ref', 'food']) {
+      for (const m of (b.prose?.[key] || '').matchAll(/onclick="([^"]*)"/g)) {
+        try { new Function(m[1]); }
+        catch { dead.add(`prose.${key} → زرار مكسور: ${m[1].slice(0, 40)}`); }
+      }
+    }
     for (const x of [...dead].slice(0, 10)) problems.push('وصلة ميتة لقيمة: ' + x);
     if (dead.size > 10) problems.push(`… و${dead.size - 10} وصلة ميتة كمان`);
   }
