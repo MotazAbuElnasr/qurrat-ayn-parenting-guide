@@ -15,7 +15,7 @@ const SITE = 'قُرّة عين';
    echoes whatever host answered is how a preview deployment ends up telling
    Google it is the original — and in `wrangler dev` the worker sees the routed
    hostname over plain http, so the arriving origin is not even right locally. */
-export const CANONICAL_ORIGIN = 'https://qurrat-ain.aro.day';
+export const CANONICAL_ORIGIN = 'https://qurrat-ayn.com';
 
 const FONTS = 'https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700' +
   '&family=IBM+Plex+Sans+Arabic:wght@300;400;600;700&display=swap';

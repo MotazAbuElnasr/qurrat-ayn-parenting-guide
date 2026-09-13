@@ -29,4 +29,4 @@ Allow: /
 User-agent: Applebot-Extended
 Allow: /
 
-Sitemap: https://qurrat-ain.aro.day/sitemap.xml
+Sitemap: https://qurrat-ayn.com/sitemap.xml

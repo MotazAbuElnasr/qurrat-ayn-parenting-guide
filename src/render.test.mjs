@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 import assert from 'node:assert';
 import { slug, bundle, itemHTML, itemMD, sitemap, llmsTxt, PAGES, PREFIX, TAB_PATHS, tabMeta } from './render.js';
 
-const ORIGIN = 'https://qurrat-ain.aro.day';
+const ORIGIN = 'https://qurrat-ayn.com';
 const env = {
   ASSETS: {
     fetch: req => Promise.resolve(
