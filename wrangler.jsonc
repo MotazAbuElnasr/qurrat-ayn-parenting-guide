@@ -8,7 +8,11 @@
   // bundle, so the worker has to see them — single-page-application handling
   // would otherwise answer all four with the shell and a 200.
   "assets": { "directory": "./docs", "binding": "ASSETS", "not_found_handling": "single-page-application", "run_worker_first": ["/api/*", "/*.mp4", "/v/*", "/s/*", "/m/*", "/a/*", "/sitemap.xml", "/llms.txt", "/values", "/sits", "/ref", "/vids", "/day", "/acts", "/food", "/comm", "/partners", "/res"] },
-  "routes": [{ "pattern": "qurrat-ain.aro.day", "custom_domain": true }],
+  "routes": [
+    { "pattern": "qurrat-ain.aro.day", "custom_domain": true },
+    { "pattern": "qurrat-ayn.com", "custom_domain": true },
+    { "pattern": "www.qurrat-ayn.com", "custom_domain": true }
+  ],
   "observability": { "enabled": true },
   // per-IP burst limits, checked before any D1 query runs
   "unsafe": {
