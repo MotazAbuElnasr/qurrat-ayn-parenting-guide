@@ -186,7 +186,7 @@ async function crawlRoute(request, env, url) {
   }
   return m[3]
     ? send(itemMD(kind, item, CANONICAL_ORIGIN), 'text/markdown; charset=utf-8', 3600)
-    : send(itemHTML(kind, item, CANONICAL_ORIGIN), 'text/html; charset=utf-8', 3600);
+    : send(itemHTML(kind, item, CANONICAL_ORIGIN, pack.data), 'text/html; charset=utf-8', 3600);
 }
 
 async function overLimit(binding, key) {

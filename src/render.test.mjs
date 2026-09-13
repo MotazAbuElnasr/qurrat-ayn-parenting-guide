@@ -7,7 +7,7 @@
    is covered the day it is added instead of the day someone remembers. */
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert';
-import { slug, bundle, itemHTML, itemMD, sitemap, llmsTxt, crawlNav, PAGES, PREFIX, TAB_PATHS, tabMeta } from './render.js';
+import { slug, bundle, itemHTML, itemMD, sitemap, llmsTxt, crawlNav, relatedHTML, PAGES, PREFIX, TAB_PATHS, tabMeta } from './render.js';
 
 const ORIGIN = 'https://qurrat-ayn.com';
 const env = {
@@ -75,7 +75,7 @@ ok('every value a situation points at has a page to land on', () => {
 ok('every item renders HTML with its own title, canonical and h1', () => {
   for (const [kind, p] of TYPES) {
     for (const it of p.list(data)) {
-      const html = itemHTML(kind, it, ORIGIN);
+      const html = itemHTML(kind, it, ORIGIN, data);
       assert(html.includes('<link rel="canonical" href="' + ORIGIN + p.dir +
         encodeURIComponent(slug(titleOf(p, it))) + '">'), 'canonical: ' + titleOf(p, it));
       assert(html.includes('<h1>' + titleOf(p, it).replace(/&/g, '&amp;') + '</h1>'),
@@ -91,7 +91,7 @@ ok('every item renders HTML with its own title, canonical and h1', () => {
 ok('JSON-LD parses and never breaks out of its script tag', () => {
   for (const [kind, p] of TYPES) {
     for (const it of p.list(data)) {
-      const blocks = [...itemHTML(kind, it, ORIGIN)
+      const blocks = [...itemHTML(kind, it, ORIGIN, data)
         .matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)];
       assert.equal(blocks.length, 2, 'two ld+json blocks: ' + titleOf(p, it));
       for (const b of blocks) {
@@ -181,6 +181,33 @@ ok('every sitemap URL is reachable by a real <a href>, not just listed', () => {
   const locs = [...sitemap(data, ORIGIN).matchAll(/<loc>(.*?)<\/loc>/g)].map(m => m[1]);
   const orphans = locs.filter(u => u !== ORIGIN + '/' && !hrefs.has(u));
   assert.equal(orphans.length, 0, orphans.length + ' orphan pages, e.g. ' + orphans.slice(0, 3));
+});
+
+/* A footer index gives every page one way in. This is the sideways graph, and
+   the assertion that matters is the second one: the neighbours are picked from a
+   ring starting after the item, so a category's last card gets linked as often
+   as its first. A plain slice would pass "every page links out" and still leave
+   the tail of every category with nothing pointing at it. */
+ok('every item page links out, and every item is linked to by another page', () => {
+  const inbound = new Map();
+  for (const [kind, p] of TYPES) {
+    for (const it of p.list(data)) {
+      const html = relatedHTML(kind, it, data);
+      assert(html.includes('<a href='), 'no outgoing links: ' + p.dir + it[p.key]);
+      for (const m of html.matchAll(/href="(\/[^"]+)"/g)) {
+        inbound.set(m[1], (inbound.get(m[1]) || 0) + 1);
+      }
+    }
+  }
+  const missing = [];
+  for (const [, p] of TYPES) {
+    for (const it of p.list(data)) {
+      const u = p.dir + encodeURIComponent(slug(it[p.key]));
+      if (!inbound.get(u)) missing.push(u);
+    }
+  }
+  assert.equal(missing.length, 0, missing.length + ' items nothing links to, e.g. ' +
+    missing.slice(0, 3).map(decodeURIComponent));
 });
 
 const total = TYPES.reduce((a, [, p]) => a + p.list(data).length, 0);

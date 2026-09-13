@@ -398,7 +398,63 @@ export function itemMD(kind, item, origin) {
     'المصدر: ' + SITE + ' — ' + url + '\n';
 }
 
-export function itemHTML(kind, item, origin) {
+/* The footer index walks a crawler from a tab down to every page under it, but a
+   page with one way in and no way sideways is still a dead end — for a reader as
+   much as for a crawler. These are the edges the data already holds: a situation
+   names the values it leans on (`vals`), so the value names its situations back,
+   and the rest travel by the grouping the bank itself sorts by. Not a guess at
+   what is "related" — the same edge, walked in both directions.
+
+   The neighbours come from a ring that starts after the item itself rather than
+   at the head of the list. A plain slice(0, n) would point every card in a
+   category at the same first few and leave the tail with no link in at all,
+   which is the orphan this whole change exists to undo, one level down. */
+const ring = (list, item, n) => {
+  const i = list.indexOf(item);
+  return Array.from({ length: Math.min(n, list.length - 1) },
+    (_, k) => list[(i + 1 + k) % list.length]);
+};
+
+const RELATED = {
+  val: (v, d) => [
+    { label: 'مواقف بتستعمل القيمة دي',
+      items: d.SITS.filter(x => (x.vals || []).includes(v.name))
+        .slice(0, 6).map(x => ({ dir: '/s/', t: x.t })) },
+    { label: 'قيم في نفس الفئة — ' + v.cat,
+      items: ring(d.VALUES.filter(o => o.cat === v.cat), v, 6)
+        .map(o => ({ dir: '/v/', t: o.name })) },
+  ],
+  sit: (x, d) => [
+    { label: 'القيم اللي الموقف ده بيتكي عليها',
+      items: (x.vals || []).filter(n => d.VALUES.some(v => v.name === n))
+        .map(n => ({ dir: '/v/', t: n })) },
+    { label: 'مواقف من نفس النوع',
+      items: ring(d.SITS.filter(o => o.group === x.group), x, 6)
+        .map(o => ({ dir: '/s/', t: o.t })) },
+  ],
+  meal: (m, d) => [
+    { label: 'وجبات تانية — ' + m.k,
+      items: ring(d.MEALS.filter(o => o.k === m.k), m, 8)
+        .map(o => ({ dir: '/m/', t: o.t })) },
+  ],
+  act: (a, d) => [
+    { label: 'أنشطة تانية — ' + a.c,
+      items: ring(d.ACTS.filter(o => o.c === a.c), a, 8)
+        .map(o => ({ dir: '/a/', t: o.t })) },
+  ],
+};
+
+export function relatedHTML(kind, item, data) {
+  if (!data) return '';
+  const groups = RELATED[kind](item, data).filter(g => g.items.length);
+  if (!groups.length) return '';
+  return '<h2>اقرا كمان</h2>' + groups.map(g =>
+    '<h3>' + esc(g.label) + '</h3><ul class="rel">' + g.items.map(it =>
+      '<li><a href="' + it.dir + encodeURIComponent(slug(it.t)) + '">' +
+      esc(it.t) + '</a></li>').join('') + '</ul>').join('');
+}
+
+export function itemHTML(kind, item, origin, data) {
   const p = PAGES[kind];
   const s = slug(item[p.key]);
   const url = origin + p.dir + encodeURIComponent(s);
@@ -474,6 +530,7 @@ ol.steps{padding-inline-start:20px}
 ol.steps li{margin-bottom:14px}
 dl{margin:0 0 12px}dt{font-weight:700;font-size:14.5px;margin-top:10px}dd{margin:0;font-size:14.5px}
 ul.src{padding-inline-start:20px;font-size:14px}
+ul.rel{list-style:none;display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 10px;padding:0;font-size:14px}
 ul.src i{font-style:normal;color:var(--soft);font-size:12.5px}
 .open{display:inline-block;margin:22px 0 0;background:var(--ink);color:#fff;text-decoration:none;
  padding:10px 18px;border-radius:10px;font-weight:600}
@@ -488,6 +545,7 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);font-si
 <main>
 <h1>${esc(name)}</h1>
 ${toHTML(p.blocks(item))}
+${relatedHTML(kind, item, data)}
 <a class="open" href="/#go=${p.tab}:${encodeURIComponent(name)}">افتح دي جوه الموقع</a>
 </main>
 <footer>
