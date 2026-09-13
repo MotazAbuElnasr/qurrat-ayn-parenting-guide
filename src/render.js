@@ -503,6 +503,29 @@ ${toHTML(p.blocks(item))}
 const loc = (origin, path, pri) =>
   '  <url><loc>' + origin + path + '</loc><changefreq>monthly</changefreq><priority>' + pri + '</priority></url>';
 
+/* Every item page was an orphan. 316 URLs in the sitemap and not one <a href> to
+   any of them in the HTML that is actually served — the cards are built by JS
+   after boot, so the raw shell carries `href="/v/${...}"` as a string, not a
+   link. Search Console said it in one line: "Referring page: sitemap.xml",
+   "Last crawl: N/A". A sitemap tells Google a URL exists; a link is what tells
+   it the URL is worth fetching. So the shell now ships the path in: the tabs on
+   every page, and the items a tab holds on that tab. Visible on purpose —
+   a link the crawler sees and the reader cannot is the other kind of problem. */
+export function crawlNav(pack, tab) {
+  const a = (href, text) => '<li><a href="' + href + '">' + esc(text) + '</a></li>';
+  const p = Object.values(PAGES).find(x => x.crumbPath === '/' + tab);
+  const items = p ? p.list(pack.data).map(
+    it => a(p.dir + encodeURIComponent(slug(it[p.key])), it[p.key])) : [];
+  const tabs = TAB_PATHS.map(t => {
+    const m = tabMeta(pack, t);
+    return a('/' + t, m ? m.title : t);
+  });
+  return '<nav class="crawlnav" aria-label="فهرس الموقع">' +
+    (items.length ? '<h2>' + esc(p.crumb) + '</h2><ul>' + items.join('') + '</ul>' : '') +
+    '<h2>أقسام الموقع</h2><ul>' + tabs.join('') + '</ul>' +
+    '</nav>';
+}
+
 export function sitemap(data, origin) {
   const rows = [
     '  <url><loc>' + origin + '/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>',

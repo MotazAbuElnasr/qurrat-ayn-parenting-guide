@@ -11,7 +11,7 @@
 import { moderate } from './moderation.js';
 import {
   bundle, itemHTML, itemMD, sitemap, llmsTxt, slug, PREFIX,
-  TAB_PATHS, tabMeta, CANONICAL_ORIGIN,
+  TAB_PATHS, tabMeta, crawlNav, CANONICAL_ORIGIN,
 } from './render.js';
 
 const ITEM_PATH = new RegExp('^/(' + Object.keys(PREFIX).join('|') + ')/(.+?)(\\.md)?$');
@@ -112,24 +112,30 @@ function dialectFor(request, url) {
    opens the tab exactly as before, and only the head is rewritten, streamed so
    the 140KB shell is never held in memory. */
 async function tabShell(env, url, pack, tab) {
-  const meta = tabMeta(pack, tab);
-  if (!meta) return null;
+  // '' is the home page: its head is already right, it only lacked the links
+  const meta = tab ? tabMeta(pack, tab) : null;
+  if (tab && !meta) return null;
   const shell = await env.ASSETS.fetch(new Request(new URL('/index.html', url).toString()));
   if (!shell.ok) return null;
 
   const canonical = CANONICAL_ORIGIN + '/' + tab;
-  const title = meta.title + ' | قُرّة عين';
+  const title = meta ? meta.title + ' | قُرّة عين' : '';
   const set = (attr, val) => ({ element: e => e.setAttribute(attr, val) });
 
-  return new HTMLRewriter()
-    .on('title', { element: e => e.setInnerContent(title) })
-    .on('link[rel="canonical"]', set('href', canonical))
-    .on('meta[name="description"]', set('content', meta.desc))
-    .on('meta[property="og:title"]', set('content', title))
-    .on('meta[property="og:description"]', set('content', meta.desc))
-    .on('meta[property="og:url"]', set('content', canonical))
-    .on('meta[name="twitter:title"]', set('content', title))
-    .on('meta[name="twitter:description"]', set('content', meta.desc))
+  let rw = new HTMLRewriter()
+    .on('body', { element: e => e.append(crawlNav(pack, tab), { html: true }) });
+  if (meta) {
+    rw = rw
+      .on('title', { element: e => e.setInnerContent(title) })
+      .on('link[rel="canonical"]', set('href', canonical))
+      .on('meta[name="description"]', set('content', meta.desc))
+      .on('meta[property="og:title"]', set('content', title))
+      .on('meta[property="og:description"]', set('content', meta.desc))
+      .on('meta[property="og:url"]', set('content', canonical))
+      .on('meta[name="twitter:title"]', set('content', title))
+      .on('meta[name="twitter:description"]', set('content', meta.desc));
+  }
+  return rw
     .transform(new Response(shell.body, {
       headers: {
         'content-type': 'text/html; charset=utf-8',
@@ -145,9 +151,9 @@ async function crawlRoute(request, env, url) {
 
   const isSitemap = p === '/sitemap.xml';
   const isLlms = p === '/llms.txt';
-  const tab = p.length > 1 && TAB_PATHS.includes(p.slice(1)) ? p.slice(1) : null;
+  const tab = p === '/' ? '' : (TAB_PATHS.includes(p.slice(1)) ? p.slice(1) : null);
   const m = ITEM_PATH.exec(p);
-  if (!m && !isSitemap && !isLlms && !tab) return null;
+  if (!m && !isSitemap && !isLlms && tab === null) return null;
 
   // two different origins on purpose: the bundle is fetched from whoever is
   // actually serving, the pages are written against the one public hostname
@@ -161,7 +167,7 @@ async function crawlRoute(request, env, url) {
 
   if (isSitemap) return send(sitemap(pack.data, CANONICAL_ORIGIN), 'application/xml; charset=utf-8', 86400);
   if (isLlms) return send(llmsTxt(pack.data, CANONICAL_ORIGIN), 'text/plain; charset=utf-8', 86400);
-  if (tab) return tabShell(env, url, pack, tab);
+  if (tab !== null) return tabShell(env, url, pack, tab);
 
   const kind = PREFIX[m[1]];
   const key = slug(m[2]);

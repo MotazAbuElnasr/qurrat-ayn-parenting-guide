@@ -7,7 +7,7 @@
    is covered the day it is added instead of the day someone remembers. */
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert';
-import { slug, bundle, itemHTML, itemMD, sitemap, llmsTxt, PAGES, PREFIX, TAB_PATHS, tabMeta } from './render.js';
+import { slug, bundle, itemHTML, itemMD, sitemap, llmsTxt, crawlNav, PAGES, PREFIX, TAB_PATHS, tabMeta } from './render.js';
 
 const ORIGIN = 'https://qurrat-ayn.com';
 const env = {
@@ -161,6 +161,26 @@ ok('llms.txt links every item and points at the .md twin', () => {
     assert.equal((txt.match(rx) || []).length, p.list(data).length, p.dir);
     assert(txt.includes('## ' + p.crumb + ' ('), 'section heading: ' + p.crumb);
   }
+});
+
+/* The sitemap listed all 316 and not one of them had a link, so Search Console
+   parked every page under "Discovered – currently not indexed" with
+   "Referring page: sitemap.xml". A sitemap is a claim; a link is the evidence.
+   This asserts the evidence exists, so the next JS-only card grid cannot
+   quietly orphan the whole site again. */
+ok('every sitemap URL is reachable by a real <a href>, not just listed', () => {
+  const hrefs = new Set();
+  const collect = html => {
+    for (const m of html.matchAll(/href="(\/[^"]*)"/g)) {
+      if (!m[1].includes('${')) hrefs.add(ORIGIN + m[1]);
+    }
+  };
+  collect(crawlNav(pack, ''));
+  for (const tab of TAB_PATHS) collect(crawlNav(pack, tab));
+
+  const locs = [...sitemap(data, ORIGIN).matchAll(/<loc>(.*?)<\/loc>/g)].map(m => m[1]);
+  const orphans = locs.filter(u => u !== ORIGIN + '/' && !hrefs.has(u));
+  assert.equal(orphans.length, 0, orphans.length + ' orphan pages, e.g. ' + orphans.slice(0, 3));
 });
 
 const total = TYPES.reduce((a, [, p]) => a + p.list(data).length, 0);

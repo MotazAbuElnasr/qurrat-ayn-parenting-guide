@@ -264,6 +264,15 @@ ul.brk li::before{content:"";position:absolute;inset-inline-start:0;top:.66em;wi
 .school p{margin:4px 0 0;font-size:14px}
 footer{margin-top:44px;padding-top:18px;border-top:2px solid var(--ink);font-size:13.5px;color:var(--soft)}
 footer b{color:var(--ink)}
+/* the crawler's way in — every card is built by JS, so the served HTML had no
+   link to any of the 316 pages. the worker appends this list; it is small and
+   at the very bottom, but it is real text a reader can use too. */
+.crawlnav{max-width:1120px;margin:0 auto;padding:26px 16px 44px;border-top:1px solid var(--line);
+ font-size:12.5px;color:var(--soft)}
+.crawlnav h2{font-size:13px;margin:14px 0 6px;color:var(--ink);font-family:inherit;border:0;padding:0}
+.crawlnav ul{list-style:none;display:flex;flex-wrap:wrap;gap:4px 14px;margin:0;padding:0}
+.crawlnav a{color:var(--soft);text-decoration:none}
+.crawlnav a:hover{color:var(--a);text-decoration:underline}
 .brand .gh{align-self:center;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);text-decoration:none;font-size:12.5px;font-weight:600;direction:ltr;white-space:nowrap}
 .brand .gh:hover{background:var(--line)}
 .brand .gh .ghi{width:15px;height:15px;flex:0 0 auto}
@@ -1868,7 +1877,7 @@ if(window.QAjump)QAjump();
 }
 
 const DIALECT_NAMES={msa:"العربية الفصحى",eg:"مصري",sham:"شامي",gulf:"خليجي",maghreb:"مغربي"};
-const CONTENT_V="c3bf103d9c";
+const CONTENT_V="da1aeee1ad";
 const DIALECTS_AVAILABLE=["msa","eg","sham"]; /* build:dialects */
 function shellMsg(html){
  const el=document.getElementById("shellState");
