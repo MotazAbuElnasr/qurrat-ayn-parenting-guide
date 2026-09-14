@@ -806,9 +806,7 @@ $("home").innerHTML=`
 <div class="why">
  <p class="op">${UI.home.why.p1}</p>
  <p>${UI.home.why.p2}</p>
- <p class="pre">${UI.home.why.p3}</p>
- <div class="why3">${UI.home.why.points.map(([t,d],i)=>`<div style="--wc:var(--c${[1,4,6][i]||7})"><b>${t}</b><span>${fmt(d,VALUES.length)}</span></div>`).join("")}</div>
- <p>${fmt(UI.home.why.p4,MEALS.length,ACT.length)}</p>
+ <p>${UI.home.why.p3}</p>
  <section class="helpus">
   <p>${UI.home.why.p5}</p>
   <p class="huwarn">${UI.home.audit}</p>
@@ -1877,7 +1875,7 @@ if(window.QAjump)QAjump();
 }
 
 const DIALECT_NAMES={msa:"العربية الفصحى",eg:"مصري",sham:"شامي",gulf:"خليجي",maghreb:"مغربي"};
-const CONTENT_V="4fca91c7dd";
+const CONTENT_V="ea9b3d7a02";
 const DIALECTS_AVAILABLE=["msa","eg","sham"]; /* build:dialects */
 function shellMsg(html){
  const el=document.getElementById("shellState");
