@@ -780,7 +780,7 @@ const chunks=t=>cutAt(t,90);
 const mark=t=>String(t).replace(/«[^»]*»/g,m=>`<span class="sayq">${m}</span>`);
 /* the evidence-status tail («دي ممارسة شائعة مش دليل») is a footnote on the
    field, not a step — it leaves the bullet list and sits under it, smaller */
-const EVN=/ممارسة شائعة|مش دليل|مفيش دراسة|مفيش دليل|توصية طبية/;
+const EVN=/ممارسة شائعة|مش دليل|مفيش دراسة|مفيش دليل|توصية طبية|لا توجد دراسة|ما في دراسة/;
 const brk=t=>{
  /* the tail is peeled sentence by sentence, so an action sentence fused in
     the same chunk as the note stays up in the list where it belongs */
@@ -1875,7 +1875,7 @@ if(window.QAjump)QAjump();
 }
 
 const DIALECT_NAMES={msa:"العربية الفصحى",eg:"مصري",sham:"شامي",gulf:"خليجي",maghreb:"مغربي"};
-const CONTENT_V="5068c4b2e5";
+const CONTENT_V="8d2ae8549a";
 const DIALECTS_AVAILABLE=["msa","eg","sham"]; /* build:dialects */
 function shellMsg(html){
  const el=document.getElementById("shellState");
