@@ -1652,7 +1652,10 @@ window.scrollToEl=el=>{
    the bar as a chip — taking the chip off brings the whole tab back. The values
    tab always worked this way and everywhere else the same tap only scrolled, so
    the reader who used the index in two tabs got two different things from it. */
-const ixLabel=h=>h.textContent.replace(/\(.*?\)/g,"").replace(/^[0-9]+ · /,"").trim();
+/* the evidence badge lives inside the heading — it belongs on the section, not
+   on its name in the index, the filter chip, or the scroll-spy */
+const ixLabel=h=>{const c=h.cloneNode(true);c.querySelectorAll(".evi").forEach(e=>e.remove());
+ return c.textContent.replace(/\(.*?\)/g,"").replace(/^[0-9]+ · /,"").trim();};
 /* the frame of a tab — its title, its bar, its pages — is not part of what narrows */
 const ixFurniture=n=>n.tagName==="H1"||n.tagName==="FOOTER"||n.classList.contains("lede")
  ||n.classList.contains("navbar")||n.classList.contains("subnav")||n.classList.contains("subpage");
@@ -1875,7 +1878,7 @@ if(window.QAjump)QAjump();
 }
 
 const DIALECT_NAMES={msa:"العربية الفصحى",eg:"مصري",sham:"شامي",gulf:"خليجي",maghreb:"مغربي"};
-const CONTENT_V="93e72e5009";
+const CONTENT_V="cfb0dc01f8";
 const DIALECTS_AVAILABLE=["msa","eg","sham"]; /* build:dialects */
 function shellMsg(html){
  const el=document.getElementById("shellState");
