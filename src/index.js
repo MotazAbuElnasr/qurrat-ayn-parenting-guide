@@ -16,6 +16,20 @@ import {
 
 const ITEM_PATH = new RegExp('^/(' + Object.keys(PREFIX).join('|') + ')/(.+?)(\\.md)?$');
 
+const CANONICAL_HOST = new URL(CANONICAL_ORIGIN).host;
+const OUR_HOSTS = new Set([CANONICAL_HOST, 'www.qurrat-ayn.com', 'qurrat-ain.aro.day']);
+
+/* Where a request should have been sent, or null if it is already there. Split
+   out of fetch() because the failure mode is a redirect loop that takes the
+   whole site down, and a loop is cheap to assert against and expensive to
+   notice in production. */
+export function oneOrigin(method, href) {
+  if (method !== 'GET' && method !== 'HEAD') return null;
+  const u = new URL(href);
+  if (u.hostname === CANONICAL_HOST || !OUR_HOSTS.has(u.hostname)) return null;
+  return CANONICAL_ORIGIN + u.pathname + u.search;
+}
+
 /* docs/_headers covers the assets layer; these paths are rendered here and never
    touch it, so the same three are set again rather than left off one half. */
 const SAFE_HEADERS = {
@@ -469,6 +483,17 @@ async function queue(env, req) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    // Three hostnames served the same 316 pages: the apex, www, and the aro.day
+    // subdomain this lived on before the domain. A canonical tag keeps the copies
+    // out of the index but not out of the crawl, and on a site this new the crawl
+    // is the whole constraint — Search Console had 168 URLs sitting at
+    // "discovered, last crawled N/A" while the crawler spent its budget
+    // re-fetching the same page under another host. http → https is the same
+    // duplicate and is NOT handled here: it belongs to Always Use HTTPS at the
+    // edge, which also covers the assets the worker never sees.
+    const one = oneOrigin(request.method, url.toString());
+    if (one) return Response.redirect(one, 301);
 
     // Cloudflare's asset layer answers Range requests with the whole file, so a
     // browser cannot seek past what it has buffered. Slice it here instead.

@@ -8,6 +8,7 @@
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert';
 import { slug, bundle, itemHTML, itemMD, sitemap, llmsTxt, crawlNav, relatedHTML, PAGES, PREFIX, TAB_PATHS, tabMeta } from './render.js';
+import { oneOrigin } from './index.js';
 
 const ORIGIN = 'https://qurrat-ayn.com';
 const env = {
@@ -208,6 +209,22 @@ ok('every item page links out, and every item is linked to by another page', () 
   }
   assert.equal(missing.length, 0, missing.length + ' items nothing links to, e.g. ' +
     missing.slice(0, 3).map(decodeURIComponent));
+});
+
+ok('every duplicate host lands on the canonical origin, and nothing loops', () => {
+  const p = '/v/%D8%B6%D8%A8%D8%B7';
+  for (const h of ['www.qurrat-ayn.com', 'qurrat-ain.aro.day']) {
+    assert.equal(oneOrigin('GET', 'https://' + h + p + '?d=eg'), ORIGIN + p + '?d=eg', h);
+  }
+  // the loop: what a redirect points at has to be somewhere that does not redirect
+  assert.equal(oneOrigin('GET', ORIGIN + p), null, 'canonical is a fixed point');
+  assert.equal(oneOrigin('HEAD', ORIGIN + '/'), null);
+  // a write is not a crawl — a 301 on it would drop the body
+  assert.equal(oneOrigin('POST', 'https://www.qurrat-ayn.com/api/like'), null, 'POST untouched');
+  // wrangler dev serves as the FIRST route in wrangler.jsonc — which is the
+  // canonical host on purpose, so a local session is never bounced to production
+  assert.equal(oneOrigin('GET', 'http://qurrat-ayn.com/values'), null, 'wrangler dev untouched');
+  assert.equal(oneOrigin('GET', 'https://qurrat-ain.workers.dev/v'), null, 'preview untouched');
 });
 
 const total = TYPES.reduce((a, [, p]) => a + p.list(data).length, 0);
