@@ -36,7 +36,7 @@ function sections(ref) {
 }
 
 function check(dialect) {
-  const ref = JSON.parse(fs.readFileSync(`docs/content/${dialect}.json`, "utf8")).prose.ref;
+  const ref = require("./format.js").unpack(fs.readFileSync(`docs/content/${dialect}.json`, "utf8")).prose.ref;
   const parts = sections(ref);
   const notes = [];
   let liTotal = 0, over = 0, over100 = 0;

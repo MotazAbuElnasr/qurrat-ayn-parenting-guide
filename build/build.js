@@ -6,6 +6,7 @@
 // that loads one of them. Editing content means editing a bundle, not the page.
 const fs = require('fs');
 const path = require('path');
+const { pack, unpack } = require('./format.js');
 
 const ROOT = path.join(__dirname, '..');
 const DIR = path.join(ROOT, 'docs', 'content');
@@ -28,8 +29,12 @@ function check(file) {
   const d = path.basename(file, '.json');
   const problems = [];
   let b;
-  try { b = JSON.parse(fs.readFileSync(file, 'utf8')); }
+  let raw;
+  try { raw = fs.readFileSync(file, 'utf8'); b = unpack(raw); }
   catch (e) { return { d, problems: ['JSON مكسور: ' + e.message] }; }
+  /* one field per line on disk, whoever wrote it — so every commit diffs by sentence */
+  const canon = pack(b);
+  if (canon !== raw) fs.writeFileSync(file, canon);
 
   if (b.dialect !== d) problems.push(`dialect في الملف "${b.dialect}" مش "${d}"`);
   if (!b.data) problems.push('مفيش data');
@@ -122,7 +127,7 @@ for (const f of files.sort()) {
 
 /* Egyptian is the source every other dialect is written from, so the shapes
    must line up — a missing value in a translation is a hole, not a choice */
-const base = ok.includes('eg') && JSON.parse(fs.readFileSync(path.join(DIR, 'eg.json'), 'utf8'));
+const base = ok.includes('eg') && unpack(fs.readFileSync(path.join(DIR, 'eg.json'), 'utf8'));
 
 /* every leaf of ui, as a path — the shell reads these by name */
 const uiKeys = (o, p = '', out = []) => {
@@ -137,7 +142,7 @@ if (base) {
   const baseUI = uiKeys(base.ui);
   const baseSecs = h => (String(h).match(/<h2 class="sec">/g) || []).length;
   for (const d of ok.filter(x => x !== 'eg')) {
-    const b = JSON.parse(fs.readFileSync(path.join(DIR, d + '.json'), 'utf8'));
+    const b = unpack(fs.readFileSync(path.join(DIR, d + '.json'), 'utf8'));
     for (const n of ARRAYS) {
       if (b.data[n].length !== base.data[n].length) {
         console.log(`✗ ${d}: ${n} فيها ${b.data[n].length} والمصري فيه ${base.data[n].length}`);
@@ -189,7 +194,7 @@ for (const [file, rx, make] of STAMPS) {
    had 50, and that number is what a search result shows. Stamped from the
    Egyptian bundle, which is the origin every other dialect is checked against. */
 {
-  const src = JSON.parse(fs.readFileSync(path.join(DIR, 'eg.json'), 'utf8')).data;
+  const src = unpack(fs.readFileSync(path.join(DIR, 'eg.json'), 'utf8')).data;
   const line = /مرجع تربوي عربي للطفولة المبكرة: \d+ قيمة وسلوك بخطوات عملية، \d+ موقف يومي تتصرف فيه إزاي، \d+ قصة/g;
   let txt = fs.readFileSync(SHELL, 'utf8');
   const hits = (txt.match(line) || []).length;

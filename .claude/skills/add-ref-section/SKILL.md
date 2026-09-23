@@ -9,6 +9,7 @@ description: Add a section to the قُرّة عين parenting reference (الم�
 
 > **المحتوى مابقاش في `docs/index.html`.** الصفحة بقت قشرة، ونص المرجع كله
 > في `docs/content/<لهجة>.json` تحت `prose.ref` كـHTML جاهز.
+> والملف متخزّن سطر لكل حقل، و`prose.ref` مصفوفة سطر لكل بلوك HTML عشان الدِف يبان بالجملة: اقرا بـ`unpack` واكتب بـ`pack` من `build/format.js`، أو شغّل `node build/build.js` بعد أي كتابة وهو هيرجّع الشكل.
 > عدّل الحزمة وشغّل `node build/build.js`.
 
 # إضافة قسم للمرجع التربوي

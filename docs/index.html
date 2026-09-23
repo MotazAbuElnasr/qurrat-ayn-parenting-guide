@@ -1878,7 +1878,7 @@ if(window.QAjump)QAjump();
 }
 
 const DIALECT_NAMES={msa:"العربية الفصحى",eg:"مصري",sham:"شامي",gulf:"خليجي",maghreb:"مغربي"};
-const CONTENT_V="4dc1ed424c";
+const CONTENT_V="5115467e41";
 const DIALECTS_AVAILABLE=["msa","eg","sham"]; /* build:dialects */
 function shellMsg(html){
  const el=document.getElementById("shellState");
@@ -1915,6 +1915,8 @@ async function load(dialect){
  const r=await fetch("/content/"+dialect+".json?v="+CONTENT_V);
  if(!r.ok)throw new Error("HTTP "+r.status);
  const B=await r.json();
+ /* prose ships one HTML block per line so the repo diffs by sentence */
+ for(const k in B.prose||{})if(Array.isArray(B.prose[k]))B.prose[k]=B.prose[k].join("");
  if(!B||!B.data||!B.data.VALUES)throw new Error("حزمة ناقصة");
  return B;
 }

@@ -74,7 +74,10 @@ export async function bundle(env, origin, dialect) {
   for (const x of data.SITS) index.sit.set(slug(x.t), x);
   for (const m of data.MEALS) index.meal.set(slug(m.t), m);
   for (const a of data.ACTS) index.act.set(slug(a.t), a);
-  CACHED = { dialect, data, index, ui: json.ui || {}, prose: json.prose || {} };
+  // prose ships one HTML block per line so the repo diffs by sentence
+  const prose = json.prose || {};
+  for (const k of Object.keys(prose)) if (Array.isArray(prose[k])) prose[k] = prose[k].join('');
+  CACHED = { dialect, data, index, ui: json.ui || {}, prose };
   return CACHED;
 }
 
